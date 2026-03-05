@@ -91,7 +91,8 @@
   .worksheet-controls,
   .worksheet-actions,
   .btn,
-  .question-card__checkbox {
+  .question-card__checkbox,
+  #questions-container {
     display: none;
   }
 
