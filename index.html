@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -26,17 +26,22 @@
 
   <main class="main-content">
     <section class="filter-bar">
-      <select id="stage-filter"><option value="">All Stages</option></select>
-      <select id="topic-filter"><option value="">All Topics</option></select>
-      <select id="subtopic-filter"><option value="">All Subtopics</option></select>
-      <select id="difficulty-filter">
-        <option value="">All Difficulties</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-      </select>
+      <div id="stage-filter" class="multi-select">
+        <button type="button" class="multi-select__toggle">All Stages</button>
+        <div class="multi-select__panel"></div>
+      </div>
+      <div id="topic-filter" class="multi-select">
+        <button type="button" class="multi-select__toggle">All Topics</button>
+        <div class="multi-select__panel"></div>
+      </div>
+      <div id="subtopic-filter" class="multi-select">
+        <button type="button" class="multi-select__toggle">All Subtopics</button>
+        <div class="multi-select__panel"></div>
+      </div>
+      <div id="difficulty-filter" class="multi-select">
+        <button type="button" class="multi-select__toggle">All Difficulties</button>
+        <div class="multi-select__panel"></div>
+      </div>
       <input type="text" id="search-input" class="filter-bar__search" placeholder="Search questions...">
     </section>
 

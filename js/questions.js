@@ -1,14 +1,14 @@
-// CRUD operations for questions
+﻿// CRUD operations for questions
 
 const Questions = {
   async fetch({ stage, topic, subtopic, difficulty, search, limit = 20, offset = 0 }) {
     try {
       let query = supabaseClient.from('questions').select('*', { count: 'exact' });
 
-      if (stage) query = query.eq('stage', stage);
-      if (topic) query = query.eq('topic', topic);
-      if (subtopic) query = query.eq('subtopic', subtopic);
-      if (difficulty) query = query.eq('difficulty', parseInt(difficulty));
+      if (stage?.length) query = query.in('stage', stage);
+      if (topic?.length) query = query.in('topic', topic);
+      if (subtopic?.length) query = query.in('subtopic', subtopic);
+      if (difficulty?.length) query = query.in('difficulty', difficulty);
       if (search) query = query.ilike('question_text', `%${search}%`);
 
       query = query.order('created_at', { ascending: false })
@@ -84,10 +84,10 @@ const Questions = {
     }
   },
 
-  async getTopics(stage) {
+  async getTopics(stages) {
     try {
       let query = supabaseClient.from('questions').select('topic');
-      if (stage) query = query.eq('stage', stage);
+      if (stages?.length) query = query.in('stage', stages);
       const { data, error } = await query.order('topic');
       if (error) throw error;
       return [...new Set(data.map(d => d.topic))];
@@ -97,11 +97,11 @@ const Questions = {
     }
   },
 
-  async getSubtopics(stage, topic) {
+  async getSubtopics(stages, topics) {
     try {
       let query = supabaseClient.from('questions').select('subtopic');
-      if (stage) query = query.eq('stage', stage);
-      if (topic) query = query.eq('topic', topic);
+      if (stages?.length) query = query.in('stage', stages);
+      if (topics?.length) query = query.in('topic', topics);
       const { data, error } = await query.order('subtopic');
       if (error) throw error;
       return [...new Set(data.map(d => d.subtopic).filter(Boolean))];

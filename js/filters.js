@@ -1,4 +1,4 @@
-// Filter cascade logic
+﻿// Filter cascade logic
 
 const Filters = {
   stageEl: null,
@@ -16,10 +16,23 @@ const Filters = {
     if (searchId) this.searchEl = document.getElementById(searchId);
     this.onChange = onChange;
 
-    this.stageEl.addEventListener('change', () => this.onStageChange());
-    this.topicEl.addEventListener('change', () => this.onTopicChange());
-    this.subtopicEl.addEventListener('change', () => this.fireChange());
-    this.difficultyEl.addEventListener('change', () => this.fireChange());
+    // Close all panels when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.multi-select')) {
+        document.querySelectorAll('.multi-select.open').forEach(el => el.classList.remove('open'));
+      }
+    });
+
+    // Toggle open/close on button click
+    [this.stageEl, this.topicEl, this.subtopicEl, this.difficultyEl].forEach(el => {
+      if (!el) return;
+      el.querySelector('.multi-select__toggle').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = el.classList.contains('open');
+        document.querySelectorAll('.multi-select.open').forEach(x => x.classList.remove('open'));
+        if (!isOpen) el.classList.add('open');
+      });
+    });
 
     if (this.searchEl) {
       let timeout;
@@ -29,41 +42,61 @@ const Filters = {
       });
     }
 
+    this.populateMultiSelect(this.difficultyEl, ['A', 'B', 'C', 'D', 'E'], 'All Difficulties', () => this.fireChange());
     this.loadStages();
   },
 
   async loadStages() {
     const stages = await Questions.getStages();
-    this.populateSelect(this.stageEl, stages, 'All Stages');
+    this.populateMultiSelect(this.stageEl, stages, 'All Stages', () => this.onStageChange());
   },
 
   async onStageChange() {
-    const stage = this.stageEl.value;
-    const topics = await Questions.getTopics(stage);
-    this.populateSelect(this.topicEl, topics, 'All Topics');
-    this.populateSelect(this.subtopicEl, [], 'All Subtopics');
+    const stages = this.getSelected(this.stageEl);
+    const topics = await Questions.getTopics(stages);
+    this.populateMultiSelect(this.topicEl, topics, 'All Topics', () => this.onTopicChange());
+    this.populateMultiSelect(this.subtopicEl, [], 'All Subtopics', () => this.fireChange());
     this.fireChange();
   },
 
   async onTopicChange() {
-    const stage = this.stageEl.value;
-    const topic = this.topicEl.value;
-    const subtopics = await Questions.getSubtopics(stage, topic);
-    this.populateSelect(this.subtopicEl, subtopics, 'All Subtopics');
+    const stages = this.getSelected(this.stageEl);
+    const topics = this.getSelected(this.topicEl);
+    const subtopics = await Questions.getSubtopics(stages, topics);
+    this.populateMultiSelect(this.subtopicEl, subtopics, 'All Subtopics', () => this.fireChange());
     this.fireChange();
   },
 
-  populateSelect(el, items, defaultLabel) {
-    el.innerHTML = `<option value="">${defaultLabel}</option>` +
-      items.map(item => `<option value="${item}">${item}</option>`).join('');
+  populateMultiSelect(el, items, placeholder, onChangeFn) {
+    const panel = el.querySelector('.multi-select__panel');
+    panel.innerHTML = items.map(item =>
+      `<label><input type="checkbox" value="${item}"> ${item}</label>`
+    ).join('');
+    panel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        this.updateToggleLabel(el, placeholder);
+        onChangeFn();
+      });
+    });
+    this.updateToggleLabel(el, placeholder);
+  },
+
+  updateToggleLabel(el, placeholder) {
+    const selected = this.getSelected(el);
+    el.querySelector('.multi-select__toggle').textContent =
+      selected.length === 0 ? placeholder : selected.join(', ');
+  },
+
+  getSelected(el) {
+    return Array.from(el.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
   },
 
   getValues() {
     return {
-      stage: this.stageEl.value,
-      topic: this.topicEl.value,
-      subtopic: this.subtopicEl.value,
-      difficulty: this.difficultyEl.value,
+      stage: this.getSelected(this.stageEl),
+      topic: this.getSelected(this.topicEl),
+      subtopic: this.getSelected(this.subtopicEl),
+      difficulty: this.getSelected(this.difficultyEl),
       search: this.searchEl ? this.searchEl.value : ''
     };
   },

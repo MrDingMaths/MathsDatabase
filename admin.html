@@ -45,7 +45,7 @@
 
   <!-- Admin Section (hidden until login) -->
   <div id="admin-section" class="main-content" style="display:none;">
-    <h2 style="margin-bottom:1.5rem;">Add New Question</h2>
+    <h2 id="form-title" style="margin-bottom:1.5rem;">Add New Question</h2>
 
     <form id="question-form" class="admin-form">
       <!-- Question Text with Preview -->
@@ -104,11 +104,11 @@
       <div class="form-group">
         <label>Difficulty</label>
         <div class="difficulty-radios">
-          <label><input type="radio" name="difficulty" value="1"> 1</label>
-          <label><input type="radio" name="difficulty" value="2"> 2</label>
-          <label><input type="radio" name="difficulty" value="3" checked> 3</label>
-          <label><input type="radio" name="difficulty" value="4"> 4</label>
-          <label><input type="radio" name="difficulty" value="5"> 5</label>
+          <label><input type="radio" name="difficulty" value="A"> A</label>
+          <label><input type="radio" name="difficulty" value="B"> B</label>
+          <label><input type="radio" name="difficulty" value="C" checked> C</label>
+          <label><input type="radio" name="difficulty" value="D"> D</label>
+          <label><input type="radio" name="difficulty" value="E"> E</label>
         </div>
       </div>
 
@@ -171,14 +171,37 @@
       </div>
 
       <div style="display:flex;gap:0.75rem;">
-        <button type="submit" class="btn btn--primary">Submit Question</button>
+        <button type="submit" id="submit-btn" class="btn btn--primary">Submit Question</button>
         <button type="button" id="clear-form-btn" class="btn btn--secondary">Clear Form</button>
+        <button type="button" id="cancel-edit-btn" class="btn btn--secondary" style="display:none;">Cancel Edit</button>
       </div>
     </form>
 
-    <!-- Recent Questions -->
+    <!-- All Questions -->
     <div class="recent-questions">
-      <h3 class="recent-questions__title">Recent Questions</h3>
+      <h3 class="recent-questions__title">All Questions</h3>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
+        <input type="text" id="q-search" placeholder="Search question text...">
+        <select id="q-stage-filter">
+          <option value="">All stages</option>
+          <option value="stage4">Stage 4</option>
+          <option value="stage5">Stage 5</option>
+          <option value="stage6_standard">Stage 6 Standard</option>
+          <option value="stage6_advanced">Stage 6 Advanced</option>
+          <option value="stage6_ext1">Stage 6 Extension 1</option>
+          <option value="stage6_ext2">Stage 6 Extension 2</option>
+        </select>
+        <input type="text" id="q-topic-filter" placeholder="Filter by topic...">
+        <select id="q-difficulty-filter">
+          <option value="">All difficulties</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+          <option value="E">E</option>
+        </select>
+      </div>
+      <div id="q-count" style="font-size:0.85rem;color:var(--color-text-light);margin-bottom:0.5rem;"></div>
       <table class="questions-table">
         <thead>
           <tr>
@@ -191,6 +214,9 @@
         </thead>
         <tbody id="recent-questions-body"></tbody>
       </table>
+      <div style="text-align:center;margin-top:1rem;">
+        <button type="button" id="load-more-btn" class="btn btn--secondary" style="display:none;">Load More</button>
+      </div>
     </div>
   </div>
 

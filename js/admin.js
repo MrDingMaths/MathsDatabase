@@ -16,6 +16,11 @@ const showToast = (message, type = 'success') => {
 const Admin = {
   questionImageUrl: null,
   solutionImageUrl: null,
+  editingId: null,
+  currentOffset: 0,
+  currentTotal: 0,
+  loadedQuestions: [],
+  PAGE_SIZE: 20,
 
   init() {
     this.setupLogin();
@@ -50,7 +55,8 @@ const Admin = {
     this.setupForm();
     this.setupPreviews();
     this.setupDropZones();
-    this.loadRecentQuestions();
+    this.setupQuestionSearch();
+    this.loadQuestions(true);
   },
 
   setupForm() {
@@ -66,6 +72,8 @@ const Admin = {
     });
 
     document.getElementById('clear-form-btn').addEventListener('click', () => this.clearForm());
+    document.getElementById('cancel-edit-btn').addEventListener('click', () => this.cancelEdit());
+    document.getElementById('load-more-btn').addEventListener('click', () => this.loadQuestions(false));
   },
 
   setupPreviews() {
@@ -93,6 +101,18 @@ const Admin = {
   setupDropZones() {
     this.initDropZone('question-drop-zone', 'question-image-input', 'question-image-preview-container', 'question');
     this.initDropZone('solution-drop-zone', 'solution-image-input', 'solution-image-preview-container', 'solution');
+  },
+
+  setupQuestionSearch() {
+    let searchTimeout;
+    const triggerSearch = () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => this.loadQuestions(true), 300);
+    };
+    document.getElementById('q-search').addEventListener('input', triggerSearch);
+    document.getElementById('q-stage-filter').addEventListener('change', () => this.loadQuestions(true));
+    document.getElementById('q-topic-filter').addEventListener('input', triggerSearch);
+    document.getElementById('q-difficulty-filter').addEventListener('change', () => this.loadQuestions(true));
   },
 
   initDropZone(zoneId, inputId, previewId, type) {
@@ -133,7 +153,7 @@ const Admin = {
       stage: document.getElementById('stage-select').value,
       topic: document.getElementById('topic-input').value,
       subtopic: document.getElementById('subtopic-input').value || null,
-      difficulty: parseInt(document.querySelector('input[name="difficulty"]:checked').value),
+      difficulty: document.querySelector('input[name="difficulty"]:checked').value,
       answer: document.getElementById('answer-input').value,
       answer_type: document.getElementById('answer-type').value,
       question_image_url: this.questionImageUrl,
@@ -160,9 +180,16 @@ const Admin = {
     }
 
     try {
-      await Questions.create(question);
-      showToast('Question added successfully!');
-      this.loadRecentQuestions();
+      if (this.editingId) {
+        await Questions.update(this.editingId, question);
+        showToast('Question updated successfully!');
+        this.cancelEdit();
+      } else {
+        await Questions.create(question);
+        showToast('Question added successfully!');
+        this.clearForm();
+      }
+      this.loadQuestions(true);
     } catch (err) {
       showToast('Error: ' + err.message, 'error');
     }
@@ -177,32 +204,123 @@ const Admin = {
     document.getElementById('choices-section').style.display = 'none';
     this.questionImageUrl = null;
     this.solutionImageUrl = null;
+    this.editingId = null;
+    document.getElementById('form-title').textContent = 'Add New Question';
+    document.getElementById('submit-btn').textContent = 'Submit Question';
+    document.getElementById('cancel-edit-btn').style.display = 'none';
   },
 
-  async loadRecentQuestions() {
-    try {
-      const { data } = await Questions.fetch({ limit: 20, offset: 0 });
-      const tbody = document.getElementById('recent-questions-body');
+  cancelEdit() {
+    this.clearForm();
+  },
 
-      if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5">No questions yet.</td></tr>';
-        return;
+  editQuestion(id) {
+    const question = this.loadedQuestions.find(q => q.id === id);
+    if (!question) { showToast('Question not found', 'error'); return; }
+    this.loadQuestionIntoForm(question);
+  },
+
+  loadQuestionIntoForm(question) {
+    document.getElementById('question-text').value = question.question_text || '';
+    document.getElementById('solution-text').value = question.solution_text || '';
+    document.getElementById('stage-select').value = question.stage || '';
+    document.getElementById('topic-input').value = question.topic || '';
+    document.getElementById('subtopic-input').value = question.subtopic || '';
+    document.getElementById('answer-input').value = question.answer || '';
+    document.getElementById('answer-type').value = question.answer_type || 'exact';
+    document.getElementById('tags-input').value = Array.isArray(question.tags) ? question.tags.join(', ') : (question.tags || '');
+    document.getElementById('source-input').value = question.source || '';
+
+    const diffRadio = document.querySelector(`input[name="difficulty"][value="${question.difficulty || 'C'}"]`);
+    if (diffRadio) diffRadio.checked = true;
+
+    const isMultiChoice = question.answer_type === 'multiple_choice';
+    document.getElementById('choices-section').style.display = isMultiChoice ? '' : 'none';
+    if (isMultiChoice && Array.isArray(question.choices)) {
+      document.getElementById('choice-a').value = question.choices[0] || '';
+      document.getElementById('choice-b').value = question.choices[1] || '';
+      document.getElementById('choice-c').value = question.choices[2] || '';
+      document.getElementById('choice-d').value = question.choices[3] || '';
+    }
+
+    this.questionImageUrl = question.question_image_url || null;
+    this.solutionImageUrl = question.solution_image_url || null;
+    const qImgPreview = document.getElementById('question-image-preview-container');
+    const sImgPreview = document.getElementById('solution-image-preview-container');
+    qImgPreview.innerHTML = this.questionImageUrl ? `<img src="${this.questionImageUrl}" class="drop-zone__preview" alt="Question image">` : '';
+    sImgPreview.innerHTML = this.solutionImageUrl ? `<img src="${this.solutionImageUrl}" class="drop-zone__preview" alt="Solution image">` : '';
+
+    const qPrev = document.getElementById('question-preview');
+    qPrev.innerHTML = question.question_text || '';
+    renderMath(qPrev);
+    const sPrev = document.getElementById('solution-preview');
+    sPrev.innerHTML = question.solution_text || '';
+    renderMath(sPrev);
+
+    this.editingId = question.id;
+    document.getElementById('form-title').textContent = 'Edit Question';
+    document.getElementById('submit-btn').textContent = 'Update Question';
+    document.getElementById('cancel-edit-btn').style.display = '';
+
+    document.getElementById('form-title').scrollIntoView({ behavior: 'smooth' });
+  },
+
+  async loadQuestions(reset) {
+    if (reset) {
+      this.currentOffset = 0;
+      this.loadedQuestions = [];
+      document.getElementById('recent-questions-body').innerHTML = '';
+    }
+
+    const filters = {
+      search: document.getElementById('q-search').value || undefined,
+      stage: document.getElementById('q-stage-filter').value || undefined,
+      topic: document.getElementById('q-topic-filter').value || undefined,
+      difficulty: document.getElementById('q-difficulty-filter').value || undefined,
+      limit: this.PAGE_SIZE,
+      offset: this.currentOffset
+    };
+
+    try {
+      const { data, count } = await Questions.fetch(filters);
+      this.currentTotal = count || 0;
+
+      if (data && data.length > 0) {
+        this.loadedQuestions.push(...data);
+        this.currentOffset += data.length;
+        this.appendQuestionRows(data);
       }
 
-      tbody.innerHTML = data.map(q => `
-        <tr>
-          <td>${escapeHtml((q.question_text || '').substring(0, 60))}...</td>
-          <td>${escapeHtml(q.stage || '')}</td>
-          <td>${escapeHtml(q.topic || '')}</td>
-          <td>${q.difficulty || '-'}</td>
-          <td class="questions-table__actions">
-            <button class="btn btn--danger btn--small" onclick="Admin.deleteQuestion('${q.id}')">Delete</button>
-          </td>
-        </tr>
-      `).join('');
+      const tbody = document.getElementById('recent-questions-body');
+      if (this.loadedQuestions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">No questions found.</td></tr>';
+      }
+
+      document.getElementById('q-count').textContent =
+        `Showing ${this.loadedQuestions.length} of ${this.currentTotal} questions`;
+
+      const loadMoreBtn = document.getElementById('load-more-btn');
+      loadMoreBtn.style.display = this.loadedQuestions.length < this.currentTotal ? '' : 'none';
     } catch (err) {
-      console.error('Error loading recent questions:', err);
+      console.error('Error loading questions:', err);
     }
+  },
+
+  appendQuestionRows(questions) {
+    const tbody = document.getElementById('recent-questions-body');
+    const rows = questions.map(q => `
+      <tr>
+        <td>${escapeHtml((q.question_text || '').substring(0, 60))}${q.question_text && q.question_text.length > 60 ? '...' : ''}</td>
+        <td>${escapeHtml(q.stage || '')}</td>
+        <td>${escapeHtml(q.topic || '')}</td>
+        <td>${q.difficulty || '-'}</td>
+        <td class="questions-table__actions">
+          <button class="btn btn--secondary btn--small" onclick="Admin.editQuestion('${q.id}')">Edit</button>
+          <button class="btn btn--danger btn--small" onclick="Admin.deleteQuestion('${q.id}')">Delete</button>
+        </td>
+      </tr>
+    `).join('');
+    tbody.insertAdjacentHTML('beforeend', rows);
   },
 
   async deleteQuestion(id) {
@@ -210,7 +328,8 @@ const Admin = {
     try {
       await Questions.delete(id);
       showToast('Question deleted');
-      this.loadRecentQuestions();
+      if (this.editingId === id) this.cancelEdit();
+      this.loadQuestions(true);
     } catch (err) {
       showToast('Error: ' + err.message, 'error');
     }
