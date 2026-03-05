@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MrDingMaths — Question Bank</title>
+
+  <!-- KaTeX for maths rendering -->
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Supabase JS client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>MrDingMaths Question Bank</h1>
+  </header>
+
+  <main>
+    <!-- Filters -->
+    <section id="filters">
+      <select id="stage-filter"><option value="">All Stages</option></select>
+      <select id="topic-filter"><option value="">All Topics</option></select>
+      <select id="subtopic-filter"><option value="">All Subtopics</option></select>
+      <select id="difficulty-filter"><option value="">All Difficulties</option></select>
+    </section>
+
+    <!-- Question display area -->
+    <section id="questions-container"></section>
+  </main>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

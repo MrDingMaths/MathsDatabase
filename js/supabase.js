@@ -1,0 +1,4 @@
+const SUPABASE_URL = 'https://lovldarzarbtzkqdjvgd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvdmxkYXJ6YXJidHprcWRqdmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2OTM4NzMsImV4cCI6MjA4ODI2OTg3M30.uftno1obGN_B0e4-8Nwwe0hN21TSBfAxoYMcPRAy4vA';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
