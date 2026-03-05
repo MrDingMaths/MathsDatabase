@@ -1,0 +1,182 @@
+/* === Admin Layout === */
+.admin-login {
+  max-width: 400px;
+  margin: 4rem auto;
+  padding: 2rem;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.admin-login__title {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.admin-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: border-color var(--transition);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+/* === Preview Pane === */
+.preview-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.preview-pane {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  min-height: 120px;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.preview-pane__label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-light);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+/* === Difficulty Radio === */
+.difficulty-radios {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.difficulty-radios label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+/* === Choices Input === */
+.choices-group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.choice-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.choice-input__label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  width: 1.5rem;
+}
+
+/* === Drop Zone === */
+.drop-zone {
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-light);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.drop-zone:hover,
+.drop-zone--active {
+  border-color: var(--color-accent);
+  background: rgba(15, 52, 96, 0.03);
+}
+
+.drop-zone__preview {
+  max-width: 200px;
+  margin-top: 0.5rem;
+  border-radius: var(--radius);
+}
+
+/* === Recent Questions Table === */
+.recent-questions {
+  margin-top: 3rem;
+}
+
+.recent-questions__title {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.questions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.questions-table th,
+.questions-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.questions-table th {
+  background: var(--color-card-bg);
+  font-weight: 600;
+}
+
+.questions-table td {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.questions-table__actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+@media (max-width: 768px) {
+  .preview-split {
+    grid-template-columns: 1fr;
+  }
+}

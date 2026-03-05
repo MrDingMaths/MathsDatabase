@@ -1,0 +1,126 @@
+/* === Worksheet Print Styles === */
+.worksheet-controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.worksheet-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+/* === Print Preview === */
+.worksheet-preview {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  min-height: 200px;
+}
+
+.worksheet-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--color-dark);
+}
+
+.worksheet-header__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.worksheet-header__subtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+  margin-top: 0.25rem;
+}
+
+.worksheet-question {
+  margin-bottom: 1.5rem;
+  page-break-inside: avoid;
+}
+
+.worksheet-question__number {
+  font-weight: 700;
+  margin-right: 0.5rem;
+}
+
+.worksheet-question__text {
+  line-height: 1.8;
+}
+
+.worksheet-question__text img {
+  max-width: 80%;
+  margin-top: 0.5rem;
+}
+
+.worksheet-question__answer-space {
+  border-bottom: 1px dotted var(--color-border);
+  height: 3rem;
+  margin-top: 0.5rem;
+}
+
+/* === Answer Key === */
+.answer-key {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--color-dark);
+}
+
+.answer-key__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.answer-key__item {
+  margin-bottom: 1rem;
+  page-break-inside: avoid;
+}
+
+/* === Print Media Query === */
+@media print {
+  .site-header,
+  .filter-bar,
+  .worksheet-controls,
+  .worksheet-actions,
+  .btn,
+  .question-card__checkbox {
+    display: none;
+  }
+
+  body {
+    font-size: 11pt;
+    color: #000;
+  }
+
+  .main-content {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  .worksheet-preview {
+    border: none;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .worksheet-header {
+    border-bottom: 2px solid #000;
+  }
+
+  .worksheet-question {
+    page-break-inside: avoid;
+  }
+
+  .answer-key {
+    page-break-before: always;
+  }
+}

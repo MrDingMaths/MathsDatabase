@@ -1,47 +1,117 @@
-async function loadQuestions(filters = {}) {
-  let query = supabase.from('questions').select('*');
+// Question Browser - index.html logic
 
-  if (filters.stage)      query = query.eq('stage', filters.stage);
-  if (filters.topic)      query = query.eq('topic', filters.topic);
-  if (filters.subtopic)   query = query.eq('subtopic', filters.subtopic);
-  if (filters.difficulty)  query = query.eq('difficulty', filters.difficulty);
+const App = {
+  currentOffset: 0,
+  pageSize: 20,
+  totalCount: 0,
 
-  query = query.order('topic').order('difficulty').limit(50);
+  init() {
+    Filters.init({
+      stageId: 'stage-filter',
+      topicId: 'topic-filter',
+      subtopicId: 'subtopic-filter',
+      difficultyId: 'difficulty-filter',
+      searchId: 'search-input',
+      onChange: (values) => this.loadQuestions(values, true)
+    });
 
-  const { data, error } = await query;
-  if (error) { console.error(error); return; }
+    document.getElementById('load-more').addEventListener('click', () => {
+      this.loadQuestions(Filters.getValues(), false);
+    });
 
-  renderQuestions(data);
-}
+    this.loadQuestions({}, true);
+  },
 
-function renderQuestions(questions) {
-  const container = document.getElementById('questions-container');
-  container.innerHTML = questions.map((q, i) => `
-    <div class="question-card">
-      <div class="question-header">
-        <span class="q-number">${i + 1}</span>
-        <span class="q-meta">${q.topic} · ${q.subtopic || ''} · Difficulty ${q.difficulty || '?'}</span>
+  async loadQuestions(filters, reset) {
+    if (reset) this.currentOffset = 0;
+
+    const container = document.getElementById('questions-container');
+    if (reset) container.innerHTML = '<div class="loading">Loading questions...</div>';
+
+    try {
+      const { data, count } = await Questions.fetch({
+        ...filters,
+        limit: this.pageSize,
+        offset: this.currentOffset
+      });
+
+      this.totalCount = count;
+
+      if (reset) container.innerHTML = '';
+
+      if (data.length === 0 && reset) {
+        container.innerHTML = '<div class="empty-state">No questions found. Try adjusting your filters.</div>';
+        document.getElementById('results-count').textContent = '';
+        document.getElementById('load-more').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('results-count').textContent = `${count} question${count !== 1 ? 's' : ''} found`;
+
+      data.forEach((q, i) => {
+        const num = this.currentOffset + i + 1;
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.innerHTML = this.renderCard(q, num);
+        container.appendChild(card);
+      });
+
+      this.currentOffset += data.length;
+
+      const loadMore = document.getElementById('load-more');
+      loadMore.style.display = this.currentOffset < this.totalCount ? '' : 'none';
+
+      renderMath(container);
+    } catch (err) {
+      if (reset) container.innerHTML = '<div class="empty-state">Error loading questions. Please try again.</div>';
+      showToast('Error loading questions', 'error');
+    }
+  },
+
+  renderCard(q, num) {
+    const stars = q.difficulty ? '★'.repeat(q.difficulty) + '☆'.repeat(5 - q.difficulty) : '';
+    const tags = (q.tags || []).map(t => `<span class="tag-pill">${escapeHtml(t)}</span>`).join('');
+
+    return `
+      <div class="question-card__header">
+        <span class="question-card__number">${num}</span>
+        <div class="question-card__meta">
+          <span class="badge badge--stage">${escapeHtml(q.stage || '')}</span>
+          <span class="badge badge--topic">${escapeHtml(q.topic || '')}</span>
+          ${q.subtopic ? `<span class="badge badge--topic">${escapeHtml(q.subtopic)}</span>` : ''}
+          <span class="question-card__difficulty">${stars}</span>
+        </div>
       </div>
-      <div class="question-text">${q.question_text}</div>
-      ${q.question_image_url ? `<img src="${q.question_image_url}" alt="diagram">` : ''}
-      <details class="solution">
+      <div class="question-card__body">
+        ${q.question_text || ''}
+        ${q.question_image_url ? `<br><img src="${escapeHtml(q.question_image_url)}" alt="Question diagram">` : ''}
+      </div>
+      <details class="question-card__solution">
         <summary>Show solution</summary>
-        <div class="solution-text">${q.solution_text || 'No solution provided.'}</div>
-        ${q.solution_image_url ? `<img src="${q.solution_image_url}" alt="solution diagram">` : ''}
+        <div class="question-card__solution-content">
+          ${q.solution_text || 'No solution provided.'}
+          ${q.solution_image_url ? `<br><img src="${escapeHtml(q.solution_image_url)}" alt="Solution diagram">` : ''}
+          ${q.answer ? `<p><strong>Answer:</strong> ${escapeHtml(q.answer)}</p>` : ''}
+        </div>
       </details>
-    </div>
-  `).join('');
+      ${tags ? `<div class="question-card__tags">${tags}</div>` : ''}
+    `;
+  }
+};
 
-  // Render KaTeX in all question/solution text
-  renderMathInElement(document.getElementById('questions-container'), {
-    delimiters: [
-      { left: '$$', right: '$$', display: true },
-      { left: '$', right: '$', display: false },
-      { left: '\\(', right: '\\)', display: false },
-      { left: '\\[', right: '\\]', display: true }
-    ]
-  });
-}
+// Utility functions
+const escapeHtml = (str) => {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+};
 
-// Initial load
-loadQuestions();
+const showToast = (message, type = 'success') => {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = `toast toast--${type} toast--visible`;
+  setTimeout(() => toast.classList.remove('toast--visible'), 3000);
+};
+
+// Init on DOM ready
+document.addEventListener('DOMContentLoaded', () => App.init());

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MrDingMaths — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <header class="site-header">
+    <span class="site-header__title">MrDingMaths Admin</span>
+    <nav class="site-header__nav">
+      <a href="index.html">Browse</a>
+      <a href="quiz.html">Quiz</a>
+      <a href="worksheet.html">Worksheet</a>
+      <a href="admin.html" class="active">Admin</a>
+    </nav>
+  </header>
+
+  <!-- Login Section -->
+  <div id="login-section" class="main-content">
+    <div class="admin-login">
+      <h2 class="admin-login__title">Admin Login</h2>
+      <div class="admin-form">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" placeholder="admin@example.com">
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Password">
+        </div>
+        <button id="login-btn" class="btn btn--primary">Log in</button>
+        <div id="login-error" style="color:var(--color-highlight);font-size:0.85rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Section (hidden until login) -->
+  <div id="admin-section" class="main-content" style="display:none;">
+    <h2 style="margin-bottom:1.5rem;">Add New Question</h2>
+
+    <form id="question-form" class="admin-form">
+      <!-- Question Text with Preview -->
+      <div class="form-group">
+        <label for="question-text">Question Text (use $...$ for inline maths, $$...$$ for display)</label>
+      </div>
+      <div class="preview-split">
+        <div class="form-group">
+          <textarea id="question-text" placeholder="Enter question text..."></textarea>
+        </div>
+        <div>
+          <div class="preview-pane__label">Preview</div>
+          <div id="question-preview" class="preview-pane"></div>
+        </div>
+      </div>
+
+      <!-- Solution Text with Preview -->
+      <div class="form-group">
+        <label for="solution-text">Solution Text</label>
+      </div>
+      <div class="preview-split">
+        <div class="form-group">
+          <textarea id="solution-text" placeholder="Enter solution..."></textarea>
+        </div>
+        <div>
+          <div class="preview-pane__label">Preview</div>
+          <div id="solution-preview" class="preview-pane"></div>
+        </div>
+      </div>
+
+      <!-- Stage & Topic -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label for="stage-select">Stage</label>
+          <select id="stage-select" required>
+            <option value="">Select stage</option>
+            <option value="stage4">Stage 4</option>
+            <option value="stage5">Stage 5</option>
+            <option value="stage6_standard">Stage 6 Standard</option>
+            <option value="stage6_advanced">Stage 6 Advanced</option>
+            <option value="stage6_ext1">Stage 6 Extension 1</option>
+            <option value="stage6_ext2">Stage 6 Extension 2</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="topic-input">Topic</label>
+          <input type="text" id="topic-input" placeholder="e.g. Algebra" required>
+        </div>
+        <div class="form-group">
+          <label for="subtopic-input">Subtopic</label>
+          <input type="text" id="subtopic-input" placeholder="e.g. Quadratics">
+        </div>
+      </div>
+
+      <!-- Difficulty -->
+      <div class="form-group">
+        <label>Difficulty</label>
+        <div class="difficulty-radios">
+          <label><input type="radio" name="difficulty" value="1"> 1</label>
+          <label><input type="radio" name="difficulty" value="2"> 2</label>
+          <label><input type="radio" name="difficulty" value="3" checked> 3</label>
+          <label><input type="radio" name="difficulty" value="4"> 4</label>
+          <label><input type="radio" name="difficulty" value="5"> 5</label>
+        </div>
+      </div>
+
+      <!-- Answer -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label for="answer-input">Answer</label>
+          <input type="text" id="answer-input" placeholder="Correct answer">
+        </div>
+        <div class="form-group">
+          <label for="answer-type">Answer Type</label>
+          <select id="answer-type">
+            <option value="exact">Exact</option>
+            <option value="multiple_choice">Multiple Choice</option>
+            <option value="numeric_tolerance">Numeric (tolerance)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- MC Choices (hidden by default) -->
+      <div id="choices-section" class="form-group" style="display:none;">
+        <label>Choices</label>
+        <div class="choices-group">
+          <div class="choice-input"><span class="choice-input__label">A</span><input type="text" id="choice-a" class="choice-field" placeholder="Choice A"></div>
+          <div class="choice-input"><span class="choice-input__label">B</span><input type="text" id="choice-b" class="choice-field" placeholder="Choice B"></div>
+          <div class="choice-input"><span class="choice-input__label">C</span><input type="text" id="choice-c" class="choice-field" placeholder="Choice C"></div>
+          <div class="choice-input"><span class="choice-input__label">D</span><input type="text" id="choice-d" class="choice-field" placeholder="Choice D"></div>
+        </div>
+      </div>
+
+      <!-- Image Upload -->
+      <div class="form-group">
+        <label>Question Image</label>
+        <div id="question-drop-zone" class="drop-zone">
+          Drag & drop an image here, or click to select
+          <input type="file" id="question-image-input" accept="image/*" style="display:none;">
+        </div>
+        <div id="question-image-preview-container"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Solution Image</label>
+        <div id="solution-drop-zone" class="drop-zone">
+          Drag & drop an image here, or click to select
+          <input type="file" id="solution-image-input" accept="image/*" style="display:none;">
+        </div>
+        <div id="solution-image-preview-container"></div>
+      </div>
+
+      <!-- Tags & Source -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label for="tags-input">Tags (comma-separated)</label>
+          <input type="text" id="tags-input" placeholder="e.g. algebra, quadratic, HSC">
+        </div>
+        <div class="form-group">
+          <label for="source-input">Source</label>
+          <input type="text" id="source-input" placeholder="e.g. 2023 HSC Q5">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;">
+        <button type="submit" class="btn btn--primary">Submit Question</button>
+        <button type="button" id="clear-form-btn" class="btn btn--secondary">Clear Form</button>
+      </div>
+    </form>
+
+    <!-- Recent Questions -->
+    <div class="recent-questions">
+      <h3 class="recent-questions__title">Recent Questions</h3>
+      <table class="questions-table">
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Stage</th>
+            <th>Topic</th>
+            <th>Difficulty</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="recent-questions-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/questions.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
