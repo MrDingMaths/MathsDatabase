@@ -28,11 +28,8 @@ Each question is a JSON object. The full array looks like:
   "source":             "string or null — e.g. '2023 HSC Q14b'",
   "tags":               [],
   "classifications": [
-    {
-      "course_id":   "string — see course list below",
-      "topic_id":    123,
-      "subtopic_id": 456
-    }
+    { "course_id": "string — see course list below", "topic_id": null, "subtopic_id": null },
+    { "course_id": null, "topic_id": 123, "subtopic_id": 456 }
   ]
 }
 ```
@@ -49,7 +46,7 @@ Each question is a JSON object. The full array looks like:
 - **`marks`** — The mark value shown in the PDF. Default to `1` if not shown.
 - **`source`** — The exam/book/worksheet name and question number, e.g. `"2022 HSC Advanced Q12b"` or `"2025 IGCSE 0580 P1 Q2"`. Set to `null` if unknown.
 - **`tags`** — Leave as `[]` unless there are obvious keyword tags (e.g. `["proof", "surds"]`).
-- **`classifications`** — Array of one or more classification objects. `course_id` must be a valid value from the course list below. `topic_id` and `subtopic_id` come from the taxonomy. All three fields may be `null` independently — courses and topics are separate dimensions. Include as many as are known.
+- **`classifications`** — Array of classification objects. **Courses and topics are separate rows** — always use one object for the course (with `topic_id: null, subtopic_id: null`) and a separate object for the topic/subtopic (with `course_id: null`). `course_id` must be a valid value from the course list below. `topic_id` and `subtopic_id` are integers from the taxonomy.
 
 ---
 
@@ -117,6 +114,51 @@ Rules:
 
 ---
 
+## Marks notation
+
+At the end of each question or question part, include the mark value in square brackets on a **new line, right-aligned**. Use the format `[n]` where `n` is the number of marks.
+
+For a single-part question:
+
+```
+Find the area of this shape.
+
+[DIAGRAM]
+                                                                          [2]
+```
+
+In `question_text` (JSON string), this is written as:
+
+```json
+"question_text": "Find the area of this shape.\n\n[DIAGRAM]\n<div style=\"text-align:right\">[2]</div>"
+```
+
+For multi-part questions, add a mark label after each part:
+
+```json
+"question_text": "$\\textbf{(i)}$ Find the value of $x$.\n<div style=\"text-align:right\">[1]</div>\n\n$\\textbf{(ii)}$ Hence find $y$.\n<div style=\"text-align:right\">[2]</div>"
+```
+
+The total `marks` field should reflect the **sum of all parts** (or the mark value of a single-part question).
+
+---
+
+## Cloze questions
+
+When a question requires students to fill in missing words or values inline (a cloze passage), preserve the blank spaces using dotted lines exactly as they appear. Do **not** replace blanks with underscores or leave them empty.
+
+**Example source text:**
+> This prism has ........... faces and .......... edges.
+
+**Transcribed as:**
+```json
+"question_text": "This prism has ........... faces and .......... edges."
+```
+
+Use the same number of dots as shown in the PDF (approximately). If the exact count is unclear, use ten dots (`..........`) per blank as a default.
+
+---
+
 ## Handling diagrams
 
 When a question or solution includes a diagram (e.g. a geometric figure, graph, number line, tree diagram, or any visual element):
@@ -127,8 +169,15 @@ When a question or solution includes a diagram (e.g. a geometric figure, graph, 
    - In `question_text`: `[DIAGRAM]`
    - In `solution_text`: `[DIAGRAM]`
 
-3. **Do not attempt to describe or reconstruct the diagram in text or KaTeX.** Leave the placeholder and move on.
-4. The diagram image will be uploaded separately and linked to the question later.
+3. The diagram image will be uploaded separately and linked to the question later.
+
+### Diagram answers in `solution_text`
+
+When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a region, complete a shape), use your judgement:
+
+- **Simple diagram answers — describe in words.** If the action is straightforward to describe unambiguously in plain text, write a clear description instead of a placeholder. Be as specific as possible.
+  - *Examples:* "Draw a vertical line and a horizontal line through the centre of the shape.", "Shade the middle square in the second row.", "Draw a line from $A$ to $C$."
+- **Complex diagram answers — use `[DIAGRAM]`.** If the answer requires a detailed visual (e.g. plotting a graph, drawing a geometric construction with multiple steps, shading a region on a coordinate plane), use the `[DIAGRAM]` placeholder as normal.
 
 **Example:**
 
@@ -365,7 +414,8 @@ When a question or solution includes a diagram (e.g. a geometric figure, graph, 
     "source": "HSC 2023 Adv Q5",
     "tags": [],
     "classifications": [
-      { "course_id": "stage5", "topic_id": 40, "subtopic_id": 118 }
+      { "course_id": "stage5", "topic_id": null, "subtopic_id": null },
+      { "course_id": null, "topic_id": 40, "subtopic_id": 118 }
     ]
   },
   {
@@ -376,7 +426,8 @@ When a question or solution includes a diagram (e.g. a geometric figure, graph, 
     "source": null,
     "tags": [],
     "classifications": [
-      { "course_id": "stage5", "topic_id": 53, "subtopic_id": 168 }
+      { "course_id": "stage5", "topic_id": null, "subtopic_id": null },
+      { "course_id": null, "topic_id": 53, "subtopic_id": 168 }
     ]
   }
 ]
@@ -391,6 +442,7 @@ When a question or solution includes a diagram (e.g. a geometric figure, graph, 
 - [ ] Every object has `question_text`, `difficulty`, and `classifications`
 - [ ] `topic_id` and `subtopic_id` are integers (not strings)
 - [ ] `course_id` is one of the valid string values from the course list (or `null` if not applicable)
+- [ ] Course and topic are in **separate** classification objects (never combined in one object)
 - [ ] `marks` is an integer
 - [ ] Output is a single JSON array with no trailing comma on the last element
 - [ ] Output is wrapped in a ```json code block with no prose outside it

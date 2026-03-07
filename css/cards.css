@@ -69,6 +69,15 @@
   gap: 0.3rem;
   flex-wrap: wrap;
   align-items: center;
+  flex: 1;
+}
+
+.question-card__meta-right {
+  margin-left: auto;
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 /* === Expanded content === */

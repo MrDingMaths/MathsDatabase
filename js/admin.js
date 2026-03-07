@@ -15,9 +15,22 @@ const showToast = (message, type = 'success') => {
   setTimeout(() => toast.classList.remove('toast--visible'), 3000);
 };
 
+const renderTextWithImages = (text) => {
+  const parts = text.split(/(\[img:[^\]]+\])/g);
+  return parts.map(part => {
+    const match = part.match(/^\[img:([^\]]+)\]$/);
+    if (match) {
+      return `<img src="${escapeHtml(match[1])}" style="max-width:100%;display:block;margin:0.5rem 0;" alt="diagram">`;
+    }
+    // Preserve newlines inside $$...$$ blocks so KaTeX auto-render can find them
+    return part.split(/(\$\$[\s\S]*?\$\$)/g).map((segment, i) => {
+      if (i % 2 === 1) return escapeHtml(segment); // inside display math — keep newlines
+      return escapeHtml(segment).replace(/\n/g, '<br>');
+    }).join('');
+  }).join('');
+};
+
 const Admin = {
-  questionImageUrl: null,
-  solutionImageUrl: null,
   editingId: null,
   taxonomy: { courses: [], topics: [], subtopics: [] },
   currentOffset: 0,
@@ -59,16 +72,22 @@ const Admin = {
     document.getElementById('admin-section').style.display = '';
     this.setupForm();
     this.setupPreviews();
-    this.setupDropZones();
-    this.setupQuestionSearch();
     this.setupBulkImport();
     this.loadTaxonomy();
+    Filters.init({
+      courseId: 'course-filter',
+      topicId: 'topic-filter',
+      subtopicId: 'subtopic-filter',
+      difficultyId: 'difficulty-filter',
+      searchId: 'search-filter',
+      onChange: () => this.loadQuestions(true)
+    });
+    this.setupSourceTagsSearch();
     this.loadQuestions(true);
   },
 
   async loadTaxonomy() {
     this.taxonomy = await Questions.getTaxonomy();
-    this.populateCourseFilter();
     this.populateClsCourseCheckboxes();
     // Populate topic select once (independent of course)
     const topicEl = document.getElementById('cls-topic-select');
@@ -76,14 +95,6 @@ const Admin = {
       this.taxonomy.topics.map(t => '<option value="' + t.id + '">' + escapeHtml(t.name) + '</option>').join('');
     document.getElementById('cls-topic-select').addEventListener('change', () => this.onClsTopicChange());
     document.getElementById('add-cls-btn').addEventListener('click', () => this.addTopicCls());
-  },
-
-  populateCourseFilter() {
-    const filterEl = document.getElementById('q-course-filter');
-    const cur = filterEl.value;
-    filterEl.innerHTML = '<option value="">All courses</option>' +
-      this.taxonomy.courses.map(s => '<option value="' + s.id + '">' + s.label + '</option>').join('');
-    if (cur) filterEl.value = cur;
   },
 
   populateClsCourseCheckboxes() {
@@ -162,6 +173,8 @@ const Admin = {
     document.getElementById('clear-form-btn').addEventListener('click', () => this.clearForm());
     document.getElementById('cancel-edit-btn').addEventListener('click', () => this.cancelEdit());
     document.getElementById('load-more-btn').addEventListener('click', () => this.loadQuestions(false));
+    document.getElementById('question-insert-img-btn').addEventListener('click', () => this.insertInlineImage('question-text'));
+    document.getElementById('solution-insert-img-btn').addEventListener('click', () => this.insertInlineImage('solution-text'));
   },
 
   setupPreviews() {
@@ -171,8 +184,7 @@ const Admin = {
       clearTimeout(qTimeout);
       qTimeout = setTimeout(() => {
         const preview = document.getElementById('question-preview');
-        preview.textContent = "";
-        preview.innerHTML = escapeHtml(e.target.value).replace(/\n/g, "<br>");
+        preview.innerHTML = renderTextWithImages(e.target.value);
         renderMath(preview);
       }, 300);
     });
@@ -181,59 +193,42 @@ const Admin = {
       clearTimeout(sTimeout);
       sTimeout = setTimeout(() => {
         const preview = document.getElementById('solution-preview');
-        preview.textContent = "";
-        preview.innerHTML = escapeHtml(e.target.value).replace(/\n/g, "<br>");
+        preview.innerHTML = renderTextWithImages(e.target.value);
         renderMath(preview);
       }, 300);
     });
   },
 
-  setupDropZones() {
-    this.initDropZone('question-drop-zone', 'question-image-input', 'question-image-preview-container', 'question');
-    this.initDropZone('solution-drop-zone', 'solution-image-input', 'solution-image-preview-container', 'solution');
-  },
-
-  setupQuestionSearch() {
+  setupSourceTagsSearch() {
     let searchTimeout;
     const triggerSearch = () => {
       clearTimeout(searchTimeout);
       searchTimeout = setTimeout(() => this.loadQuestions(true), 300);
     };
-    document.getElementById('q-search').addEventListener('input', triggerSearch);
-    document.getElementById('q-course-filter').addEventListener('change', () => this.loadQuestions(true));
-    document.getElementById('q-topic-filter').addEventListener('input', triggerSearch);
-    document.getElementById('q-difficulty-filter').addEventListener('change', () => this.loadQuestions(true));
   },
 
-  initDropZone(zoneId, inputId, previewId, type) {
-    const zone = document.getElementById(zoneId);
-    const input = document.getElementById(inputId);
-    const preview = document.getElementById(previewId);
-
-    zone.addEventListener('click', () => input.click());
-    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drop-zone--active'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('drop-zone--active'));
-    zone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      zone.classList.remove('drop-zone--active');
-      if (e.dataTransfer.files.length) this.handleImageFile(e.dataTransfer.files[0], preview, type);
-    });
-    input.addEventListener('change', () => {
-      if (input.files.length) this.handleImageFile(input.files[0], preview, type);
-    });
-  },
-
-  async handleImageFile(file, previewContainer, type) {
-    try {
-      previewContainer.innerHTML = '<span style="color:var(--color-text-light);font-size:0.85rem;">Uploading...</span>';
-      const url = await Questions.uploadImage(file);
-      if (type === 'question') this.questionImageUrl = url;
-      else this.solutionImageUrl = url;
-      previewContainer.innerHTML = `<img src="${url}" class="drop-zone__preview" alt="Uploaded image">`;
-    } catch (err) {
-      previewContainer.innerHTML = '';
-      showToast('Image upload failed: ' + err.message, 'error');
-    }
+  insertInlineImage(textareaId) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async () => {
+      if (!input.files.length) return;
+      const textarea = document.getElementById(textareaId);
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const placeholder = '[uploading...]';
+      textarea.value = textarea.value.slice(0, start) + placeholder + textarea.value.slice(end);
+      textarea.dispatchEvent(new Event('input'));
+      try {
+        const url = await Questions.uploadImage(input.files[0]);
+        textarea.value = textarea.value.replace(placeholder, `\n[img:${url}]\n`);
+      } catch (err) {
+        textarea.value = textarea.value.replace(placeholder, '');
+        showToast('Image upload failed: ' + err.message, 'error');
+      }
+      textarea.dispatchEvent(new Event('input'));
+    };
+    input.click();
   },
 
   async submitQuestion() {
@@ -247,8 +242,6 @@ const Admin = {
       solution_text:      document.getElementById('solution-text').value || null,
       difficulty:         (document.querySelector('input[name="difficulty"]:checked') || {}).value || 'Development',
       marks:              parseInt(document.getElementById('marks-input').value, 10) || 1,
-      question_image_url: this.questionImageUrl,
-      solution_image_url: this.solutionImageUrl,
       source:             document.getElementById('source-input').value || null,
       tags:               document.getElementById('tags-input').value
         ? document.getElementById('tags-input').value.split(',').map(t => t.trim()).filter(Boolean)
@@ -290,10 +283,6 @@ const Admin = {
     document.getElementById('question-form').reset();
     document.getElementById('question-preview').innerHTML = '';
     document.getElementById('solution-preview').innerHTML = '';
-    document.getElementById('question-image-preview-container').innerHTML = '';
-    document.getElementById('solution-image-preview-container').innerHTML = '';
-    this.questionImageUrl = null;
-    this.solutionImageUrl = null;
     this.editingId = null;
     this.pendingCourseIds = new Set();
     this.pendingTopicCls = [];
@@ -317,10 +306,6 @@ const Admin = {
     document.getElementById('source-input').value = '';
     document.getElementById('question-preview').innerHTML = '';
     document.getElementById('solution-preview').innerHTML = '';
-    document.getElementById('question-image-preview-container').innerHTML = '';
-    document.getElementById('solution-image-preview-container').innerHTML = '';
-    this.questionImageUrl = null;
-    this.solutionImageUrl = null;
     this.editingId = null;
 
     this.pendingCourseIds = savedCourseIds;
@@ -366,18 +351,12 @@ const Admin = {
     const diffRadio = document.querySelector(`input[name="difficulty"][value="${question.difficulty || 'Development'}"]`);
     if (diffRadio) diffRadio.checked = true;
 
-    this.questionImageUrl = question.question_image_url || null;
-    this.solutionImageUrl = question.solution_image_url || null;
-    document.getElementById('question-image-preview-container').innerHTML =
-      this.questionImageUrl ? `<img src="${this.questionImageUrl}" class="drop-zone__preview" alt="Question image">` : '';
-    document.getElementById('solution-image-preview-container').innerHTML =
-      this.solutionImageUrl ? `<img src="${this.solutionImageUrl}" class="drop-zone__preview" alt="Solution image">` : '';
 
     const qPrev = document.getElementById('question-preview');
-    qPrev.innerHTML = escapeHtml(question.question_text || '').replace(/\n/g, '<br>');
+    qPrev.innerHTML = renderTextWithImages(question.question_text || '');
     renderMath(qPrev);
     const sPrev = document.getElementById('solution-preview');
-    sPrev.innerHTML = escapeHtml(question.solution_text || '');
+    sPrev.innerHTML = renderTextWithImages(question.solution_text || '');
     renderMath(sPrev);
 
     // Load classifications — use the data already fetched if available, otherwise fetch from DB
@@ -419,17 +398,16 @@ const Admin = {
     if (reset) {
       this.currentOffset = 0;
       this.loadedQuestions = [];
-      document.getElementById('recent-questions-body').innerHTML = '';
+      document.getElementById('questions-container').innerHTML = '';
     }
 
-    const stageVal = document.getElementById('q-course-filter').value;
-    const topicVal = document.getElementById('q-topic-filter').value;
-    const diffVal = document.getElementById('q-difficulty-filter').value;
+    const { course, topic, subtopic, difficulty, search } = Filters.getValues();
     const filters = {
-      search:     document.getElementById('q-search').value || undefined,
-      course:     stageVal ? [stageVal] : undefined,
-      topic:      topicVal ? [topicVal] : undefined,
-      difficulty: diffVal  ? [diffVal]  : undefined,
+      search:     search || undefined,
+      course:     course.length    ? course    : undefined,
+      topic:      topic.length     ? topic     : undefined,
+      subtopic:   subtopic.length  ? subtopic  : undefined,
+      difficulty: difficulty.length? difficulty : undefined,
       limit:      this.PAGE_SIZE,
       offset:     this.currentOffset
     };
@@ -444,9 +422,9 @@ const Admin = {
         this.appendQuestionRows(data);
       }
 
-      const tbody = document.getElementById('recent-questions-body');
+      const container = document.getElementById('questions-container');
       if (this.loadedQuestions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5">No questions found.</td></tr>';
+        container.innerHTML = '<div class="empty-state">No questions found.</div>';
       }
 
       document.getElementById('q-count').textContent =
@@ -460,31 +438,50 @@ const Admin = {
   },
 
   appendQuestionRows(questions) {
-    const tbody = document.getElementById('recent-questions-body');
-    const rows = questions.map(q => {
-      const preview = stripKaTeX(q.question_text || '');
-      const truncated = preview.length > 60 ? preview.substring(0, 60) + '...' : preview;
-      const clsText = (q.classifications || [])
+    const container = document.getElementById('questions-container');
+    const html = questions.map(q => {
+      const courseBadges = (q.classifications || [])
+        .filter(c => !c.topic_id)
+        .map(c => `<span class="badge badge--stage">${escapeHtml(c.course_label)}</span>`)
+        .join('');
+      const topicBadges = (q.classifications || [])
+        .filter(c => c.topic_id)
         .map(c => {
-          if (c.course_id && !c.topic_id) return c.course_label;
-          if (c.topic_id) return [c.topic_name, c.subtopic_name].filter(Boolean).join(' › ');
-          return null;
-        })
-        .filter(Boolean)
-        .join(' | ');
-      return '<tr>' +
-        '<td>' + escapeHtml(truncated) + '</td>' +
-        '<td>' + escapeHtml(clsText || '—') + '</td>' +
-        '<td>' + (q.difficulty || '—') + '</td>' +
-        '<td>' + (q.marks || 1) + '</td>' +
-        '<td class="questions-table__actions">' +
-          '<button class="btn btn--secondary btn--small" onclick="Admin.editQuestion(\'' + q.id + '\')">Edit</button>' +
-          '<button class="btn btn--secondary btn--small" onclick="Admin.duplicateQuestion(\'' + q.id + '\')">Dup</button>' +
-          '<button class="btn btn--danger btn--small" onclick="Admin.deleteQuestion(\'' + q.id + '\')">Del</button>' +
-        '</td>' +
-      '</tr>';
+          const parts = [c.topic_name, c.subtopic_name].filter(Boolean);
+          return `<span class="badge badge--stage">${escapeHtml(parts.join(' › '))}</span>`;
+        }).join('');
+      return `<div class="question-card">
+        <details class="question-card__collapsible">
+          <summary class="question-card__summary">
+            <div class="question-card__meta">
+              ${courseBadges}
+              ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
+              ${topicBadges}
+            </div>
+            <div class="question-card__meta-right">
+              ${q.difficulty ? `<span class="badge badge--difficulty">${escapeHtml(q.difficulty)}</span>` : ''}
+              ${q.marks ? `<span class="badge">${q.marks} mark${q.marks !== 1 ? 's' : ''}</span>` : ''}
+            </div>
+            <div class="question-card__actions" onclick="event.stopPropagation()">
+              <button class="btn btn--secondary btn--small" onclick="Admin.editQuestion('${q.id}')">Edit</button>
+              <button class="btn btn--secondary btn--small" onclick="Admin.duplicateQuestion('${q.id}')">Dup</button>
+              <button class="btn btn--danger btn--small" onclick="Admin.deleteQuestion('${q.id}')">Del</button>
+            </div>
+          </summary>
+          <div class="question-card__body">
+            ${renderTextWithImages(q.question_text || '')}
+          </div>
+          ${q.solution_text ? `<details class="question-card__solution">
+            <summary>Show solution</summary>
+            <div class="question-card__solution-content">
+              ${renderTextWithImages(q.solution_text)}
+            </div>
+          </details>` : ''}
+        </details>
+      </div>`;
     }).join('');
-    tbody.insertAdjacentHTML('beforeend', rows);
+    container.insertAdjacentHTML('beforeend', html);
+    renderMath(container);
   },
 
   async deleteQuestion(id) {
@@ -605,7 +602,11 @@ const Admin = {
         let clsRows = [];
         if (Array.isArray(src.classifications) && src.classifications.length) {
           // New format: [{course_id, topic_id, subtopic_id}]
-          clsRows = src.classifications;
+          // Split any combined rows into separate course and topic rows
+          src.classifications.forEach(c => {
+            if (c.course_id) clsRows.push({ course_id: c.course_id, topic_id: null, subtopic_id: null });
+            if (c.topic_id)  clsRows.push({ course_id: null, topic_id: c.topic_id, subtopic_id: c.subtopic_id || null });
+          });
         } else if (src.course) {
           // Legacy format: resolve topic/subtopic by name
           const topic = this.taxonomy.topics.find(t => t.name === src.topic);

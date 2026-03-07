@@ -112,30 +112,7 @@
   width: 1.5rem;
 }
 
-/* === Drop Zone === */
-.drop-zone {
-  border: 2px dashed var(--color-border);
-  border-radius: var(--radius);
-  padding: 2rem;
-  text-align: center;
-  color: var(--color-text-light);
-  cursor: pointer;
-  transition: border-color var(--transition), background var(--transition);
-}
-
-.drop-zone:hover,
-.drop-zone--active {
-  border-color: var(--color-accent);
-  background: rgba(15, 52, 96, 0.03);
-}
-
-.drop-zone__preview {
-  max-width: 200px;
-  margin-top: 0.5rem;
-  border-radius: var(--radius);
-}
-
-/* === Recent Questions Table === */
+/* === Recent Questions === */
 .recent-questions {
   margin-top: 3rem;
 }
@@ -145,34 +122,16 @@
   margin-bottom: 1rem;
 }
 
-.questions-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-}
-
-.questions-table th,
-.questions-table td {
-  padding: 0.5rem 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.questions-table th {
-  background: var(--color-card-bg);
-  font-weight: 600;
-}
-
-.questions-table td {
-  max-width: 300px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.questions-table__actions {
+/* === Question Card Actions (admin) === */
+.question-card__actions {
   display: flex;
   gap: 0.3rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.recent-questions .question-card__summary::after {
+  margin-left: 0;
 }
 
 /* === Classification Tags === */

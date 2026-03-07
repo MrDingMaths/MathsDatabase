@@ -1,7 +1,7 @@
 ﻿// CRUD operations for questions
 
 const Questions = {
-  async fetch({ course, topic, subtopic, difficulty, search, limit = 20, offset = 0 }) {
+  async fetch({ course, topic, subtopic, difficulty, search, source, tags, limit = 20, offset = 0 }) {
     try {
       const { data, error } = await supabaseClient.rpc('fetch_questions', {
         p_course_ids:  course?.length    ? course    : null,
@@ -9,6 +9,8 @@ const Questions = {
         p_sub_names:   subtopic?.length  ? subtopic  : null,
         p_difficulty:  difficulty?.length? difficulty : null,
         p_search:      search || null,
+        p_source:      source || null,
+        p_tags:        tags?.length      ? tags      : null,
         p_limit:       limit,
         p_offset:      offset
       });
@@ -25,7 +27,7 @@ const Questions = {
   async create(question) {
     try {
       question.has_katex = /\$/.test(question.question_text) || /\$/.test(question.solution_text || '');
-      question.has_image = !!(question.question_image_url || question.solution_image_url);
+      question.has_image = !!(question.question_image_url || question.solution_image_url || /\[img:/.test(question.question_text) || /\[img:/.test(question.solution_text || ''));
 
       const { data, error } = await supabaseClient
         .from('questions')
@@ -43,7 +45,7 @@ const Questions = {
   async update(id, updates) {
     try {
       updates.has_katex = /\$/.test(updates.question_text || '') || /\$/.test(updates.solution_text || '');
-      updates.has_image = !!(updates.question_image_url || updates.solution_image_url);
+      updates.has_image = !!(updates.question_image_url || updates.solution_image_url || /\[img:/.test(updates.question_text || '') || /\[img:/.test(updates.solution_text || ''));
 
       const { data, error } = await supabaseClient
         .from('questions')

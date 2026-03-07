@@ -6,7 +6,8 @@
       "mcp__claude_ai_Supabase__execute_sql",
       "mcp__claude_ai_Supabase__apply_migration",
       "Bash(pip install openpyxl -q)",
-      "Bash(python -c \":*)"
+      "Bash(python -c \":*)",
+      "mcp__claude_ai_Supabase__get_logs"
     ],
     "defaultMode": "bypassPermissions"
   }

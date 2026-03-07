@@ -6,6 +6,21 @@ const escapeHtml = (str) => {
   return div.innerHTML;
 };
 
+const renderTextWithImages = (text) => {
+  const parts = text.split(/(\[img:[^\]]+\])/g);
+  return parts.map(part => {
+    const match = part.match(/^\[img:([^\]]+)\]$/);
+    if (match) {
+      return `<img src="${escapeHtml(match[1])}" style="max-width:100%;display:block;margin:0.5rem 0;" alt="diagram">`;
+    }
+    // Preserve newlines inside $$...$$ blocks so KaTeX auto-render can find them
+    return part.split(/(\$\$[\s\S]*?\$\$)/g).map((segment, i) => {
+      if (i % 2 === 1) return escapeHtml(segment); // inside display math — keep newlines
+      return escapeHtml(segment).replace(/\n/g, '<br>');
+    }).join('');
+  }).join('');
+};
+
 const showToast = (message, type = 'success') => {
   const toast = document.getElementById('toast');
   toast.textContent = message;
@@ -58,6 +73,8 @@ const Worksheet = {
       ? this.allQuestions.filter(q => {
           const text = [
             q.question_text,
+            q.source,
+            ...(q.tags || []),
             ...(q.classifications || []).flatMap(c => [c.course_label, c.topic_name, c.subtopic_name])
           ].filter(Boolean).join(' ').toLowerCase();
           return text.includes(this.searchTerm);
@@ -69,7 +86,7 @@ const Worksheet = {
       return;
     }
 
-    container.innerHTML = filtered.map((q, i) => {
+    container.innerHTML = filtered.map((q) => {
       const checked = this.selectedIds.has(q.id) ? 'checked' : '';
       return `<div class="question-card">
         <details class="question-card__collapsible">
@@ -78,22 +95,28 @@ const Worksheet = {
               <input type="checkbox" ${checked} onchange="Worksheet.toggleQuestion('${q.id}')">
             </label>
             <div class="question-card__meta">
-              ${(q.classifications || []).map(c => {
-                const parts = [c.course_label, c.topic_name, c.subtopic_name].filter(Boolean);
+              ${(q.classifications || []).filter(c => !c.topic_id).map(c =>
+                `<span class="badge badge--stage">${escapeHtml(c.course_label)}</span>`
+              ).join('')}
+              ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
+              ${(q.classifications || []).filter(c => c.topic_id).map(c => {
+                const parts = [c.topic_name, c.subtopic_name].filter(Boolean);
                 return `<span class="badge badge--stage">${escapeHtml(parts.join(' › '))}</span>`;
               }).join('')}
+            </div>
+            <div class="question-card__meta-right">
               ${q.difficulty ? `<span class="badge badge--difficulty">${escapeHtml(q.difficulty)}</span>` : ''}
-              ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
+              ${q.marks ? `<span class="badge">${q.marks} mark${q.marks !== 1 ? 's' : ''}</span>` : ''}
             </div>
           </summary>
           <div class="question-card__body">
-            ${(q.question_text || '').replace(/\n/g, '<br>')}
+            ${renderTextWithImages(q.question_text || '')}
             ${q.question_image_url ? `<br><img src="${escapeHtml(q.question_image_url)}" alt="Question diagram">` : ''}
           </div>
           <details class="question-card__solution">
             <summary>Show solution</summary>
             <div class="question-card__solution-content">
-              ${q.solution_text || 'No solution provided.'}
+              ${renderTextWithImages(q.solution_text || '')}
               ${q.solution_image_url ? `<br><img src="${escapeHtml(q.solution_image_url)}" alt="Solution diagram">` : ''}
             </div>
           </details>
@@ -144,7 +167,7 @@ const Worksheet = {
     selected.forEach((q, i) => {
       html += `<div class="worksheet-question">
         <p><span class="worksheet-question__number">${i + 1}.</span>
-        <span class="worksheet-question__text">${(q.question_text || '').replace(/\n/g, '<br>')}</span></p>
+        <span class="worksheet-question__text">${renderTextWithImages(q.question_text || '')}</span></p>
         ${q.question_image_url ? `<img src="${escapeHtml(q.question_image_url)}" alt="Diagram" style="max-width:80%">` : ''}
         <div class="worksheet-question__answer-space"></div>
       </div>`;
@@ -156,7 +179,7 @@ const Worksheet = {
       selected.forEach((q, i) => {
         html += `<div class="answer-key__item">
           <p><strong>${i + 1}.</strong></p>
-          ${q.solution_text ? `<div>${q.solution_text}</div>` : '<p>No solution provided.</p>'}
+          ${q.solution_text ? `<div>${renderTextWithImages(q.solution_text)}</div>` : '<p>No solution provided.</p>'}
         </div>`;
       });
       html += '</div>';
