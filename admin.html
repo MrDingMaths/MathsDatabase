@@ -17,7 +17,7 @@
   <header class="site-header">
     <span class="site-header__title">MathsDatabase Admin</span>
     <nav class="site-header__nav">
-      <a href="index.html">Browse</a>
+      <a href="index.html">About</a>
       <a href="quiz.html">Quiz</a>
       <a href="worksheet.html">Worksheet</a>
       <a href="admin.html" class="active">Admin</a>
@@ -82,21 +82,19 @@
           <label for="stage-select">Stage</label>
           <select id="stage-select" required>
             <option value="">Select stage</option>
-            <option value="stage4">Stage 4</option>
-            <option value="stage5">Stage 5</option>
-            <option value="stage6_standard">Stage 6 Standard</option>
-            <option value="stage6_advanced">Stage 6 Advanced</option>
-            <option value="stage6_ext1">Stage 6 Extension 1</option>
-            <option value="stage6_ext2">Stage 6 Extension 2</option>
           </select>
         </div>
         <div class="form-group">
           <label for="topic-input">Topic</label>
-          <input type="text" id="topic-input" placeholder="e.g. Algebra" required>
+          <select id="topic-select" required>
+            <option value="">Select topic</option>
+          </select>
         </div>
         <div class="form-group">
           <label for="subtopic-input">Subtopic</label>
-          <input type="text" id="subtopic-input" placeholder="e.g. Quadratics">
+          <select id="subtopic-select">
+            <option value="">Select subtopic</option>
+          </select>
         </div>
       </div>
 
@@ -113,7 +111,7 @@
       </div>
 
       <!-- Answer -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 8rem;gap:1rem;">
         <div class="form-group">
           <label for="answer-input">Answer</label>
           <input type="text" id="answer-input" placeholder="Correct answer">
@@ -124,7 +122,12 @@
             <option value="exact">Exact</option>
             <option value="multiple_choice">Multiple Choice</option>
             <option value="numeric_tolerance">Numeric (tolerance)</option>
+            <option value="show_proof">Show / Proof</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label for="marks-input">Marks</label>
+          <input type="number" id="marks-input" min="1" max="20" placeholder="1">
         </div>
       </div>
 
@@ -177,6 +180,26 @@
       </div>
     </form>
 
+
+    <!-- Bulk Import -->
+    <div style="margin:2rem 0;">
+      <button type="button" id="bulk-import-toggle" class="btn btn--secondary">Show Bulk Import</button>
+      <div id="bulk-import-section" style="display:none;margin-top:1rem;">
+        <div class="form-group">
+          <label>Upload JSON file or paste below</label>
+          <input type="file" id="bulk-import-file" accept=".json">
+        </div>
+        <div class="form-group">
+          <label for="bulk-import-json">JSON Array of Questions</label>
+          <textarea id="bulk-import-json" rows="10" placeholder='[{"question_text": "...", "answer": "...", "answer_type": "exact", "stage": "stage4", "topic": "Algebra", "difficulty": "B", "subtopic": ["Linear Equations"], "marks": 1}]'></textarea>
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+          <button type="button" id="bulk-validate-btn" class="btn btn--secondary">Validate</button>
+          <button type="button" id="bulk-submit-btn" class="btn btn--primary" style="display:none;">Import</button>
+        </div>
+        <div id="bulk-import-results" style="margin-top:1rem;"></div>
+      </div>
+    </div>
     <!-- All Questions -->
     <div class="recent-questions">
       <h3 class="recent-questions__title">All Questions</h3>
@@ -184,12 +207,6 @@
         <input type="text" id="q-search" placeholder="Search question text...">
         <select id="q-stage-filter">
           <option value="">All stages</option>
-          <option value="stage4">Stage 4</option>
-          <option value="stage5">Stage 5</option>
-          <option value="stage6_standard">Stage 6 Standard</option>
-          <option value="stage6_advanced">Stage 6 Advanced</option>
-          <option value="stage6_ext1">Stage 6 Extension 1</option>
-          <option value="stage6_ext2">Stage 6 Extension 2</option>
         </select>
         <input type="text" id="q-topic-filter" placeholder="Filter by topic...">
         <select id="q-difficulty-filter">
@@ -208,7 +225,9 @@
             <th>Question</th>
             <th>Stage</th>
             <th>Topic</th>
-            <th>Difficulty</th>
+            <th>Subtopic</th>
+            <th>Diff</th>
+            <th>Marks</th>
             <th>Actions</th>
           </tr>
         </thead>

@@ -55,17 +55,33 @@ const Worksheet = {
     container.innerHTML = this.allQuestions.map((q, i) => {
       const checked = this.selectedIds.has(q.id) ? 'checked' : '';
       return `<div class="question-card">
-        <div class="question-card__header">
-          <span class="question-card__number">${i + 1}</span>
-          <div class="question-card__meta">
-            <span class="badge badge--stage">${escapeHtml(q.stage || '')}</span>
-            <span class="badge badge--topic">${escapeHtml(q.topic || '')}</span>
+        <details class="question-card__collapsible">
+          <summary class="question-card__summary">
+            <label class="question-card__checkbox" onclick="event.stopPropagation()">
+              <input type="checkbox" ${checked} onchange="Worksheet.toggleQuestion('${q.id}')">
+            </label>
+            <span class="question-card__number">${i + 1}</span>
+            <div class="question-card__meta">
+              <span class="badge badge--stage">${escapeHtml(q.stage || '')}</span>
+              <span class="badge badge--topic">${escapeHtml(q.topic || '')}</span>
+              ${(q.subtopic || []).map(s => `<span class="badge badge--topic">${escapeHtml(s)}</span>`).join('')}
+              ${q.difficulty ? `<span class="badge badge--difficulty">${escapeHtml(q.difficulty)}</span>` : ''}
+              ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
+            </div>
+          </summary>
+          <div class="question-card__body">
+            ${q.question_text || ''}
+            ${q.question_image_url ? `<br><img src="${escapeHtml(q.question_image_url)}" alt="Question diagram">` : ''}
           </div>
-          <label class="question-card__checkbox">
-            <input type="checkbox" ${checked} onchange="Worksheet.toggleQuestion('${q.id}')"> Select
-          </label>
-        </div>
-        <div class="question-card__body">${q.question_text || ''}</div>
+          <details class="question-card__solution">
+            <summary>Show solution</summary>
+            <div class="question-card__solution-content">
+              ${q.solution_text || 'No solution provided.'}
+              ${q.solution_image_url ? `<br><img src="${escapeHtml(q.solution_image_url)}" alt="Solution diagram">` : ''}
+              ${q.answer ? `<p><strong>Answer:</strong> ${escapeHtml(q.answer)}</p>` : ''}
+            </div>
+          </details>
+        </details>
       </div>`;
     }).join('');
 

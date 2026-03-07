@@ -69,9 +69,12 @@ const Filters = {
 
   populateMultiSelect(el, items, placeholder, onChangeFn) {
     const panel = el.querySelector('.multi-select__panel');
-    panel.innerHTML = items.map(item =>
-      `<label><input type="checkbox" value="${item}"> ${item}</label>`
-    ).join('');
+    // items can be strings or {value, label} objects
+    panel.innerHTML = items.map(item => {
+      const val = typeof item === 'object' ? item.value : item;
+      const lbl = typeof item === 'object' ? item.label : item;
+      return `<label><input type="checkbox" value="${val}"> ${lbl}</label>`;
+    }).join('');
     panel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
       cb.addEventListener('change', () => {
         this.updateToggleLabel(el, placeholder);

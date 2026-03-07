@@ -77,7 +77,7 @@ const App = {
           <div class="question-card__meta">
             <span class="badge badge--stage">${escapeHtml(q.stage || '')}</span>
             <span class="badge badge--topic">${escapeHtml(q.topic || '')}</span>
-            ${q.subtopic ? `<span class="badge badge--topic">${escapeHtml(q.subtopic)}</span>` : ''}
+            ${(q.subtopic || []).map(s => `<span class="badge badge--topic">${escapeHtml(s)}</span>`).join('')}
             ${q.difficulty ? `<span class="badge badge--difficulty">${escapeHtml(q.difficulty)}</span>` : ''}
             ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
           </div>

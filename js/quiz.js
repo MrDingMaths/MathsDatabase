@@ -98,6 +98,10 @@ const Quiz = {
       });
       html += '</div>';
       html += '<button class="btn btn--primary" onclick="Quiz.submitMC()">Submit</button>';
+    } else if (q.answer_type === 'show_proof') {
+      html += '<div class="quiz-answer-input">' +
+        '<button class="btn btn--primary" onclick="Quiz.submitShowProof()">Reveal Solution</button>' +
+        '</div>';
     } else {
       html += `<div class="quiz-answer-input">
         <input type="text" id="quiz-answer" placeholder="Enter your answer..." onkeydown="if(event.key==='Enter')Quiz.submitExact()">
@@ -138,6 +142,78 @@ const Quiz = {
         el.classList.add('quiz-choice--incorrect');
       }
     });
+  },
+
+  submitShowProof() {
+    if (this.hasAnswered) return;
+    const q = this.questions[this.currentIndex];
+    this.hasAnswered = true;
+    this.answered++;
+
+    const feedbackEl = document.getElementById('quiz-feedback');
+    feedbackEl.style.display = '';
+    feedbackEl.className = 'quiz-feedback quiz-feedback--neutral';
+    feedbackEl.innerHTML = `
+      <strong>Solution</strong>
+      ${q.solution_text ? '<div class="quiz-feedback__solution">' + q.solution_text + '</div>' : ''}
+      ${q.solution_image_url ? '<br><img src="' + q.solution_image_url + '" alt="Solution diagram">' : ''}
+      <div style="margin-top:0.75rem;display:flex;gap:0.5rem;">
+        <button class="btn btn--primary" onclick="Quiz.markShowProof(true)">Got it</button>
+        <button class="btn btn--secondary" onclick="Quiz.markShowProof(false)">Didn't get it</button>
+      </div>
+    `;
+    renderMath(feedbackEl);
+    document.getElementById('quiz-next').style.display = 'none';
+  },
+
+  markShowProof(correct) {
+    if (correct) this.score++;
+    else this.incorrectQuestions.push(this.questions[this.currentIndex]);
+    document.getElementById('quiz-score').textContent = `Score: ${this.score}/${this.answered}`;
+    const feedbackEl = document.getElementById('quiz-feedback');
+    feedbackEl.className = 'quiz-feedback quiz-feedback--' + (correct ? 'correct' : 'incorrect');
+    // Remove the self-mark buttons, keep the solution
+    feedbackEl.querySelectorAll('button').forEach(b => b.remove());
+    const div = feedbackEl.querySelector('div[style]');
+    if (div) div.remove();
+    const isLast = this.currentIndex >= this.questions.length - 1;
+    const nextBtn = document.getElementById('quiz-next');
+    nextBtn.style.display = '';
+    nextBtn.textContent = isLast ? 'Finish Quiz' : 'Next';
+  },
+
+  submitShowProof() {
+    if (this.hasAnswered) return;
+    const q = this.questions[this.currentIndex];
+    this.hasAnswered = true;
+    this.answered++;
+
+    const feedbackEl = document.getElementById('quiz-feedback');
+    feedbackEl.style.display = '';
+    feedbackEl.className = 'quiz-feedback quiz-feedback--neutral';
+    feedbackEl.innerHTML =
+      '<strong>Solution</strong>' +
+      (q.solution_text ? '<div class="quiz-feedback__solution">' + q.solution_text + '</div>' : '') +
+      (q.solution_image_url ? '<br><img src="' + q.solution_image_url + '" alt="Solution diagram">' : '') +
+      '<div style="margin-top:0.75rem;display:flex;gap:0.5rem;">' +
+        '<button class="btn btn--primary" onclick="Quiz.markShowProof(true)">Got it</button>' +
+        '<button class="btn btn--secondary" onclick="Quiz.markShowProof(false)">Didn't get it</button>' +
+      '</div>';
+    renderMath(feedbackEl);
+    document.getElementById('quiz-next').style.display = 'none';
+  },
+
+  markShowProof(correct) {
+    if (correct) this.score++;
+    else this.incorrectQuestions.push(this.questions[this.currentIndex]);
+    document.getElementById('quiz-score').textContent = 'Score: ' + this.score + '/' + this.answered;
+    const feedbackEl = document.getElementById('quiz-feedback');
+    feedbackEl.className = 'quiz-feedback quiz-feedback--' + (correct ? 'correct' : 'incorrect');
+    feedbackEl.querySelector('div[style]').remove();
+    const isLast = this.currentIndex >= this.questions.length - 1;
+    const nextBtn = document.getElementById('quiz-next');
+    nextBtn.style.display = '';
+    nextBtn.textContent = isLast ? 'Finish Quiz' : 'Next';
   },
 
   submitExact() {

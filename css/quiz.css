@@ -193,3 +193,9 @@
   font-weight: 600;
   margin-bottom: 1rem;
 }
+
+.quiz-feedback--neutral {
+  background: rgba(15, 52, 96, 0.05);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}

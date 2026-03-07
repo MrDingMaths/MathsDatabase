@@ -6,6 +6,8 @@ const escapeHtml = (str) => {
   return div.innerHTML;
 };
 
+const stripKaTeX = (str) => str.replace(/\$\$?[^$]*\$\$?/g, String.fromCharCode(8230)).replace(/\\[a-zA-Z]+/g, String.fromCharCode(32));
+
 const showToast = (message, type = 'success') => {
   const toast = document.getElementById('toast');
   toast.textContent = message;
@@ -17,6 +19,7 @@ const Admin = {
   questionImageUrl: null,
   solutionImageUrl: null,
   editingId: null,
+  taxonomy: { stages: [], topics: [], subtopics: [] },
   currentOffset: 0,
   currentTotal: 0,
   loadedQuestions: [],
@@ -56,7 +59,57 @@ const Admin = {
     this.setupPreviews();
     this.setupDropZones();
     this.setupQuestionSearch();
+    this.setupBulkImport();
+    this.loadTaxonomy();
     this.loadQuestions(true);
+  },
+
+  async loadTaxonomy() {
+    this.taxonomy = await Questions.getTaxonomy();
+    this.populateStageSelects();
+    document.getElementById('stage-select').addEventListener('change', () => this.onFormStageChange());
+    document.getElementById('topic-select').addEventListener('change', () => this.onFormTopicChange());
+  },
+
+  populateStageSelects() {
+    const stageEl = document.getElementById('stage-select');
+    const cur = stageEl.value;
+    stageEl.innerHTML = '<option value="">Select stage</option>' +
+      this.taxonomy.stages.map(s => '<option value="' + s.id + '">' + s.label + '</option>').join('');
+    if (cur) stageEl.value = cur;
+
+    const filterEl = document.getElementById('q-stage-filter');
+    const fcur = filterEl.value;
+    filterEl.innerHTML = '<option value="">All stages</option>' +
+      this.taxonomy.stages.map(s => '<option value="' + s.id + '">' + s.label + '</option>').join('');
+    if (fcur) filterEl.value = fcur;
+  },
+
+  getStageLabel(stageId) {
+    const stage = this.taxonomy.stages.find(s => s.id === stageId);
+    return stage ? stage.label : stageId;
+  },
+
+  onFormStageChange() {
+    const stageId = document.getElementById('stage-select').value;
+    const topics = this.taxonomy.topics.filter(t => !stageId || t.stage_id === stageId);
+    const topicEl = document.getElementById('topic-select');
+    topicEl.innerHTML = '<option value="">Select topic</option>' +
+      topics.map(t => '<option value="' + t.name + '">' + t.name + '</option>').join('');
+    this.onFormTopicChange();
+  },
+
+  onFormTopicChange() {
+    const stageId = document.getElementById('stage-select').value;
+    const topicName = document.getElementById('topic-select').value;
+    const matchingTopics = this.taxonomy.topics.filter(t =>
+      (!stageId || t.stage_id === stageId) && (!topicName || t.name === topicName)
+    );
+    const topicIds = new Set(matchingTopics.map(t => t.id));
+    const subtopics = this.taxonomy.subtopics.filter(s => topicIds.has(s.topic_id));
+    const subtopicEl = document.getElementById('subtopic-select');
+    subtopicEl.innerHTML = '<option value="">Select subtopic</option>' +
+      subtopics.map(s => '<option value="' + s.name + '">' + s.name + '</option>').join('');
   },
 
   setupForm() {
@@ -83,7 +136,8 @@ const Admin = {
       clearTimeout(qTimeout);
       qTimeout = setTimeout(() => {
         const preview = document.getElementById('question-preview');
-        preview.innerHTML = e.target.value;
+        preview.textContent = "";
+        preview.innerHTML = escapeHtml(e.target.value).replace(/\n/g, "<br>");
         renderMath(preview);
       }, 300);
     });
@@ -92,7 +146,8 @@ const Admin = {
       clearTimeout(sTimeout);
       sTimeout = setTimeout(() => {
         const preview = document.getElementById('solution-preview');
-        preview.innerHTML = e.target.value;
+        preview.textContent = "";
+        preview.innerHTML = escapeHtml(e.target.value).replace(/\n/g, "<br>");
         renderMath(preview);
       }, 300);
     });
@@ -151,11 +206,14 @@ const Admin = {
       question_text: document.getElementById('question-text').value,
       solution_text: document.getElementById('solution-text').value || null,
       stage: document.getElementById('stage-select').value,
-      topic: document.getElementById('topic-input').value,
-      subtopic: document.getElementById('subtopic-input').value || null,
-      difficulty: document.querySelector('input[name="difficulty"]:checked').value,
+      topic: document.getElementById('topic-select').value,
+      subtopic: document.getElementById('subtopic-select').value
+        ? [document.getElementById('subtopic-select').value]
+        : null,
+      difficulty: (document.querySelector('input[name="difficulty"]:checked') || {}).value || 'C',
       answer: document.getElementById('answer-input').value,
       answer_type: document.getElementById('answer-type').value,
+      marks: parseInt(document.getElementById('marks-input').value, 10) || 1,
       question_image_url: this.questionImageUrl,
       solution_image_url: this.solutionImageUrl,
       source: document.getElementById('source-input').value || null,
@@ -187,7 +245,7 @@ const Admin = {
       } else {
         await Questions.create(question);
         showToast('Question added successfully!');
-        this.clearForm();
+        this.clearFormKeepContext();
       }
       this.loadQuestions(true);
     } catch (err) {
@@ -202,9 +260,45 @@ const Admin = {
     document.getElementById('question-image-preview-container').innerHTML = '';
     document.getElementById('solution-image-preview-container').innerHTML = '';
     document.getElementById('choices-section').style.display = 'none';
+    this.onFormStageChange();
     this.questionImageUrl = null;
     this.solutionImageUrl = null;
     this.editingId = null;
+    document.getElementById('form-title').textContent = 'Add New Question';
+    document.getElementById('submit-btn').textContent = 'Submit Question';
+    document.getElementById('cancel-edit-btn').style.display = 'none';
+  },
+
+  clearFormKeepContext() {
+    const stage = document.getElementById('stage-select').value;
+    const topic = document.getElementById('topic-select').value;
+    const subtopic = document.getElementById('subtopic-select').value;
+    const diffChecked = document.querySelector('input[name="difficulty"]:checked');
+    const diffVal = diffChecked ? diffChecked.value : null;
+
+    document.getElementById('question-text').value = '';
+    document.getElementById('solution-text').value = '';
+    document.getElementById('answer-input').value = '';
+    document.getElementById('marks-input').value = '1';
+    document.getElementById('tags-input').value = '';
+    document.getElementById('source-input').value = '';
+    document.getElementById('question-preview').innerHTML = '';
+    document.getElementById('solution-preview').innerHTML = '';
+    document.getElementById('question-image-preview-container').innerHTML = '';
+    document.getElementById('solution-image-preview-container').innerHTML = '';
+    document.getElementById('choices-section').style.display = 'none';
+    this.questionImageUrl = null;
+    this.solutionImageUrl = null;
+    this.editingId = null;
+
+    document.getElementById('stage-select').value = stage;
+    document.getElementById('topic-select').value = topic;
+    document.getElementById('subtopic-select').value = subtopic;
+    if (diffVal) {
+      const radio = document.querySelector('input[name="difficulty"][value="' + diffVal + '"]');
+      if (radio) radio.checked = true;
+    }
+
     document.getElementById('form-title').textContent = 'Add New Question';
     document.getElementById('submit-btn').textContent = 'Submit Question';
     document.getElementById('cancel-edit-btn').style.display = 'none';
@@ -220,14 +314,28 @@ const Admin = {
     this.loadQuestionIntoForm(question);
   },
 
+  duplicateQuestion(id) {
+    const question = this.loadedQuestions.find(q => q.id === id);
+    if (!question) { showToast('Question not found', 'error'); return; }
+    this.loadQuestionIntoForm(question);
+    this.editingId = null;
+    document.getElementById('form-title').textContent = 'Duplicate Question';
+    document.getElementById('submit-btn').textContent = 'Submit Question';
+    document.getElementById('cancel-edit-btn').style.display = '';
+  },
+
   loadQuestionIntoForm(question) {
     document.getElementById('question-text').value = question.question_text || '';
     document.getElementById('solution-text').value = question.solution_text || '';
     document.getElementById('stage-select').value = question.stage || '';
-    document.getElementById('topic-input').value = question.topic || '';
-    document.getElementById('subtopic-input').value = question.subtopic || '';
+    this.onFormStageChange();
+    document.getElementById('topic-select').value = question.topic || '';
+    this.onFormTopicChange();
+    const subtopicVal = Array.isArray(question.subtopic) ? (question.subtopic[0] || '') : (question.subtopic || '');
+    document.getElementById('subtopic-select').value = subtopicVal;
     document.getElementById('answer-input').value = question.answer || '';
     document.getElementById('answer-type').value = question.answer_type || 'exact';
+    document.getElementById('marks-input').value = question.marks || 1;
     document.getElementById('tags-input').value = Array.isArray(question.tags) ? question.tags.join(', ') : (question.tags || '');
     document.getElementById('source-input').value = question.source || '';
 
@@ -251,10 +359,10 @@ const Admin = {
     sImgPreview.innerHTML = this.solutionImageUrl ? `<img src="${this.solutionImageUrl}" class="drop-zone__preview" alt="Solution image">` : '';
 
     const qPrev = document.getElementById('question-preview');
-    qPrev.innerHTML = question.question_text || '';
+    qPrev.innerHTML = escapeHtml(question.question_text || '');
     renderMath(qPrev);
     const sPrev = document.getElementById('solution-preview');
-    sPrev.innerHTML = question.solution_text || '';
+    sPrev.innerHTML = escapeHtml(question.solution_text || '');
     renderMath(sPrev);
 
     this.editingId = question.id;
@@ -272,11 +380,14 @@ const Admin = {
       document.getElementById('recent-questions-body').innerHTML = '';
     }
 
+    const stageVal = document.getElementById('q-stage-filter').value;
+    const topicVal = document.getElementById('q-topic-filter').value;
+    const diffVal = document.getElementById('q-difficulty-filter').value;
     const filters = {
       search: document.getElementById('q-search').value || undefined,
-      stage: document.getElementById('q-stage-filter').value || undefined,
-      topic: document.getElementById('q-topic-filter').value || undefined,
-      difficulty: document.getElementById('q-difficulty-filter').value || undefined,
+      stage: stageVal ? [stageVal] : undefined,
+      topic: topicVal ? [topicVal] : undefined,
+      difficulty: diffVal ? [diffVal] : undefined,
       limit: this.PAGE_SIZE,
       offset: this.currentOffset
     };
@@ -293,7 +404,7 @@ const Admin = {
 
       const tbody = document.getElementById('recent-questions-body');
       if (this.loadedQuestions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5">No questions found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7">No questions found.</td></tr>';
       }
 
       document.getElementById('q-count').textContent =
@@ -308,18 +419,24 @@ const Admin = {
 
   appendQuestionRows(questions) {
     const tbody = document.getElementById('recent-questions-body');
-    const rows = questions.map(q => `
-      <tr>
-        <td>${escapeHtml((q.question_text || '').substring(0, 60))}${q.question_text && q.question_text.length > 60 ? '...' : ''}</td>
-        <td>${escapeHtml(q.stage || '')}</td>
-        <td>${escapeHtml(q.topic || '')}</td>
-        <td>${q.difficulty || '-'}</td>
-        <td class="questions-table__actions">
-          <button class="btn btn--secondary btn--small" onclick="Admin.editQuestion('${q.id}')">Edit</button>
-          <button class="btn btn--danger btn--small" onclick="Admin.deleteQuestion('${q.id}')">Delete</button>
-        </td>
-      </tr>
-    `).join('');
+    const rows = questions.map(q => {
+      const preview = stripKaTeX(q.question_text || '');
+      const truncated = preview.length > 60 ? preview.substring(0, 60) + '...' : preview;
+      const subtopicStr = Array.isArray(q.subtopic) ? q.subtopic.join(', ') : (q.subtopic || '-');
+      return '<tr>' +
+        '<td>' + escapeHtml(truncated) + '</td>' +
+        '<td>' + escapeHtml(this.getStageLabel(q.stage)) + '</td>' +
+        '<td>' + escapeHtml(q.topic || '') + '</td>' +
+        '<td>' + escapeHtml(subtopicStr) + '</td>' +
+        '<td>' + (q.difficulty || '-') + '</td>' +
+        '<td>' + (q.marks || 1) + '</td>' +
+        '<td class="questions-table__actions">' +
+          '<button class="btn btn--secondary btn--small" onclick="Admin.editQuestion(\'' + q.id + '\')">Edit</button>' +
+          '<button class="btn btn--secondary btn--small" onclick="Admin.duplicateQuestion(\'' + q.id + '\')">Dup</button>' +
+          '<button class="btn btn--danger btn--small" onclick="Admin.deleteQuestion(\'' + q.id + '\')">Del</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
     tbody.insertAdjacentHTML('beforeend', rows);
   },
 
@@ -333,6 +450,115 @@ const Admin = {
     } catch (err) {
       showToast('Error: ' + err.message, 'error');
     }
+  },
+
+  // Bulk Import
+
+  setupBulkImport() {
+    const toggle = document.getElementById('bulk-import-toggle');
+    const section = document.getElementById('bulk-import-section');
+    if (!toggle || !section) return;
+
+    toggle.addEventListener('click', () => {
+      const visible = section.style.display !== 'none';
+      section.style.display = visible ? 'none' : '';
+      toggle.textContent = visible ? 'Show Bulk Import' : 'Hide Bulk Import';
+    });
+
+    document.getElementById('bulk-import-file').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => { document.getElementById('bulk-import-json').value = reader.result; };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('bulk-validate-btn').addEventListener('click', () => this.validateBulkImport());
+    document.getElementById('bulk-submit-btn').addEventListener('click', () => this.submitBulkImport());
+  },
+
+  validateBulkImport() {
+    const textarea = document.getElementById('bulk-import-json');
+    const resultsEl = document.getElementById('bulk-import-results');
+    const submitBtn = document.getElementById('bulk-submit-btn');
+    submitBtn.style.display = 'none';
+    resultsEl.innerHTML = '';
+
+    let parsed;
+    try {
+      parsed = JSON.parse(textarea.value);
+    } catch (e) {
+      resultsEl.innerHTML = '<p style="color:var(--color-danger)">Invalid JSON: ' + escapeHtml(e.message) + '</p>';
+      return;
+    }
+
+    if (!Array.isArray(parsed)) {
+      resultsEl.innerHTML = '<p style="color:var(--color-danger)">JSON must be an array of question objects.</p>';
+      return;
+    }
+
+    const required = ['question_text', 'answer', 'answer_type', 'stage', 'topic', 'difficulty'];
+    const validTypes = ['exact', 'multiple_choice', 'numeric_tolerance'];
+    const validDiffs = ['A', 'B', 'C', 'D', 'E'];
+    const validStages = this.taxonomy.stages.map(s => s.id);
+    const errors = [];
+    let validCount = 0;
+
+    parsed.forEach((q, i) => {
+      const rowErrors = [];
+      required.forEach(f => {
+        if (!q[f]) rowErrors.push('missing "' + f + '"');
+      });
+      if (q.answer_type && !validTypes.includes(q.answer_type)) rowErrors.push('invalid answer_type');
+      if (q.difficulty && !validDiffs.includes(q.difficulty)) rowErrors.push('invalid difficulty');
+      if (q.stage && !validStages.includes(q.stage)) rowErrors.push('invalid stage');
+      if (q.answer_type === 'multiple_choice' && (!Array.isArray(q.choices) || q.choices.length < 2)) {
+        rowErrors.push('multiple_choice requires choices array');
+      }
+      if (q.subtopic && !Array.isArray(q.subtopic)) rowErrors.push('subtopic must be an array');
+
+      if (rowErrors.length) {
+        errors.push('Row ' + (i + 1) + ': ' + rowErrors.join(', '));
+      } else {
+        validCount++;
+      }
+    });
+
+    let html = '<p><strong>' + validCount + '</strong> valid, <strong>' + errors.length + '</strong> with errors out of ' + parsed.length + ' questions.</p>';
+    if (errors.length) {
+      html += '<ul style="color:var(--color-danger);font-size:0.85rem;">' +
+        errors.map(e => '<li>' + escapeHtml(e) + '</li>').join('') + '</ul>';
+    }
+    if (validCount > 0) {
+      submitBtn.style.display = '';
+      submitBtn.textContent = 'Import ' + validCount + ' Valid Questions';
+    }
+    resultsEl.innerHTML = html;
+    this._bulkParsed = parsed;
+  },
+
+  async submitBulkImport() {
+    if (!this._bulkParsed) return;
+    const submitBtn = document.getElementById('bulk-submit-btn');
+    const resultsEl = document.getElementById('bulk-import-results');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Importing...';
+
+    const required = ['question_text', 'answer', 'answer_type', 'stage', 'topic', 'difficulty'];
+    const valid = this._bulkParsed.filter(q => required.every(f => q[f]));
+
+    try {
+      const result = await Questions.bulkCreate(valid);
+      showToast('Successfully imported ' + result.length + ' questions!');
+      resultsEl.innerHTML = '<p style="color:var(--color-success)">Imported ' + result.length + ' questions successfully.</p>';
+      document.getElementById('bulk-import-json').value = '';
+      this._bulkParsed = null;
+      submitBtn.style.display = 'none';
+      this.loadQuestions(true);
+    } catch (err) {
+      resultsEl.innerHTML += '<p style="color:var(--color-danger)">Import error: ' + escapeHtml(err.message) + '</p>';
+    }
+    submitBtn.disabled = false;
   }
 };
 

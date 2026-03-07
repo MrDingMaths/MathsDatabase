@@ -148,6 +148,21 @@
   margin-top: 1.5rem;
 }
 
+/* === Worksheet checkbox === */
+.question-card__checkbox {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.question-card__checkbox input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  cursor: pointer;
+  accent-color: var(--color-accent);
+}
+
 /* === Results Count === */
 .results-count {
   font-size: 0.8rem;

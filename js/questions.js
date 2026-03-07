@@ -7,7 +7,7 @@ const Questions = {
 
       if (stage?.length) query = query.in('stage', stage);
       if (topic?.length) query = query.in('topic', topic);
-      if (subtopic?.length) query = query.in('subtopic', subtopic);
+      if (subtopic?.length) query = query.overlaps('subtopic', subtopic);
       if (difficulty?.length) query = query.in('difficulty', difficulty);
       if (search) query = query.ilike('question_text', `%${search}%`);
 
@@ -43,6 +43,9 @@ const Questions = {
 
   async update(id, updates) {
     try {
+      updates.has_katex = /\$/.test(updates.question_text || '') || /\$/.test(updates.solution_text || '');
+      updates.has_image = !!(updates.question_image_url || updates.solution_image_url);
+
       const { data, error } = await supabaseClient
         .from('questions')
         .update(updates)
@@ -70,44 +73,100 @@ const Questions = {
     }
   },
 
+  // Loads the full taxonomy in one batch for client-side filtering.
+  // Returns { stages: [{id, label}], topics: [{id, name, stage_id}], subtopics: [{id, name, topic_id}] }
+  async getTaxonomy() {
+    try {
+      const [{ data: stages, error: e1 }, { data: topics, error: e2 }, { data: subtopics, error: e3 }] =
+        await Promise.all([
+          supabaseClient.from('stages').select('id, label, sort_order').order('sort_order'),
+          supabaseClient.from('topics').select('id, name, stage_id').order('name'),
+          supabaseClient.from('subtopics').select('id, name, topic_id').order('name')
+        ]);
+      if (e1) throw e1;
+      if (e2) throw e2;
+      if (e3) throw e3;
+      return { stages: stages || [], topics: topics || [], subtopics: subtopics || [] };
+    } catch (err) {
+      console.error('Error fetching taxonomy:', err);
+      return { stages: [], topics: [], subtopics: [] };
+    }
+  },
+
+  // Returns [{value, label}] -- used by filters.js for the stage multi-select
   async getStages() {
     try {
       const { data, error } = await supabaseClient
-        .from('questions')
-        .select('stage')
-        .order('stage');
+        .from('stages')
+        .select('id, label')
+        .order('sort_order');
       if (error) throw error;
-      return [...new Set(data.map(d => d.stage))];
+      return (data || []).map(s => ({ value: s.id, label: s.label }));
     } catch (err) {
       console.error('Error fetching stages:', err);
       return [];
     }
   },
 
-  async getTopics(stages) {
+  // Returns topic name strings, filtered by stage IDs
+  async getTopics(stageIds) {
     try {
-      let query = supabaseClient.from('questions').select('topic');
-      if (stages?.length) query = query.in('stage', stages);
-      const { data, error } = await query.order('topic');
+      let query = supabaseClient.from('topics').select('name');
+      if (stageIds?.length) query = query.in('stage_id', stageIds);
+      const { data, error } = await query.order('name');
       if (error) throw error;
-      return [...new Set(data.map(d => d.topic))];
+      return [...new Set((data || []).map(d => d.name))];
     } catch (err) {
       console.error('Error fetching topics:', err);
       return [];
     }
   },
 
-  async getSubtopics(stages, topics) {
+  // Returns subtopic name strings, filtered by stage IDs and topic names
+  async getSubtopics(stageIds, topicNames) {
     try {
-      let query = supabaseClient.from('questions').select('subtopic');
-      if (stages?.length) query = query.in('stage', stages);
-      if (topics?.length) query = query.in('topic', topics);
-      const { data, error } = await query.order('subtopic');
+      let topicQuery = supabaseClient.from('topics').select('id');
+      if (stageIds?.length) topicQuery = topicQuery.in('stage_id', stageIds);
+      if (topicNames?.length) topicQuery = topicQuery.in('name', topicNames);
+      const { data: topicData, error: topicErr } = await topicQuery;
+      if (topicErr) throw topicErr;
+
+      const topicIds = (topicData || []).map(t => t.id);
+      if (!topicIds.length) return [];
+
+      const { data, error } = await supabaseClient
+        .from('subtopics')
+        .select('name')
+        .in('topic_id', topicIds)
+        .order('name');
       if (error) throw error;
-      return [...new Set(data.map(d => d.subtopic).filter(Boolean))];
+      return [...new Set((data || []).map(d => d.name))];
     } catch (err) {
       console.error('Error fetching subtopics:', err);
       return [];
+    }
+  },
+
+  async bulkCreate(questions) {
+    try {
+      const prepared = questions.map(q => ({
+        ...q,
+        has_katex: /\$/.test(q.question_text || '') || /\$/.test(q.solution_text || ''),
+        has_image: !!(q.question_image_url || q.solution_image_url),
+        marks: q.marks || 1,
+        tags: q.tags || [],
+        choices: q.choices || null
+      }));
+
+      const { data, error } = await supabaseClient
+        .from('questions')
+        .insert(prepared)
+        .select();
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      console.error('Error bulk creating questions:', err);
+      throw err;
     }
   },
 
