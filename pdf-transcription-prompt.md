@@ -382,6 +382,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 185 Domain and range
 - 199 Composite functions
 - 200 Graph inequalities
+- 210 Inverse functions
 
 **Logarithms** (topic_id: 55)
 - 186 Laws of logarithms

@@ -124,7 +124,7 @@
 }
 
 .worksheet-question__text img {
-  max-width: 80%;
+  max-width: 70%;
   margin-top: 0.5rem;
 }
 
@@ -132,6 +132,11 @@
   border-bottom: 1px dotted var(--color-border);
   height: 3rem;
   margin-top: 0.5rem;
+}
+
+/* === Worksheet Footer === */
+.worksheet-footer {
+  display: none;
 }
 
 /* === Answer Key === */
@@ -205,6 +210,23 @@
 
   .no-print {
     display: none !important;
+  }
+
+  .worksheet-footer {
+    display: flex;
+    justify-content: space-between;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-size: 8pt;
+    color: #666;
+    padding: 4pt 0;
+    border-top: 1px solid #ccc;
+  }
+
+  .worksheet-footer__page::after {
+    content: 'Page ' counter(page);
   }
 
   .answer-key {

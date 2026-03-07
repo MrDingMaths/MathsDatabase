@@ -287,7 +287,6 @@ const Worksheet = {
         <span class="worksheet-header__questions">${ordered.length} question${ordered.length !== 1 ? 's' : ''}</span>
         <span class="worksheet-header__marks">............... out of ${totalMarks} mark${totalMarks !== 1 ? 's' : ''}</span>
       </div>
-      <div class="worksheet-header__subtitle">Worksheet generated at database.MrDingMaths.com</div>
     </div>`;
 
     ordered.forEach((q, i) => {
@@ -295,7 +294,7 @@ const Worksheet = {
         <button class="worksheet-question__remove no-print" onclick="Worksheet.removeQuestion('${q.id}')" title="Remove question">✕</button>
         <p><span class="worksheet-question__number">${i + 1}.</span>${calcIcon(q.calculator)}
         <span class="worksheet-question__text">${renderTextWithImages(q.question_text || '')}</span></p>
-        ${q.question_image_url ? `<img src="${escapeHtml(q.question_image_url)}" alt="Diagram" style="max-width:80%">` : ''}
+        ${q.question_image_url ? `<img src="${escapeHtml(q.question_image_url)}" alt="Diagram" style="max-width:70%">` : ''}
         <div class="worksheet-question__answer-space"></div>
       </div>`;
     });
@@ -311,6 +310,11 @@ const Worksheet = {
       });
       html += '</div>';
     }
+
+    html += `<div class="worksheet-footer">
+      <span class="worksheet-footer__url">database.MrDingMaths.com</span>
+      <span class="worksheet-footer__page"></span>
+    </div>`;
 
     preview.innerHTML = html;
     renderMath(preview);
