@@ -42,8 +42,26 @@
 }
 
 .worksheet-question {
+  position: relative;
   margin-bottom: 1.5rem;
   page-break-inside: avoid;
+}
+
+.worksheet-question__remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  color: var(--color-text-muted, #888);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0 0.25rem;
+  line-height: 1;
+}
+
+.worksheet-question__remove:hover {
+  color: var(--color-danger, #dc2626);
 }
 
 .worksheet-question__number {
@@ -119,6 +137,10 @@
 
   .worksheet-question {
     page-break-inside: avoid;
+  }
+
+  .no-print {
+    display: none !important;
   }
 
   .answer-key {
