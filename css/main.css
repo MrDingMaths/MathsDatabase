@@ -33,7 +33,7 @@ body {
 
 /* === Header === */
 .site-header {
-  background: var(--color-secondary);
+  background: var(--color-dark);
   color: #fff;
   padding: 1rem 2rem;
   display: flex;
@@ -210,8 +210,9 @@ body {
   letter-spacing: 0.03em;
 }
 
-.badge--stage {
-  background: var(--color-accent);
+.badge--stage,
+.badge--course {
+  background: var(--color-dark);
   color: #fff;
 }
 

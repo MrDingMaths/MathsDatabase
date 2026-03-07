@@ -42,11 +42,19 @@
 }
 
 .admin-layout__search {
-  /* questions list */
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow);
 }
 
 .admin-layout__edit {
-  /* edit form */
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow);
 }
 
 /* === Admin Layout === */

@@ -529,7 +529,7 @@ const Admin = {
         .filter(c => c.topic_id)
         .map(c => {
           const parts = [c.topic_name, c.subtopic_name].filter(Boolean);
-          return `<span class="badge badge--stage">${escapeHtml(parts.join(' › '))}</span>`;
+          return `<span class="badge ${topicBadgeClass(c.topic_name)}">${escapeHtml(parts.join(' › '))}</span>`;
         }).join('');
       return `<div class="question-card">
         <details class="question-card__collapsible">
@@ -541,7 +541,7 @@ const Admin = {
             </div>
             <div class="question-card__meta-right">
               ${calcIcon(q.calculator)}
-              ${q.difficulty ? `<span class="badge badge--difficulty">${escapeHtml(q.difficulty)}</span>` : ''}
+              ${q.difficulty ? `<span class="badge badge--difficulty ${difficultyBadgeClass(q.difficulty)}">${escapeHtml(q.difficulty)}</span>` : ''}
               ${q.marks ? `<span class="badge">${q.marks} mark${q.marks !== 1 ? 's' : ''}</span>` : ''}
             </div>
             <div class="question-card__actions" onclick="event.stopPropagation()">

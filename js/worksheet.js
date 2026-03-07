@@ -37,18 +37,6 @@ const naturalSort = (a, b) => {
 
 const DIFFICULTY_ORDER = { Foundation: 0, Development: 1, Mastery: 2, Challenge: 3 };
 
-const topicBadgeClass = (topicName) => {
-  if (!topicName) return 'badge--topic-blue';
-  if (/number|algebra|financial/i.test(topicName)) return 'badge--topic-blue';
-  if (/geometry|measurement/i.test(topicName)) return 'badge--topic-green';
-  if (/data|probability/i.test(topicName)) return 'badge--topic-red';
-  return 'badge--topic-blue';
-};
-
-const difficultyBadgeClass = (difficulty) => {
-  const map = { Foundation: 'badge--foundation', Development: 'badge--development', Mastery: 'badge--mastery', Challenge: 'badge--challenge' };
-  return map[difficulty] || '';
-};
 
 const Worksheet = {
   allQuestions: [],

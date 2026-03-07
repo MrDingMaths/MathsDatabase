@@ -76,11 +76,11 @@ const App = {
           <span class="question-card__number">${num}</span>
           <div class="question-card__meta">
             ${(q.classifications || []).map(c => {
-              if (c.course_id && !c.topic_id) return `<span class="badge badge--course">${escapeHtml(c.course_label || '')}</span>`;
-              if (c.topic_id) return `<span class="badge badge--topic">${escapeHtml([c.topic_name, c.subtopic_name].filter(Boolean).join(' › '))}</span>`;
+              if (c.course_id && !c.topic_id) return `<span class="badge badge--stage">${escapeHtml(c.course_label || '')}</span>`;
+              if (c.topic_id) return `<span class="badge ${topicBadgeClass(c.topic_name)}">${escapeHtml([c.topic_name, c.subtopic_name].filter(Boolean).join(' › '))}</span>`;
               return '';
             }).join('')}
-            ${q.difficulty ? `<span class="badge badge--difficulty">${escapeHtml(q.difficulty)}</span>` : ''}
+            ${q.difficulty ? `<span class="badge badge--difficulty ${difficultyBadgeClass(q.difficulty)}">${escapeHtml(q.difficulty)}</span>` : ''}
             ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
           </div>
         </summary>

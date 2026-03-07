@@ -1,3 +1,18 @@
+// Topic badge colour by topic name
+const topicBadgeClass = (topicName) => {
+  if (!topicName) return 'badge--topic-blue';
+  if (/number|algebra|financial/i.test(topicName)) return 'badge--topic-blue';
+  if (/geometry|measurement/i.test(topicName)) return 'badge--topic-green';
+  if (/data|probability/i.test(topicName)) return 'badge--topic-red';
+  return 'badge--topic-blue';
+};
+
+// Difficulty badge class by difficulty name
+const difficultyBadgeClass = (difficulty) => {
+  const map = { Foundation: 'badge--foundation', Development: 'badge--development', Mastery: 'badge--mastery', Challenge: 'badge--challenge' };
+  return map[difficulty] || '';
+};
+
 // Calculator/Non-calculator SVG icons
 // calculator: true = calculator allowed, false = non-calculator, null/undefined = not set
 const calcIcon = (calculator) => {
@@ -32,6 +47,17 @@ const calcIcon = (calculator) => {
 // KaTeX rendering helper
 const renderMath = (element) => {
   if (typeof renderMathInElement === 'function') {
+    // Replace \$ with a placeholder so KaTeX doesn't treat it as a delimiter
+    const PLACEHOLDER = '\uE000';
+    const walkReplace = (node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        node.textContent = node.textContent.replace(/\\\$/g, PLACEHOLDER);
+      } else {
+        node.childNodes.forEach(walkReplace);
+      }
+    };
+    walkReplace(element);
+
     renderMathInElement(element, {
       delimiters: [
         { left: '$$', right: '$$', display: true },
@@ -41,5 +67,15 @@ const renderMath = (element) => {
       ],
       throwOnError: false
     });
+
+    // Restore placeholder back to literal $
+    const walkRestore = (node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        node.textContent = node.textContent.replace(/\uE000/g, '$');
+      } else {
+        node.childNodes.forEach(walkRestore);
+      }
+    };
+    walkRestore(element);
   }
 };
