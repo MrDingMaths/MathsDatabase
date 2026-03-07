@@ -1,3 +1,44 @@
+/* === Admin Top Bar === */
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.admin-topbar h2 {
+  margin: 0;
+  flex: 1;
+  min-width: 12rem;
+}
+
+.admin-topbar__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* === Admin Two-Column Layout === */
+#admin-section.main-content {
+  max-width: 100%;
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.admin-layout__search {
+  /* questions list */
+}
+
+.admin-layout__edit {
+  /* edit form */
+}
+
 /* === Admin Layout === */
 .admin-login {
   max-width: 400px;
@@ -55,11 +96,6 @@
 }
 
 /* === Preview Pane === */
-.preview-split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
 
 .preview-pane {
   background: #fff;
@@ -182,8 +218,13 @@
   color: #fff;
 }
 
-@media (max-width: 768px) {
-  .preview-split {
+@media (max-width: 900px) {
+  .admin-layout {
     grid-template-columns: 1fr;
   }
+}
+
+/* === Recent Questions (remove old top margin since it's now in a column) === */
+.admin-layout__search .recent-questions {
+  margin-top: 0;
 }

@@ -25,24 +25,12 @@
   </header>
 
   <main class="main-content">
-    <section class="filter-bar">
+    <section class="filter-bar filter-bar--chips">
       <input type="text" id="search-filter" class="filter-bar__search" placeholder="Search questions…">
-      <div id="course-filter" class="multi-select">
-        <button type="button" class="multi-select__toggle">All Courses</button>
-        <div class="multi-select__panel"></div>
-      </div>
-      <div id="topic-filter" class="multi-select">
-        <button type="button" class="multi-select__toggle">All Topics</button>
-        <div class="multi-select__panel"></div>
-      </div>
-      <div id="subtopic-filter" class="multi-select">
-        <button type="button" class="multi-select__toggle">All Subtopics</button>
-        <div class="multi-select__panel"></div>
-      </div>
-      <div id="difficulty-filter" class="multi-select">
-        <button type="button" class="multi-select__toggle">All Difficulties</button>
-        <div class="multi-select__panel"></div>
-      </div>
+      <div id="course-filter" class="filter-row"></div>
+      <div id="topic-filter" class="filter-row"></div>
+      <div id="subtopic-filter" class="filter-row"></div>
+      <div id="difficulty-filter" class="filter-row"></div>
     </section>
 
     <div class="worksheet-controls">

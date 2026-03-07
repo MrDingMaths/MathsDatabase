@@ -45,167 +45,167 @@
 
   <!-- Admin Section (hidden until login) -->
   <div id="admin-section" class="main-content" style="display:none;">
-    <h2 id="form-title" style="margin-bottom:1.5rem;">Add New Question</h2>
 
-    <form id="question-form" class="admin-form">
-      <!-- Question Text with Preview -->
-      <div class="form-group">
-        <label for="question-text">Question Text (use $...$ for inline maths, $$...$$ for display)
-          <button type="button" id="question-insert-img-btn" class="btn btn--secondary btn--small" style="margin-left:0.5rem;">Insert Image</button>
-        </label>
-      </div>
-      <div class="preview-split">
-        <div class="form-group">
-          <textarea id="question-text" placeholder="Enter question text..."></textarea>
-        </div>
-        <div>
-          <div class="preview-pane__label">Preview</div>
-          <div id="question-preview" class="preview-pane"></div>
-        </div>
-      </div>
-
-      <!-- Solution Text with Preview -->
-      <div class="form-group">
-        <label for="solution-text">Solution Text
-          <button type="button" id="solution-insert-img-btn" class="btn btn--secondary btn--small" style="margin-left:0.5rem;">Insert Image</button>
-        </label>
-      </div>
-      <div class="preview-split">
-        <div class="form-group">
-          <textarea id="solution-text" placeholder="Enter solution..."></textarea>
-        </div>
-        <div>
-          <div class="preview-pane__label">Preview</div>
-          <div id="solution-preview" class="preview-pane"></div>
-        </div>
-      </div>
-
-      <!-- Classifications -->
-      <div class="form-group">
-        <label>Classifications</label>
-        <div class="classification-adder">
-          <div>
-            <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Courses</label>
-            <div id="cls-courses-checkboxes" style="display:flex;flex-wrap:wrap;gap:0.25rem 0;padding:0.25rem 0;"></div>
-          </div>
-          <div style="margin-top:0.75rem;">
-            <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Topic / Subtopic</label>
-            <div id="classifications-list"></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0.5rem;align-items:end;margin-top:0.25rem;">
-              <select id="cls-topic-select"><option value="">Select topic</option></select>
-              <select id="cls-subtopic-select"><option value="">None</option></select>
-              <button type="button" id="add-cls-btn" class="btn btn--secondary">Add</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Difficulty -->
-      <div class="form-group">
-        <label>Difficulty</label>
-        <div class="difficulty-radios">
-          <label><input type="radio" name="difficulty" value="Foundation"> Foundation</label>
-          <label><input type="radio" name="difficulty" value="Development" checked> Development</label>
-          <label><input type="radio" name="difficulty" value="Mastery"> Mastery</label>
-          <label><input type="radio" name="difficulty" value="Challenge"> Challenge</label>
-        </div>
-      </div>
-
-      <!-- Marks -->
-      <div class="form-group" style="max-width:8rem;">
-        <label for="marks-input">Marks</label>
-        <input type="number" id="marks-input" min="1" max="20" placeholder="1">
-      </div>
-
-
-      <!-- Calculator -->
-      <div class="form-group">
-        <label>Calculator</label>
-        <div class="difficulty-radios">
-          <label><input type="radio" name="calculator" value=""> Not specified</label>
-          <label><input type="radio" name="calculator" value="true"> Calculator</label>
-          <label><input type="radio" name="calculator" value="false"> Non-calculator</label>
-        </div>
-      </div>
-
-      <!-- Tags & Source -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-        <div class="form-group">
-          <label for="tags-input">Tags (comma-separated)</label>
-          <input type="text" id="tags-input" placeholder="e.g. algebra, quadratic, HSC">
-        </div>
-        <div class="form-group">
-          <label for="source-input">Source</label>
-          <input type="text" id="source-input" placeholder="e.g. 2023 HSC Q5">
-        </div>
-      </div>
-
-      <div style="display:flex;gap:0.75rem;">
-        <button type="submit" id="submit-btn" class="btn btn--primary">Submit Question</button>
+    <!-- Top bar: title + actions -->
+    <div class="admin-topbar">
+      <h2 id="form-title">Add New Question</h2>
+      <div class="admin-topbar__actions">
+        <button type="button" id="bulk-import-toggle" class="btn btn--secondary">Bulk Import</button>
+        <button type="submit" id="submit-btn" form="question-form" class="btn btn--primary">Submit Question</button>
         <button type="button" id="clear-form-btn" class="btn btn--secondary">Clear Form</button>
         <button type="button" id="cancel-edit-btn" class="btn btn--secondary" style="display:none;">Cancel Edit</button>
       </div>
-    </form>
-
-
-    <!-- Bulk Import -->
-    <div style="margin:2rem 0;">
-      <button type="button" id="bulk-import-toggle" class="btn btn--secondary">Show Bulk Import</button>
-      <div id="bulk-import-section" style="display:none;margin-top:1rem;">
-        <div class="form-group">
-          <label>Upload JSON file or paste below</label>
-          <input type="file" id="bulk-import-file" accept=".json">
-        </div>
-        <div class="form-group">
-          <label for="bulk-import-json">JSON Array of Questions</label>
-          <textarea id="bulk-import-json" rows="10" placeholder='[{"question_text": "...", "answer": "...", "answer_type": "exact", "stage": "stage4", "topic": "Algebra", "difficulty": "B", "subtopic": ["Linear Equations"], "marks": 1}]'></textarea>
-        </div>
-        <div style="display:flex;gap:0.75rem;">
-          <button type="button" id="bulk-validate-btn" class="btn btn--secondary">Validate</button>
-          <button type="button" id="bulk-submit-btn" class="btn btn--primary" style="display:none;">Import</button>
-        </div>
-        <div id="bulk-import-results" style="margin-top:1rem;"></div>
-      </div>
     </div>
-    <!-- All Questions -->
-    <div class="recent-questions">
-      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;flex-wrap:wrap;">
-        <h3 class="recent-questions__title" style="margin:0;">All Questions</h3>
-        <select id="sort-select" class="btn btn--secondary btn--small">
-          <option value="source">Sort: Source</option>
-          <option value="difficulty">Sort: Difficulty</option>
-          <option value="topic">Sort: Topic</option>
-          <option value="marks">Sort: Marks</option>
-        </select>
-        <button id="toggle-cards-btn" class="btn btn--secondary btn--small">Expand All</button>
-        <button id="toggle-solutions-display-btn" class="btn btn--secondary btn--small">Show Solutions</button>
+
+    <!-- Bulk Import (collapsible) -->
+    <div id="bulk-import-section" style="display:none;margin-bottom:1.5rem;">
+      <div class="form-group">
+        <label>Upload JSON file or paste below</label>
+        <input type="file" id="bulk-import-file" accept=".json">
       </div>
-      <div class="filter-bar" style="margin-bottom:0.5rem;">
-        <input type="text" id="search-filter" class="filter-bar__search" placeholder="Search questions…">
-        <div id="course-filter" class="multi-select">
-          <button type="button" class="multi-select__toggle">All Courses</button>
-          <div class="multi-select__panel"></div>
-        </div>
-        <div id="topic-filter" class="multi-select">
-          <button type="button" class="multi-select__toggle">All Topics</button>
-          <div class="multi-select__panel"></div>
-        </div>
-        <div id="subtopic-filter" class="multi-select">
-          <button type="button" class="multi-select__toggle">All Subtopics</button>
-          <div class="multi-select__panel"></div>
-        </div>
-        <div id="difficulty-filter" class="multi-select">
-          <button type="button" class="multi-select__toggle">All Difficulties</button>
-          <div class="multi-select__panel"></div>
-        </div>
+      <div class="form-group">
+        <label for="bulk-import-json">JSON Array of Questions</label>
+        <textarea id="bulk-import-json" rows="10" placeholder='[{"question_text": "...", "answer": "...", "answer_type": "exact", "stage": "stage4", "topic": "Algebra", "difficulty": "B", "subtopic": ["Linear Equations"], "marks": 1}]'></textarea>
       </div>
-      <div id="q-count" style="font-size:0.85rem;color:var(--color-text-light);margin-bottom:0.5rem;"></div>
-      <div id="questions-container" class="questions-grid"></div>
-      <div style="text-align:center;margin-top:1rem;">
-        <button type="button" id="load-more-btn" class="btn btn--secondary" style="display:none;">Load More</button>
+      <div style="display:flex;gap:0.75rem;">
+        <button type="button" id="bulk-validate-btn" class="btn btn--secondary">Validate</button>
+        <button type="button" id="bulk-submit-btn" class="btn btn--primary" style="display:none;">Import</button>
       </div>
+      <div id="bulk-import-results" style="margin-top:1rem;"></div>
     </div>
-  </div>
+
+    <!-- Two-column layout: search left, edit right -->
+    <div class="admin-layout">
+
+      <!-- LEFT: Question search & list -->
+      <div class="admin-layout__search">
+        <div class="recent-questions">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;flex-wrap:wrap;">
+            <h3 class="recent-questions__title" style="margin:0;">All Questions</h3>
+            <select id="sort-select" class="btn btn--secondary btn--small">
+              <option value="source">Sort: Source</option>
+              <option value="difficulty">Sort: Difficulty</option>
+              <option value="topic">Sort: Topic</option>
+              <option value="marks">Sort: Marks</option>
+            </select>
+            <button id="toggle-cards-btn" class="btn btn--secondary btn--small">Expand All</button>
+            <button id="toggle-solutions-display-btn" class="btn btn--secondary btn--small">Show Solutions</button>
+          </div>
+          <div class="filter-bar" style="margin-bottom:0.5rem;">
+            <input type="text" id="search-filter" class="filter-bar__search" placeholder="Search questions…">
+            <div id="course-filter" class="multi-select">
+              <button type="button" class="multi-select__toggle">All Courses</button>
+              <div class="multi-select__panel"></div>
+            </div>
+            <div id="topic-filter" class="multi-select">
+              <button type="button" class="multi-select__toggle">All Topics</button>
+              <div class="multi-select__panel"></div>
+            </div>
+            <div id="subtopic-filter" class="multi-select">
+              <button type="button" class="multi-select__toggle">All Subtopics</button>
+              <div class="multi-select__panel"></div>
+            </div>
+            <div id="difficulty-filter" class="multi-select">
+              <button type="button" class="multi-select__toggle">All Difficulties</button>
+              <div class="multi-select__panel"></div>
+            </div>
+          </div>
+          <div id="q-count" style="font-size:0.85rem;color:var(--color-text-light);margin-bottom:0.5rem;"></div>
+          <div id="questions-container" class="questions-grid"></div>
+          <div style="text-align:center;margin-top:1rem;">
+            <button type="button" id="load-more-btn" class="btn btn--secondary" style="display:none;">Load More</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Edit form -->
+      <div class="admin-layout__edit">
+        <form id="question-form" class="admin-form">
+
+          <!-- Question Text with Preview -->
+          <div class="form-group">
+            <label for="question-text">Question Text (use $...$ for inline maths, $$...$$ for display)
+              <button type="button" id="question-insert-img-btn" class="btn btn--secondary btn--small" style="margin-left:0.5rem;">Insert Image</button>
+            </label>
+            <textarea id="question-text" placeholder="Enter question text..."></textarea>
+            <div class="preview-pane__label">Preview</div>
+            <div id="question-preview" class="preview-pane"></div>
+          </div>
+
+          <!-- Solution Text with Preview -->
+          <div class="form-group">
+            <label for="solution-text">Solution Text
+              <button type="button" id="solution-insert-img-btn" class="btn btn--secondary btn--small" style="margin-left:0.5rem;">Insert Image</button>
+            </label>
+            <textarea id="solution-text" placeholder="Enter solution..."></textarea>
+            <div class="preview-pane__label">Preview</div>
+            <div id="solution-preview" class="preview-pane"></div>
+          </div>
+
+          <!-- Classifications -->
+          <div class="form-group">
+            <label>Classifications</label>
+            <div class="classification-adder">
+              <div>
+                <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Courses</label>
+                <div id="cls-courses-checkboxes" style="display:flex;flex-wrap:wrap;gap:0.25rem 0;padding:0.25rem 0;"></div>
+              </div>
+              <div style="margin-top:0.75rem;">
+                <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Topic / Subtopic</label>
+                <div id="classifications-list"></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0.5rem;align-items:end;margin-top:0.25rem;">
+                  <select id="cls-topic-select"><option value="">Select topic</option></select>
+                  <select id="cls-subtopic-select"><option value="">None</option></select>
+                  <button type="button" id="add-cls-btn" class="btn btn--secondary">Add</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Difficulty -->
+          <div class="form-group">
+            <label>Difficulty</label>
+            <div class="difficulty-radios">
+              <label><input type="radio" name="difficulty" value="Foundation"> Foundation</label>
+              <label><input type="radio" name="difficulty" value="Development" checked> Development</label>
+              <label><input type="radio" name="difficulty" value="Mastery"> Mastery</label>
+              <label><input type="radio" name="difficulty" value="Challenge"> Challenge</label>
+            </div>
+          </div>
+
+          <!-- Marks -->
+          <div class="form-group" style="max-width:8rem;">
+            <label for="marks-input">Marks</label>
+            <input type="number" id="marks-input" min="1" max="20" placeholder="1">
+          </div>
+
+          <!-- Calculator -->
+          <div class="form-group">
+            <label>Calculator</label>
+            <div class="difficulty-radios">
+              <label><input type="radio" name="calculator" value=""> Not specified</label>
+              <label><input type="radio" name="calculator" value="true"> Calculator</label>
+              <label><input type="radio" name="calculator" value="false"> Non-calculator</label>
+            </div>
+          </div>
+
+          <!-- Tags & Source -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+              <label for="tags-input">Tags (comma-separated)</label>
+              <input type="text" id="tags-input" placeholder="e.g. algebra, quadratic, HSC">
+            </div>
+            <div class="form-group">
+              <label for="source-input">Source</label>
+              <input type="text" id="source-input" placeholder="e.g. 2023 HSC Q5">
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+    </div><!-- /.admin-layout -->
+  </div><!-- /#admin-section -->
 
   <div id="toast" class="toast"></div>
 

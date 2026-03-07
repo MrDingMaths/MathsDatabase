@@ -52,7 +52,8 @@ const Worksheet = {
       topicId: 'topic-filter',
       subtopicId: 'subtopic-filter',
       difficultyId: 'difficulty-filter',
-      onChange: (values) => this.loadQuestions(values)
+      onChange: (values) => this.loadQuestions(values),
+      chips: true
     });
 
     document.getElementById('search-filter').addEventListener('input', (e) => {
