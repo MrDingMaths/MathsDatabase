@@ -1,15 +1,15 @@
 ﻿// Filter cascade logic
 
 const Filters = {
-  stageEl: null,
+  courseEl: null,
   topicEl: null,
   subtopicEl: null,
   difficultyEl: null,
   searchEl: null,
   onChange: null,
 
-  init({ stageId, topicId, subtopicId, difficultyId, searchId, onChange }) {
-    this.stageEl = document.getElementById(stageId);
+  init({ courseId, topicId, subtopicId, difficultyId, searchId, onChange }) {
+    this.courseEl = document.getElementById(courseId);
     this.topicEl = document.getElementById(topicId);
     this.subtopicEl = document.getElementById(subtopicId);
     this.difficultyEl = document.getElementById(difficultyId);
@@ -24,7 +24,7 @@ const Filters = {
     });
 
     // Toggle open/close on button click
-    [this.stageEl, this.topicEl, this.subtopicEl, this.difficultyEl].forEach(el => {
+    [this.courseEl, this.topicEl, this.subtopicEl, this.difficultyEl].forEach(el => {
       if (!el) return;
       el.querySelector('.multi-select__toggle').addEventListener('click', (e) => {
         e.stopPropagation();
@@ -42,30 +42,23 @@ const Filters = {
       });
     }
 
-    this.populateMultiSelect(this.difficultyEl, ['foundation', 'development', 'mastery', 'challenge'], 'All Difficulties', () => this.fireChange());
-    this.loadStages();
-    this.loadTopics([]);
+    this.populateMultiSelect(this.difficultyEl, ['Foundation', 'Development', 'Mastery', 'Challenge'], 'All Difficulties', () => this.fireChange());
+    this.loadCourses();
+    this.loadTopics();
   },
 
-  async loadStages() {
-    const stages = await Questions.getStages();
-    this.populateMultiSelect(this.stageEl, stages, 'All Stages', () => this.onStageChange());
+  async loadCourses() {
+    const courses = await Questions.getCourses();
+    this.populateMultiSelect(this.courseEl, courses, 'All Courses', () => this.fireChange());
   },
 
-  async loadTopics(stages) {
-    const topics = await Questions.getTopics(stages);
+  async loadTopics() {
+    const topics = await Questions.getTopics();
     this.populateMultiSelect(this.topicEl, topics, 'All Topics', () => this.onTopicChange());
     this.populateMultiSelect(this.subtopicEl, [], 'All Subtopics', () => this.fireChange());
   },
 
-  async onStageChange() {
-    const stages = this.getSelected(this.stageEl);
-    await this.loadTopics(stages);
-    this.fireChange();
-  },
-
   async onTopicChange() {
-    const stages = this.getSelected(this.stageEl);
     const topics = this.getSelected(this.topicEl);
     const subtopics = await Questions.getSubtopics(topics);
     this.populateMultiSelect(this.subtopicEl, subtopics, 'All Subtopics', () => this.fireChange());
@@ -101,7 +94,7 @@ const Filters = {
 
   getValues() {
     return {
-      stage: this.getSelected(this.stageEl),
+      course: this.getSelected(this.courseEl),
       topic: this.getSelected(this.topicEl),
       subtopic: this.getSelected(this.subtopicEl),
       difficulty: this.getSelected(this.difficultyEl),

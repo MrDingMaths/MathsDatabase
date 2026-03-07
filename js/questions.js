@@ -1,10 +1,10 @@
 ﻿// CRUD operations for questions
 
 const Questions = {
-  async fetch({ stage, topic, subtopic, difficulty, search, limit = 20, offset = 0 }) {
+  async fetch({ course, topic, subtopic, difficulty, search, limit = 20, offset = 0 }) {
     try {
       const { data, error } = await supabaseClient.rpc('fetch_questions', {
-        p_stage_ids:   stage?.length     ? stage     : null,
+        p_course_ids:  course?.length    ? course    : null,
         p_topic_names: topic?.length     ? topic     : null,
         p_sub_names:   subtopic?.length  ? subtopic  : null,
         p_difficulty:  difficulty?.length? difficulty : null,
@@ -73,36 +73,36 @@ const Questions = {
   },
 
   // Loads the full taxonomy in one batch for client-side filtering.
-  // Returns { stages: [{id, label}], topics: [{id, name}], subtopics: [{id, name, topic_id}] }
+  // Returns { courses: [{id, label}], topics: [{id, name}], subtopics: [{id, name, topic_id}] }
   async getTaxonomy() {
     try {
-      const [{ data: stages, error: e1 }, { data: topics, error: e2 }, { data: subtopics, error: e3 }] =
+      const [{ data: courses, error: e1 }, { data: topics, error: e2 }, { data: subtopics, error: e3 }] =
         await Promise.all([
-          supabaseClient.from('stages').select('id, label, sort_order').order('sort_order'),
+          supabaseClient.from('courses').select('id, label, sort_order').order('sort_order'),
           supabaseClient.from('topics').select('id, name').order('name'),
           supabaseClient.from('subtopics').select('id, name, topic_id').order('name')
         ]);
       if (e1) throw e1;
       if (e2) throw e2;
       if (e3) throw e3;
-      return { stages: stages || [], topics: topics || [], subtopics: subtopics || [] };
+      return { courses: courses || [], topics: topics || [], subtopics: subtopics || [] };
     } catch (err) {
       console.error('Error fetching taxonomy:', err);
-      return { stages: [], topics: [], subtopics: [] };
+      return { courses: [], topics: [], subtopics: [] };
     }
   },
 
-  // Returns [{value, label}] -- used by filters.js for the stage multi-select
-  async getStages() {
+  // Returns [{value, label}] -- used by filters.js for the course multi-select
+  async getCourses() {
     try {
       const { data, error } = await supabaseClient
-        .from('stages')
+        .from('courses')
         .select('id, label')
         .order('sort_order');
       if (error) throw error;
       return (data || []).map(s => ({ value: s.id, label: s.label }));
     } catch (err) {
-      console.error('Error fetching stages:', err);
+      console.error('Error fetching courses:', err);
       return [];
     }
   },
@@ -144,7 +144,7 @@ const Questions = {
   },
 
   // Replace all classifications for a question.
-  // classifications: [{stage_id, topic_id, subtopic_id}] (topic_id/subtopic_id may be null)
+  // classifications: [{course_id, topic_id, subtopic_id}] (any field may be null)
   async saveClassifications(questionId, classifications) {
     try {
       const { error: delErr } = await supabaseClient
@@ -156,7 +156,7 @@ const Questions = {
       if (classifications.length) {
         const rows = classifications.map(c => ({
           question_id: questionId,
-          stage_id:    c.stage_id,
+          course_id:   c.course_id   || null,
           topic_id:    c.topic_id    || null,
           subtopic_id: c.subtopic_id || null
         }));

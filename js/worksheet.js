@@ -20,7 +20,7 @@ const Worksheet = {
 
   async init() {
     Filters.init({
-      stageId: 'stage-filter',
+      courseId: 'course-filter',
       topicId: 'topic-filter',
       subtopicId: 'subtopic-filter',
       difficultyId: 'difficulty-filter',
@@ -58,7 +58,7 @@ const Worksheet = {
       ? this.allQuestions.filter(q => {
           const text = [
             q.question_text,
-            ...(q.classifications || []).flatMap(c => [c.stage_label, c.topic_name, c.subtopic_name])
+            ...(q.classifications || []).flatMap(c => [c.course_label, c.topic_name, c.subtopic_name])
           ].filter(Boolean).join(' ').toLowerCase();
           return text.includes(this.searchTerm);
         })
@@ -79,7 +79,7 @@ const Worksheet = {
             </label>
             <div class="question-card__meta">
               ${(q.classifications || []).map(c => {
-                const parts = [c.stage_label, c.topic_name, c.subtopic_name].filter(Boolean);
+                const parts = [c.course_label, c.topic_name, c.subtopic_name].filter(Boolean);
                 return `<span class="badge badge--stage">${escapeHtml(parts.join(' › '))}</span>`;
               }).join('')}
               ${q.difficulty ? `<span class="badge badge--difficulty">${escapeHtml(q.difficulty)}</span>` : ''}

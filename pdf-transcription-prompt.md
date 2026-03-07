@@ -23,13 +23,13 @@ Each question is a JSON object. The full array looks like:
 {
   "question_text":      "string (required) — full question in KaTeX",
   "solution_text":      "string or null — full worked solution in KaTeX",
-  "difficulty":         "foundation | development | mastery | challenge",
+  "difficulty":         "Foundation | Development | Mastery | Challenge",
   "marks":              1,
   "source":             "string or null — e.g. '2023 HSC Q14b'",
   "tags":               [],
   "classifications": [
     {
-      "stage_id":    "string — see stage list below",
+      "course_id":   "string — see course list below",
       "topic_id":    123,
       "subtopic_id": 456
     }
@@ -42,14 +42,14 @@ Each question is a JSON object. The full array looks like:
 - **`question_text`** — Required. Include the full question exactly as written. Do **not** include the question number (e.g. "Q12", "14b") — that information belongs in `source`. For multi-part questions, keep all parts together in a single question object. Format part labels in bold using KaTeX: `$\textbf{(i)}$`, `$\textbf{(ii)}$`, `$\textbf{(a)}$`, etc. In JSON strings this becomes `$\\textbf{(i)}$`.
 - **`solution_text`** — Full worked solution with all steps. Use KaTeX. Set to `null` if no solution is provided.
 - **`difficulty`** — Rate based on cognitive demand. For multi-part questions, use the difficulty of the **most challenging part**. Use your judgement:
-  - `foundation`: Routine textbook style problem
-  - `development`: Multistep routine problem
-  - `mastery`: Multistep non-routine problem
-  - `challenge`: Very hard question requiring extensive understanding, possibly beyond the scope of the syllabus
+  - `Foundation`: Routine textbook style problem
+  - `Development`: Multistep routine problem
+  - `Mastery`: Multistep non-routine problem
+  - `Challenge`: Very hard question requiring extensive understanding, possibly beyond the scope of the syllabus
 - **`marks`** — The mark value shown in the PDF. Default to `1` if not shown.
 - **`source`** — The exam/book/worksheet name and question number, e.g. `"2022 HSC Advanced Q12b"` or `"2025 IGCSE 0580 P1 Q2"`. Set to `null` if unknown.
 - **`tags`** — Leave as `[]` unless there are obvious keyword tags (e.g. `["proof", "surds"]`).
-- **`classifications`** — Array of one or more classification objects. Each must have a valid `stage_id` from the list below, and a `topic_id` and `subtopic_id` from the taxonomy. Both `topic_id` and `subtopic_id` may be `null` if uncertain, but include them if at all possible.
+- **`classifications`** — Array of one or more classification objects. `course_id` must be a valid value from the course list below. `topic_id` and `subtopic_id` come from the taxonomy. All three fields may be `null` independently — courses and topics are separate dimensions. Include as many as are known.
 
 ---
 
@@ -144,9 +144,9 @@ When a question or solution includes a diagram (e.g. a geometric figure, graph, 
 
 ## Taxonomy reference
 
-### Stages (`stage_id`)
+### Courses (`course_id`)
 
-| stage_id | Label |
+| course_id | Label |
 |---|---|
 | `"stage4"` | S4 (Year 7–8) |
 | `"stage5"` | S5 (Year 9–10) |
@@ -360,23 +360,23 @@ When a question or solution includes a diagram (e.g. a geometric figure, graph, 
   {
     "question_text": "Factorise fully: $6x^2 - 13x + 6$",
     "solution_text": "Find two numbers that multiply to $6 \\times 6 = 36$ and add to $-13$: these are $-9$ and $-4$.\n$$\\begin{align*}\n6x^2 - 13x + 6 &= 6x^2 - 9x - 4x + 6 \\\\\\\\\n&= 3x(2x - 3) - 2(2x - 3) \\\\\\\\\n&= (3x - 2)(2x - 3)\n\\end{align*}$$",
-    "difficulty": "development",
+    "difficulty": "Development",
     "marks": 2,
     "source": "HSC 2023 Adv Q5",
     "tags": [],
     "classifications": [
-      { "stage_id": "stage5", "topic_id": 40, "subtopic_id": 118 }
+      { "course_id": "stage5", "topic_id": 40, "subtopic_id": 118 }
     ]
   },
   {
     "question_text": "Find the exact value of $\\sin 30^\\circ + \\cos 60^\\circ$.",
     "solution_text": "$$\\begin{align*}\n\\sin 30^\\circ + \\cos 60^\\circ &= \\frac{1}{2} + \\frac{1}{2} \\\\\\\\\n&= 1\n\\end{align*}$$",
-    "difficulty": "foundation",
+    "difficulty": "Foundation",
     "marks": 1,
     "source": null,
     "tags": [],
     "classifications": [
-      { "stage_id": "stage5", "topic_id": 53, "subtopic_id": 168 }
+      { "course_id": "stage5", "topic_id": 53, "subtopic_id": 168 }
     ]
   }
 ]
@@ -390,7 +390,7 @@ When a question or solution includes a diagram (e.g. a geometric figure, graph, 
 - [ ] All `$` delimiters are balanced (every `$` has a matching `$`)
 - [ ] Every object has `question_text`, `difficulty`, and `classifications`
 - [ ] `topic_id` and `subtopic_id` are integers (not strings)
-- [ ] `stage_id` is one of the valid string values from the stage list
+- [ ] `course_id` is one of the valid string values from the course list (or `null` if not applicable)
 - [ ] `marks` is an integer
 - [ ] Output is a single JSON array with no trailing comma on the last element
 - [ ] Output is wrapped in a ```json code block with no prose outside it

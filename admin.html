@@ -77,23 +77,20 @@
 
       <!-- Classifications -->
       <div class="form-group">
-        <label>Classifications <span style="color:var(--color-text-light);font-weight:400;font-size:0.85rem;">— add one or more Stage › Topic › Subtopic entries</span></label>
-        <div id="classifications-list"></div>
+        <label>Classifications</label>
         <div class="classification-adder">
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:0.5rem;align-items:end;">
-            <div>
-              <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Stage</label>
-              <select id="cls-stage-select"><option value="">Select stage</option></select>
-            </div>
-            <div>
-              <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Topic</label>
+          <div>
+            <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Courses</label>
+            <div id="cls-courses-checkboxes" style="display:flex;flex-wrap:wrap;gap:0.25rem 0;padding:0.25rem 0;"></div>
+          </div>
+          <div style="margin-top:0.75rem;">
+            <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Topic / Subtopic</label>
+            <div id="classifications-list"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0.5rem;align-items:end;margin-top:0.25rem;">
               <select id="cls-topic-select"><option value="">Select topic</option></select>
-            </div>
-            <div>
-              <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Subtopic (optional)</label>
               <select id="cls-subtopic-select"><option value="">None</option></select>
+              <button type="button" id="add-cls-btn" class="btn btn--secondary">Add</button>
             </div>
-            <button type="button" id="add-cls-btn" class="btn btn--secondary">Add</button>
           </div>
         </div>
       </div>
@@ -102,10 +99,10 @@
       <div class="form-group">
         <label>Difficulty</label>
         <div class="difficulty-radios">
-          <label><input type="radio" name="difficulty" value="foundation"> Foundation</label>
-          <label><input type="radio" name="difficulty" value="development" checked> Development</label>
-          <label><input type="radio" name="difficulty" value="mastery"> Mastery</label>
-          <label><input type="radio" name="difficulty" value="challenge"> Challenge</label>
+          <label><input type="radio" name="difficulty" value="Foundation"> Foundation</label>
+          <label><input type="radio" name="difficulty" value="Development" checked> Development</label>
+          <label><input type="radio" name="difficulty" value="Mastery"> Mastery</label>
+          <label><input type="radio" name="difficulty" value="Challenge"> Challenge</label>
         </div>
       </div>
 
@@ -178,16 +175,16 @@
       <h3 class="recent-questions__title">All Questions</h3>
       <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
         <input type="text" id="q-search" placeholder="Search question text...">
-        <select id="q-stage-filter">
-          <option value="">All stages</option>
+        <select id="q-course-filter">
+          <option value="">All courses</option>
         </select>
         <input type="text" id="q-topic-filter" placeholder="Filter by topic...">
         <select id="q-difficulty-filter">
           <option value="">All difficulties</option>
-          <option value="foundation">Foundation</option>
-          <option value="development">Development</option>
-          <option value="mastery">Mastery</option>
-          <option value="challenge">Challenge</option>
+          <option value="Foundation">Foundation</option>
+          <option value="Development">Development</option>
+          <option value="Mastery">Mastery</option>
+          <option value="Challenge">Challenge</option>
         </select>
       </div>
       <div id="q-count" style="font-size:0.85rem;color:var(--color-text-light);margin-bottom:0.5rem;"></div>
