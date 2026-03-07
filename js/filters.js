@@ -42,7 +42,7 @@ const Filters = {
       });
     }
 
-    this.populateMultiSelect(this.difficultyEl, ['A', 'B', 'C', 'D', 'E'], 'All Difficulties', () => this.fireChange());
+    this.populateMultiSelect(this.difficultyEl, ['foundation', 'development', 'mastery', 'challenge'], 'All Difficulties', () => this.fireChange());
     this.loadStages();
     this.loadTopics([]);
   },

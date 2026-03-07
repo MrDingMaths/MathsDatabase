@@ -60,7 +60,6 @@ const Worksheet = {
             <label class="question-card__checkbox" onclick="event.stopPropagation()">
               <input type="checkbox" ${checked} onchange="Worksheet.toggleQuestion('${q.id}')">
             </label>
-            <span class="question-card__number">${i + 1}</span>
             <div class="question-card__meta">
               ${(q.classifications || []).map(c => {
                 const parts = [c.stage_label, c.topic_name, c.subtopic_name].filter(Boolean);

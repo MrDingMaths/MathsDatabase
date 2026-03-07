@@ -259,7 +259,7 @@ const Admin = {
     const question = {
       question_text:      document.getElementById('question-text').value,
       solution_text:      document.getElementById('solution-text').value || null,
-      difficulty:         (document.querySelector('input[name="difficulty"]:checked') || {}).value || 'C',
+      difficulty:         (document.querySelector('input[name="difficulty"]:checked') || {}).value || 'development',
       answer:             document.getElementById('answer-input').value,
       answer_type:        document.getElementById('answer-type').value,
       marks:              parseInt(document.getElementById('marks-input').value, 10) || 1,
@@ -386,7 +386,7 @@ const Admin = {
     document.getElementById('tags-input').value = Array.isArray(question.tags) ? question.tags.join(', ') : (question.tags || '');
     document.getElementById('source-input').value = question.source || '';
 
-    const diffRadio = document.querySelector(`input[name="difficulty"][value="${question.difficulty || 'C'}"]`);
+    const diffRadio = document.querySelector(`input[name="difficulty"][value="${question.difficulty || 'development'}"]`);
     if (diffRadio) diffRadio.checked = true;
 
     const isMultiChoice = question.answer_type === 'multiple_choice';
@@ -566,7 +566,7 @@ const Admin = {
 
     const required = ['question_text', 'answer', 'answer_type', 'difficulty'];
     const validTypes = ['exact', 'multiple_choice', 'numeric_tolerance'];
-    const validDiffs = ['A', 'B', 'C', 'D', 'E'];
+    const validDiffs = ['foundation', 'development', 'mastery', 'challenge'];
     const validStages = this.taxonomy.stages.map(s => s.id);
     const errors = [];
     let validCount = 0;
