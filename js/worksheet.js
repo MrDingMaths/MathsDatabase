@@ -87,7 +87,7 @@ const Worksheet = {
             </div>
           </summary>
           <div class="question-card__body">
-            ${q.question_text || ''}
+            ${(q.question_text || '').replace(/\n/g, '<br>')}
             ${q.question_image_url ? `<br><img src="${escapeHtml(q.question_image_url)}" alt="Question diagram">` : ''}
           </div>
           <details class="question-card__solution">
@@ -144,7 +144,7 @@ const Worksheet = {
     selected.forEach((q, i) => {
       html += `<div class="worksheet-question">
         <p><span class="worksheet-question__number">${i + 1}.</span>
-        <span class="worksheet-question__text">${q.question_text || ''}</span></p>
+        <span class="worksheet-question__text">${(q.question_text || '').replace(/\n/g, '<br>')}</span></p>
         ${q.question_image_url ? `<img src="${escapeHtml(q.question_image_url)}" alt="Diagram" style="max-width:80%">` : ''}
         <div class="worksheet-question__answer-space"></div>
       </div>`;

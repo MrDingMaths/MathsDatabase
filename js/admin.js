@@ -374,7 +374,7 @@ const Admin = {
       this.solutionImageUrl ? `<img src="${this.solutionImageUrl}" class="drop-zone__preview" alt="Solution image">` : '';
 
     const qPrev = document.getElementById('question-preview');
-    qPrev.innerHTML = escapeHtml(question.question_text || '');
+    qPrev.innerHTML = escapeHtml(question.question_text || '').replace(/\n/g, '<br>');
     renderMath(qPrev);
     const sPrev = document.getElementById('solution-preview');
     sPrev.innerHTML = escapeHtml(question.solution_text || '');
@@ -613,7 +613,10 @@ const Admin = {
           const subtopic = subtopicName && topic
             ? this.taxonomy.subtopics.find(s => s.topic_id === topic.id && s.name === subtopicName)
             : null;
-          clsRows = [{ course_id: src.course, topic_id: topic?.id || null, subtopic_id: subtopic?.id || null }];
+          clsRows = [
+            { course_id: src.course, topic_id: null, subtopic_id: null },
+            ...(topic ? [{ course_id: null, topic_id: topic.id, subtopic_id: subtopic?.id || null }] : [])
+          ];
         }
         return clsRows.length ? Questions.saveClassifications(created.id, clsRows) : Promise.resolve();
       });
