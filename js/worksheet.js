@@ -58,7 +58,6 @@ const Worksheet = {
       ? this.allQuestions.filter(q => {
           const text = [
             q.question_text,
-            q.answer,
             ...(q.classifications || []).flatMap(c => [c.stage_label, c.topic_name, c.subtopic_name])
           ].filter(Boolean).join(' ').toLowerCase();
           return text.includes(this.searchTerm);
@@ -96,7 +95,6 @@ const Worksheet = {
             <div class="question-card__solution-content">
               ${q.solution_text || 'No solution provided.'}
               ${q.solution_image_url ? `<br><img src="${escapeHtml(q.solution_image_url)}" alt="Solution diagram">` : ''}
-              ${q.answer ? `<p><strong>Answer:</strong> ${escapeHtml(q.answer)}</p>` : ''}
             </div>
           </details>
         </details>
@@ -157,8 +155,8 @@ const Worksheet = {
         <div class="answer-key__title">Answer Key</div>`;
       selected.forEach((q, i) => {
         html += `<div class="answer-key__item">
-          <p><strong>${i + 1}.</strong> ${escapeHtml(q.answer || 'N/A')}</p>
-          ${q.solution_text ? `<div>${q.solution_text}</div>` : ''}
+          <p><strong>${i + 1}.</strong></p>
+          ${q.solution_text ? `<div>${q.solution_text}</div>` : '<p>No solution provided.</p>'}
         </div>`;
       });
       html += '</div>';

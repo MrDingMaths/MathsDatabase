@@ -162,12 +162,6 @@ const Admin = {
   },
 
   setupForm() {
-    const answerType = document.getElementById('answer-type');
-    answerType.addEventListener('change', () => {
-      document.getElementById('choices-section').style.display =
-        answerType.value === 'multiple_choice' ? '' : 'none';
-    });
-
     document.getElementById('question-form').addEventListener('submit', (e) => {
       e.preventDefault();
       this.submitQuestion();
@@ -260,26 +254,14 @@ const Admin = {
       question_text:      document.getElementById('question-text').value,
       solution_text:      document.getElementById('solution-text').value || null,
       difficulty:         (document.querySelector('input[name="difficulty"]:checked') || {}).value || 'development',
-      answer:             document.getElementById('answer-input').value,
-      answer_type:        document.getElementById('answer-type').value,
       marks:              parseInt(document.getElementById('marks-input').value, 10) || 1,
       question_image_url: this.questionImageUrl,
       solution_image_url: this.solutionImageUrl,
       source:             document.getElementById('source-input').value || null,
       tags:               document.getElementById('tags-input').value
         ? document.getElementById('tags-input').value.split(',').map(t => t.trim()).filter(Boolean)
-        : [],
-      choices: null
+        : []
     };
-
-    if (question.answer_type === 'multiple_choice') {
-      question.choices = [
-        document.getElementById('choice-a').value,
-        document.getElementById('choice-b').value,
-        document.getElementById('choice-c').value,
-        document.getElementById('choice-d').value
-      ];
-    }
 
     if (!question.question_text) {
       showToast('Please fill in the question text', 'error');
@@ -318,7 +300,6 @@ const Admin = {
     document.getElementById('solution-preview').innerHTML = '';
     document.getElementById('question-image-preview-container').innerHTML = '';
     document.getElementById('solution-image-preview-container').innerHTML = '';
-    document.getElementById('choices-section').style.display = 'none';
     this.questionImageUrl = null;
     this.solutionImageUrl = null;
     this.editingId = null;
@@ -336,7 +317,6 @@ const Admin = {
 
     document.getElementById('question-text').value = '';
     document.getElementById('solution-text').value = '';
-    document.getElementById('answer-input').value = '';
     document.getElementById('marks-input').value = '1';
     document.getElementById('tags-input').value = '';
     document.getElementById('source-input').value = '';
@@ -344,7 +324,6 @@ const Admin = {
     document.getElementById('solution-preview').innerHTML = '';
     document.getElementById('question-image-preview-container').innerHTML = '';
     document.getElementById('solution-image-preview-container').innerHTML = '';
-    document.getElementById('choices-section').style.display = 'none';
     this.questionImageUrl = null;
     this.solutionImageUrl = null;
     this.editingId = null;
@@ -380,23 +359,12 @@ const Admin = {
   async loadQuestionIntoForm(question, isDuplicate = false) {
     document.getElementById('question-text').value = question.question_text || '';
     document.getElementById('solution-text').value = question.solution_text || '';
-    document.getElementById('answer-input').value = question.answer || '';
-    document.getElementById('answer-type').value = question.answer_type || 'exact';
     document.getElementById('marks-input').value = question.marks || 1;
     document.getElementById('tags-input').value = Array.isArray(question.tags) ? question.tags.join(', ') : (question.tags || '');
     document.getElementById('source-input').value = question.source || '';
 
     const diffRadio = document.querySelector(`input[name="difficulty"][value="${question.difficulty || 'development'}"]`);
     if (diffRadio) diffRadio.checked = true;
-
-    const isMultiChoice = question.answer_type === 'multiple_choice';
-    document.getElementById('choices-section').style.display = isMultiChoice ? '' : 'none';
-    if (isMultiChoice && Array.isArray(question.choices)) {
-      document.getElementById('choice-a').value = question.choices[0] || '';
-      document.getElementById('choice-b').value = question.choices[1] || '';
-      document.getElementById('choice-c').value = question.choices[2] || '';
-      document.getElementById('choice-d').value = question.choices[3] || '';
-    }
 
     this.questionImageUrl = question.question_image_url || null;
     this.solutionImageUrl = question.solution_image_url || null;
@@ -564,8 +532,7 @@ const Admin = {
       return;
     }
 
-    const required = ['question_text', 'answer', 'answer_type', 'difficulty'];
-    const validTypes = ['exact', 'multiple_choice', 'numeric_tolerance'];
+    const required = ['question_text', 'difficulty'];
     const validDiffs = ['foundation', 'development', 'mastery', 'challenge'];
     const validStages = this.taxonomy.stages.map(s => s.id);
     const errors = [];
@@ -582,12 +549,8 @@ const Admin = {
       if (!hasClassifications && !hasLegacy) {
         rowErrors.push('must have "classifications" array or "stage"+"topic" fields');
       }
-      if (q.answer_type && !validTypes.includes(q.answer_type)) rowErrors.push('invalid answer_type');
       if (q.difficulty && !validDiffs.includes(q.difficulty)) rowErrors.push('invalid difficulty');
       if (q.stage && !validStages.includes(q.stage)) rowErrors.push('invalid stage "' + q.stage + '"');
-      if (q.answer_type === 'multiple_choice' && (!Array.isArray(q.choices) || q.choices.length < 2)) {
-        rowErrors.push('multiple_choice requires choices array');
-      }
 
       if (rowErrors.length) {
         errors.push('Row ' + (i + 1) + ': ' + rowErrors.join(', '));
@@ -616,7 +579,7 @@ const Admin = {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Importing...';
 
-    const required = ['question_text', 'answer', 'answer_type', 'difficulty'];
+    const required = ['question_text', 'difficulty'];
     const valid = this._bulkParsed.filter(q => required.every(f => q[f]));
 
     try {

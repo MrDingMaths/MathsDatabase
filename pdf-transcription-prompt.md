@@ -1,6 +1,6 @@
 # MathsDatabase — PDF Transcription Instructions
 
-You are transcribing maths questions from a PDF into a JSON array for bulk import into MathsDatabase. Output ONLY a valid JSON array — no prose, no markdown fences, no explanation.
+You are transcribing maths questions from a PDF into a JSON array for bulk import into MathsDatabase. Output the JSON array wrapped in a single ```json code block — no prose or explanation outside the code block.
 
 ---
 
@@ -23,13 +23,10 @@ Each question is a JSON object. The full array looks like:
 {
   "question_text":      "string (required) — full question in KaTeX",
   "solution_text":      "string or null — full worked solution in KaTeX",
-  "answer":             "string (required) — final answer only, in KaTeX",
-  "answer_type":        "exact | numeric_tolerance | multiple_choice",
   "difficulty":         "foundation | development | mastery | challenge",
   "marks":              1,
   "source":             "string or null — e.g. '2023 HSC Q14b'",
   "tags":               [],
-  "choices":            null,
   "classifications": [
     {
       "stage_id":    "string — see stage list below",
@@ -42,11 +39,9 @@ Each question is a JSON object. The full array looks like:
 
 ### Field rules
 
-- **`question_text`** — Required. Include the full question exactly as written, including any part labels like "(i)", "(ii)". Use KaTeX for all maths.
+- **`question_text`** — Required. Include the full question exactly as written. Do **not** include the question number (e.g. "Q12", "14b") — that information belongs in `source`. For multi-part questions, keep all parts together in a single question object. Format part labels in bold using KaTeX: `$\textbf{(i)}$`, `$\textbf{(ii)}$`, `$\textbf{(a)}$`, etc. In JSON strings this becomes `$\\textbf{(i)}$`.
 - **`solution_text`** — Full worked solution with all steps. Use KaTeX. Set to `null` if no solution is provided.
-- **`answer`** — The final answer only (e.g. `"$x = 3$"` or `"$\\frac{2}{3}$"`). Required.
-- **`answer_type`** — Use `"exact"` for most questions. Use `"numeric_tolerance"` for decimal answers where rounding may vary. Use `"multiple_choice"` only if the question has labelled options (A/B/C/D).
-- **`difficulty`** — Rate based on cognitive demand. Use your judgement:
+- **`difficulty`** — Rate based on cognitive demand. For multi-part questions, use the difficulty of the **most challenging part**. Use your judgement:
   - `foundation`: Routine textbook style problem
   - `development`: Multistep routine problem
   - `mastery`: Multistep non-routine problem
@@ -54,7 +49,6 @@ Each question is a JSON object. The full array looks like:
 - **`marks`** — The mark value shown in the PDF. Default to `1` if not shown.
 - **`source`** — The exam/book/worksheet name and question number, e.g. `"2022 HSC Advanced Q12b"` or `"2025 IGCSE 0580 P1 Q2"`. Set to `null` if unknown.
 - **`tags`** — Leave as `[]` unless there are obvious keyword tags (e.g. `["proof", "surds"]`).
-- **`choices`** — Only used when `answer_type` is `"multiple_choice"`. Provide as an array of 4 strings: `["option A", "option B", "option C", "option D"]`. Otherwise set to `null`.
 - **`classifications`** — Array of one or more classification objects. Each must have a valid `stage_id` from the list below, and a `topic_id` and `subtopic_id` from the taxonomy. Both `topic_id` and `subtopic_id` may be `null` if uncertain, but include them if at all possible.
 
 ---
@@ -96,7 +90,7 @@ All maths must be wrapped in KaTeX delimiters:
 
 ### Multi-line solutions — alignment at equals signs
 
-All multi-step working must use the `align*` environment so lines are left-justified and equals signs are vertically aligned. Place `&` immediately before each `=` (or `\leq`, `\geq`, etc.) and separate lines with `\\`:
+All multi-step working must use the `align*` environment so equals signs are vertically aligned. Place `&` immediately before each `=` (or `\leq`, `\geq`, etc.) and separate lines with `\\`:
 
 ```
 $$\\begin{align*}
@@ -117,6 +111,7 @@ Rules:
 - Every intermediate line ends with `\\` (four backslashes in JSON: `\\\\`), except the last line.
 - If a line has no equals sign (e.g. a plain statement), use `& \quad` to keep it indented: `& \quad \text{(using the quadratic formula)}`.
 - Short single-line solutions that fit on one line may use plain `$...$` inline instead.
+- For multi-part solutions, use a **separate** `align*` block for each part. Do not combine all parts into one environment.
 
 **Important:** In JSON strings, backslashes must be doubled: `\frac` becomes `\\frac`, `\sin` becomes `\\sin`, etc.
 
@@ -365,13 +360,10 @@ When a question or solution includes a diagram (e.g. a geometric figure, graph, 
   {
     "question_text": "Factorise fully: $6x^2 - 13x + 6$",
     "solution_text": "Find two numbers that multiply to $6 \\times 6 = 36$ and add to $-13$: these are $-9$ and $-4$.\n$$\\begin{align*}\n6x^2 - 13x + 6 &= 6x^2 - 9x - 4x + 6 \\\\\\\\\n&= 3x(2x - 3) - 2(2x - 3) \\\\\\\\\n&= (3x - 2)(2x - 3)\n\\end{align*}$$",
-    "answer": "$(3x-2)(2x-3)$",
-    "answer_type": "exact",
     "difficulty": "development",
     "marks": 2,
     "source": "HSC 2023 Adv Q5",
     "tags": [],
-    "choices": null,
     "classifications": [
       { "stage_id": "stage5", "topic_id": 40, "subtopic_id": 118 }
     ]
@@ -379,13 +371,10 @@ When a question or solution includes a diagram (e.g. a geometric figure, graph, 
   {
     "question_text": "Find the exact value of $\\sin 30^\\circ + \\cos 60^\\circ$.",
     "solution_text": "$$\\begin{align*}\n\\sin 30^\\circ + \\cos 60^\\circ &= \\frac{1}{2} + \\frac{1}{2} \\\\\\\\\n&= 1\n\\end{align*}$$",
-    "answer": "$1$",
-    "answer_type": "exact",
     "difficulty": "foundation",
     "marks": 1,
     "source": null,
     "tags": [],
-    "choices": null,
     "classifications": [
       { "stage_id": "stage5", "topic_id": 53, "subtopic_id": 168 }
     ]
@@ -399,9 +388,9 @@ When a question or solution includes a diagram (e.g. a geometric figure, graph, 
 
 - [ ] Every backslash is doubled in JSON strings (`\\frac`, `\\sin`, `\\sqrt`, etc.)
 - [ ] All `$` delimiters are balanced (every `$` has a matching `$`)
-- [ ] Every object has `question_text`, `answer`, `answer_type`, `difficulty`, and `classifications`
+- [ ] Every object has `question_text`, `difficulty`, and `classifications`
 - [ ] `topic_id` and `subtopic_id` are integers (not strings)
 - [ ] `stage_id` is one of the valid string values from the stage list
 - [ ] `marks` is an integer
 - [ ] Output is a single JSON array with no trailing comma on the last element
-- [ ] No markdown fences or prose — raw JSON only
+- [ ] Output is wrapped in a ```json code block with no prose outside it
