@@ -24,6 +24,7 @@ const Admin = {
   currentTotal: 0,
   loadedQuestions: [],
   PAGE_SIZE: 20,
+  pendingClassifications: [],
 
   init() {
     this.setupLogin();
@@ -66,23 +67,27 @@ const Admin = {
 
   async loadTaxonomy() {
     this.taxonomy = await Questions.getTaxonomy();
-    this.populateStageSelects();
-    document.getElementById('stage-select').addEventListener('change', () => this.onFormStageChange());
-    document.getElementById('topic-select').addEventListener('change', () => this.onFormTopicChange());
+    this.populateStageFilter();
+    this.populateClsStageSelect();
+    document.getElementById('cls-stage-select').addEventListener('change', () => this.onClsStageChange());
+    document.getElementById('cls-topic-select').addEventListener('change', () => this.onClsTopicChange());
+    document.getElementById('add-cls-btn').addEventListener('click', () => this.addClassification());
   },
 
-  populateStageSelects() {
-    const stageEl = document.getElementById('stage-select');
-    const cur = stageEl.value;
-    stageEl.innerHTML = '<option value="">Select stage</option>' +
-      this.taxonomy.stages.map(s => '<option value="' + s.id + '">' + s.label + '</option>').join('');
-    if (cur) stageEl.value = cur;
-
+  populateStageFilter() {
     const filterEl = document.getElementById('q-stage-filter');
-    const fcur = filterEl.value;
+    const cur = filterEl.value;
     filterEl.innerHTML = '<option value="">All stages</option>' +
       this.taxonomy.stages.map(s => '<option value="' + s.id + '">' + s.label + '</option>').join('');
-    if (fcur) filterEl.value = fcur;
+    if (cur) filterEl.value = cur;
+  },
+
+  populateClsStageSelect() {
+    const el = document.getElementById('cls-stage-select');
+    const cur = el.value;
+    el.innerHTML = '<option value="">Select stage</option>' +
+      this.taxonomy.stages.map(s => '<option value="' + s.id + '">' + s.label + '</option>').join('');
+    if (cur) el.value = cur;
   },
 
   getStageLabel(stageId) {
@@ -90,26 +95,70 @@ const Admin = {
     return stage ? stage.label : stageId;
   },
 
-  onFormStageChange() {
-    const stageId = document.getElementById('stage-select').value;
+  onClsStageChange() {
+    const stageId = document.getElementById('cls-stage-select').value;
     const topics = this.taxonomy.topics.filter(t => !stageId || t.stage_id === stageId);
-    const topicEl = document.getElementById('topic-select');
+    const topicEl = document.getElementById('cls-topic-select');
     topicEl.innerHTML = '<option value="">Select topic</option>' +
-      topics.map(t => '<option value="' + t.name + '">' + t.name + '</option>').join('');
-    this.onFormTopicChange();
+      topics.map(t => '<option value="' + t.id + '">' + escapeHtml(t.name) + '</option>').join('');
+    this.onClsTopicChange();
   },
 
-  onFormTopicChange() {
-    const stageId = document.getElementById('stage-select').value;
-    const topicName = document.getElementById('topic-select').value;
-    const matchingTopics = this.taxonomy.topics.filter(t =>
-      (!stageId || t.stage_id === stageId) && (!topicName || t.name === topicName)
+  onClsTopicChange() {
+    const topicId = parseInt(document.getElementById('cls-topic-select').value, 10);
+    const subtopics = this.taxonomy.subtopics.filter(s => !topicId || s.topic_id === topicId);
+    const subtopicEl = document.getElementById('cls-subtopic-select');
+    subtopicEl.innerHTML = '<option value="">None</option>' +
+      subtopics.map(s => '<option value="' + s.id + '">' + escapeHtml(s.name) + '</option>').join('');
+  },
+
+  addClassification() {
+    const stageId = document.getElementById('cls-stage-select').value;
+    const topicEl = document.getElementById('cls-topic-select');
+    const topicId = topicEl.value ? parseInt(topicEl.value, 10) : null;
+    const subtopicEl = document.getElementById('cls-subtopic-select');
+    const subtopicId = subtopicEl.value ? parseInt(subtopicEl.value, 10) : null;
+
+    if (!stageId) { showToast('Please select a stage', 'error'); return; }
+
+    const stage = this.taxonomy.stages.find(s => s.id === stageId);
+    const topic = topicId ? this.taxonomy.topics.find(t => t.id === topicId) : null;
+    const subtopic = subtopicId ? this.taxonomy.subtopics.find(s => s.id === subtopicId) : null;
+
+    const isDupe = this.pendingClassifications.some(c =>
+      c.stage_id === stageId && c.topic_id === topicId && c.subtopic_id === subtopicId
     );
-    const topicIds = new Set(matchingTopics.map(t => t.id));
-    const subtopics = this.taxonomy.subtopics.filter(s => topicIds.has(s.topic_id));
-    const subtopicEl = document.getElementById('subtopic-select');
-    subtopicEl.innerHTML = '<option value="">Select subtopic</option>' +
-      subtopics.map(s => '<option value="' + s.name + '">' + s.name + '</option>').join('');
+    if (isDupe) { showToast('Classification already added', 'error'); return; }
+
+    this.pendingClassifications.push({
+      stage_id:      stageId,
+      stage_label:   stage?.label || stageId,
+      topic_id:      topicId,
+      topic_name:    topic?.name || null,
+      subtopic_id:   subtopicId,
+      subtopic_name: subtopic?.name || null
+    });
+    this.renderClassifications();
+  },
+
+  removeClassification(index) {
+    this.pendingClassifications.splice(index, 1);
+    this.renderClassifications();
+  },
+
+  renderClassifications() {
+    const el = document.getElementById('classifications-list');
+    if (!this.pendingClassifications.length) {
+      el.innerHTML = '<div style="font-size:0.85rem;color:var(--color-text-light);padding:0.25rem 0;">No classifications added yet.</div>';
+      return;
+    }
+    el.innerHTML = this.pendingClassifications.map((c, i) => {
+      const parts = [c.stage_label, c.topic_name, c.subtopic_name].filter(Boolean);
+      return '<div class="classification-tag">' +
+        escapeHtml(parts.join(' › ')) +
+        '<button type="button" class="classification-tag__remove" onclick="Admin.removeClassification(' + i + ')" title="Remove">×</button>' +
+        '</div>';
+    }).join('');
   },
 
   setupForm() {
@@ -202,22 +251,22 @@ const Admin = {
   },
 
   async submitQuestion() {
+    if (!this.pendingClassifications.length) {
+      showToast('Please add at least one classification (Stage › Topic)', 'error');
+      return;
+    }
+
     const question = {
-      question_text: document.getElementById('question-text').value,
-      solution_text: document.getElementById('solution-text').value || null,
-      stage: document.getElementById('stage-select').value,
-      topic: document.getElementById('topic-select').value,
-      subtopic: document.getElementById('subtopic-select').value
-        ? [document.getElementById('subtopic-select').value]
-        : null,
-      difficulty: (document.querySelector('input[name="difficulty"]:checked') || {}).value || 'C',
-      answer: document.getElementById('answer-input').value,
-      answer_type: document.getElementById('answer-type').value,
-      marks: parseInt(document.getElementById('marks-input').value, 10) || 1,
+      question_text:      document.getElementById('question-text').value,
+      solution_text:      document.getElementById('solution-text').value || null,
+      difficulty:         (document.querySelector('input[name="difficulty"]:checked') || {}).value || 'C',
+      answer:             document.getElementById('answer-input').value,
+      answer_type:        document.getElementById('answer-type').value,
+      marks:              parseInt(document.getElementById('marks-input').value, 10) || 1,
       question_image_url: this.questionImageUrl,
       solution_image_url: this.solutionImageUrl,
-      source: document.getElementById('source-input').value || null,
-      tags: document.getElementById('tags-input').value
+      source:             document.getElementById('source-input').value || null,
+      tags:               document.getElementById('tags-input').value
         ? document.getElementById('tags-input').value.split(',').map(t => t.trim()).filter(Boolean)
         : [],
       choices: null
@@ -232,21 +281,31 @@ const Admin = {
       ];
     }
 
-    if (!question.question_text || !question.stage || !question.topic) {
-      showToast('Please fill in question text, stage, and topic', 'error');
+    if (!question.question_text) {
+      showToast('Please fill in the question text', 'error');
       return;
     }
 
     try {
+      let questionId;
       if (this.editingId) {
         await Questions.update(this.editingId, question);
+        questionId = this.editingId;
         showToast('Question updated successfully!');
         this.cancelEdit();
       } else {
-        await Questions.create(question);
+        const created = await Questions.create(question);
+        questionId = created.id;
         showToast('Question added successfully!');
         this.clearFormKeepContext();
       }
+
+      const clsToSave = this.pendingClassifications.map(c => ({
+        stage_id:    c.stage_id,
+        topic_id:    c.topic_id,
+        subtopic_id: c.subtopic_id
+      }));
+      await Questions.saveClassifications(questionId, clsToSave);
       this.loadQuestions(true);
     } catch (err) {
       showToast('Error: ' + err.message, 'error');
@@ -260,19 +319,18 @@ const Admin = {
     document.getElementById('question-image-preview-container').innerHTML = '';
     document.getElementById('solution-image-preview-container').innerHTML = '';
     document.getElementById('choices-section').style.display = 'none';
-    this.onFormStageChange();
     this.questionImageUrl = null;
     this.solutionImageUrl = null;
     this.editingId = null;
+    this.pendingClassifications = [];
+    this.renderClassifications();
     document.getElementById('form-title').textContent = 'Add New Question';
     document.getElementById('submit-btn').textContent = 'Submit Question';
     document.getElementById('cancel-edit-btn').style.display = 'none';
   },
 
   clearFormKeepContext() {
-    const stage = document.getElementById('stage-select').value;
-    const topic = document.getElementById('topic-select').value;
-    const subtopic = document.getElementById('subtopic-select').value;
+    const savedClassifications = [...this.pendingClassifications];
     const diffChecked = document.querySelector('input[name="difficulty"]:checked');
     const diffVal = diffChecked ? diffChecked.value : null;
 
@@ -291,9 +349,8 @@ const Admin = {
     this.solutionImageUrl = null;
     this.editingId = null;
 
-    document.getElementById('stage-select').value = stage;
-    document.getElementById('topic-select').value = topic;
-    document.getElementById('subtopic-select').value = subtopic;
+    this.pendingClassifications = savedClassifications;
+
     if (diffVal) {
       const radio = document.querySelector('input[name="difficulty"][value="' + diffVal + '"]');
       if (radio) radio.checked = true;
@@ -317,22 +374,12 @@ const Admin = {
   duplicateQuestion(id) {
     const question = this.loadedQuestions.find(q => q.id === id);
     if (!question) { showToast('Question not found', 'error'); return; }
-    this.loadQuestionIntoForm(question);
-    this.editingId = null;
-    document.getElementById('form-title').textContent = 'Duplicate Question';
-    document.getElementById('submit-btn').textContent = 'Submit Question';
-    document.getElementById('cancel-edit-btn').style.display = '';
+    this.loadQuestionIntoForm(question, true);
   },
 
-  loadQuestionIntoForm(question) {
+  async loadQuestionIntoForm(question, isDuplicate = false) {
     document.getElementById('question-text').value = question.question_text || '';
     document.getElementById('solution-text').value = question.solution_text || '';
-    document.getElementById('stage-select').value = question.stage || '';
-    this.onFormStageChange();
-    document.getElementById('topic-select').value = question.topic || '';
-    this.onFormTopicChange();
-    const subtopicVal = Array.isArray(question.subtopic) ? (question.subtopic[0] || '') : (question.subtopic || '');
-    document.getElementById('subtopic-select').value = subtopicVal;
     document.getElementById('answer-input').value = question.answer || '';
     document.getElementById('answer-type').value = question.answer_type || 'exact';
     document.getElementById('marks-input').value = question.marks || 1;
@@ -353,10 +400,10 @@ const Admin = {
 
     this.questionImageUrl = question.question_image_url || null;
     this.solutionImageUrl = question.solution_image_url || null;
-    const qImgPreview = document.getElementById('question-image-preview-container');
-    const sImgPreview = document.getElementById('solution-image-preview-container');
-    qImgPreview.innerHTML = this.questionImageUrl ? `<img src="${this.questionImageUrl}" class="drop-zone__preview" alt="Question image">` : '';
-    sImgPreview.innerHTML = this.solutionImageUrl ? `<img src="${this.solutionImageUrl}" class="drop-zone__preview" alt="Solution image">` : '';
+    document.getElementById('question-image-preview-container').innerHTML =
+      this.questionImageUrl ? `<img src="${this.questionImageUrl}" class="drop-zone__preview" alt="Question image">` : '';
+    document.getElementById('solution-image-preview-container').innerHTML =
+      this.solutionImageUrl ? `<img src="${this.solutionImageUrl}" class="drop-zone__preview" alt="Solution image">` : '';
 
     const qPrev = document.getElementById('question-preview');
     qPrev.innerHTML = escapeHtml(question.question_text || '');
@@ -365,11 +412,31 @@ const Admin = {
     sPrev.innerHTML = escapeHtml(question.solution_text || '');
     renderMath(sPrev);
 
-    this.editingId = question.id;
-    document.getElementById('form-title').textContent = 'Edit Question';
-    document.getElementById('submit-btn').textContent = 'Update Question';
-    document.getElementById('cancel-edit-btn').style.display = '';
+    // Load classifications — use the data already fetched if available, otherwise fetch from DB
+    const rawCls = question.classifications?.length
+      ? question.classifications
+      : await Questions.getClassifications(question.id);
 
+    this.pendingClassifications = rawCls.map(c => ({
+      stage_id:      c.stage_id,
+      stage_label:   c.stage_label,
+      topic_id:      c.topic_id   || null,
+      topic_name:    c.topic_name || null,
+      subtopic_id:   c.subtopic_id   || null,
+      subtopic_name: c.subtopic_name || null
+    }));
+    this.renderClassifications();
+
+    if (isDuplicate) {
+      this.editingId = null;
+      document.getElementById('form-title').textContent = 'Duplicate Question';
+      document.getElementById('submit-btn').textContent = 'Submit Question';
+    } else {
+      this.editingId = question.id;
+      document.getElementById('form-title').textContent = 'Edit Question';
+      document.getElementById('submit-btn').textContent = 'Update Question';
+    }
+    document.getElementById('cancel-edit-btn').style.display = '';
     document.getElementById('form-title').scrollIntoView({ behavior: 'smooth' });
   },
 
@@ -384,12 +451,12 @@ const Admin = {
     const topicVal = document.getElementById('q-topic-filter').value;
     const diffVal = document.getElementById('q-difficulty-filter').value;
     const filters = {
-      search: document.getElementById('q-search').value || undefined,
-      stage: stageVal ? [stageVal] : undefined,
-      topic: topicVal ? [topicVal] : undefined,
-      difficulty: diffVal ? [diffVal] : undefined,
-      limit: this.PAGE_SIZE,
-      offset: this.currentOffset
+      search:     document.getElementById('q-search').value || undefined,
+      stage:      stageVal ? [stageVal] : undefined,
+      topic:      topicVal ? [topicVal] : undefined,
+      difficulty: diffVal  ? [diffVal]  : undefined,
+      limit:      this.PAGE_SIZE,
+      offset:     this.currentOffset
     };
 
     try {
@@ -404,7 +471,7 @@ const Admin = {
 
       const tbody = document.getElementById('recent-questions-body');
       if (this.loadedQuestions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7">No questions found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5">No questions found.</td></tr>';
       }
 
       document.getElementById('q-count').textContent =
@@ -422,13 +489,13 @@ const Admin = {
     const rows = questions.map(q => {
       const preview = stripKaTeX(q.question_text || '');
       const truncated = preview.length > 60 ? preview.substring(0, 60) + '...' : preview;
-      const subtopicStr = Array.isArray(q.subtopic) ? q.subtopic.join(', ') : (q.subtopic || '-');
+      const clsText = (q.classifications || [])
+        .map(c => [c.stage_label, c.topic_name, c.subtopic_name].filter(Boolean).join(' › '))
+        .join(' | ');
       return '<tr>' +
         '<td>' + escapeHtml(truncated) + '</td>' +
-        '<td>' + escapeHtml(this.getStageLabel(q.stage)) + '</td>' +
-        '<td>' + escapeHtml(q.topic || '') + '</td>' +
-        '<td>' + escapeHtml(subtopicStr) + '</td>' +
-        '<td>' + (q.difficulty || '-') + '</td>' +
+        '<td>' + escapeHtml(clsText || '—') + '</td>' +
+        '<td>' + (q.difficulty || '—') + '</td>' +
         '<td>' + (q.marks || 1) + '</td>' +
         '<td class="questions-table__actions">' +
           '<button class="btn btn--secondary btn--small" onclick="Admin.editQuestion(\'' + q.id + '\')">Edit</button>' +
@@ -497,7 +564,7 @@ const Admin = {
       return;
     }
 
-    const required = ['question_text', 'answer', 'answer_type', 'stage', 'topic', 'difficulty'];
+    const required = ['question_text', 'answer', 'answer_type', 'difficulty'];
     const validTypes = ['exact', 'multiple_choice', 'numeric_tolerance'];
     const validDiffs = ['A', 'B', 'C', 'D', 'E'];
     const validStages = this.taxonomy.stages.map(s => s.id);
@@ -509,13 +576,18 @@ const Admin = {
       required.forEach(f => {
         if (!q[f]) rowErrors.push('missing "' + f + '"');
       });
+      // Must have either a classifications array or a stage+topic
+      const hasClassifications = Array.isArray(q.classifications) && q.classifications.length > 0;
+      const hasLegacy = q.stage && q.topic;
+      if (!hasClassifications && !hasLegacy) {
+        rowErrors.push('must have "classifications" array or "stage"+"topic" fields');
+      }
       if (q.answer_type && !validTypes.includes(q.answer_type)) rowErrors.push('invalid answer_type');
       if (q.difficulty && !validDiffs.includes(q.difficulty)) rowErrors.push('invalid difficulty');
-      if (q.stage && !validStages.includes(q.stage)) rowErrors.push('invalid stage');
+      if (q.stage && !validStages.includes(q.stage)) rowErrors.push('invalid stage "' + q.stage + '"');
       if (q.answer_type === 'multiple_choice' && (!Array.isArray(q.choices) || q.choices.length < 2)) {
         rowErrors.push('multiple_choice requires choices array');
       }
-      if (q.subtopic && !Array.isArray(q.subtopic)) rowErrors.push('subtopic must be an array');
 
       if (rowErrors.length) {
         errors.push('Row ' + (i + 1) + ': ' + rowErrors.join(', '));
@@ -544,11 +616,36 @@ const Admin = {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Importing...';
 
-    const required = ['question_text', 'answer', 'answer_type', 'stage', 'topic', 'difficulty'];
+    const required = ['question_text', 'answer', 'answer_type', 'difficulty'];
     const valid = this._bulkParsed.filter(q => required.every(f => q[f]));
 
     try {
-      const result = await Questions.bulkCreate(valid);
+      // Insert base question rows (without stage/topic/subtopic)
+      const toInsert = valid.map(({ classifications: _c, stage: _s, topic: _t, subtopic: _st, ...rest }) => rest);
+      const result = await Questions.bulkCreate(toInsert);
+
+      // Save classifications for each created question
+      const clsPromises = result.map((created, i) => {
+        const src = valid[i];
+        let clsRows = [];
+        if (Array.isArray(src.classifications) && src.classifications.length) {
+          // New format: [{stage_id, topic_id, subtopic_id}]
+          clsRows = src.classifications;
+        } else if (src.stage) {
+          // Legacy format: resolve topic/subtopic by name
+          const topic = this.taxonomy.topics.find(t => t.stage_id === src.stage && t.name === src.topic);
+          const subtopicName = Array.isArray(src.subtopic) ? src.subtopic[0] : src.subtopic;
+          const subtopic = subtopicName && topic
+            ? this.taxonomy.subtopics.find(s => s.topic_id === topic.id && s.name === subtopicName)
+            : null;
+          if (src.stage) {
+            clsRows = [{ stage_id: src.stage, topic_id: topic?.id || null, subtopic_id: subtopic?.id || null }];
+          }
+        }
+        return clsRows.length ? Questions.saveClassifications(created.id, clsRows) : Promise.resolve();
+      });
+      await Promise.all(clsPromises);
+
       showToast('Successfully imported ' + result.length + ' questions!');
       resultsEl.innerHTML = '<p style="color:var(--color-success)">Imported ' + result.length + ' questions successfully.</p>';
       document.getElementById('bulk-import-json').value = '';

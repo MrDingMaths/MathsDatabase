@@ -3,20 +3,19 @@
 const Questions = {
   async fetch({ stage, topic, subtopic, difficulty, search, limit = 20, offset = 0 }) {
     try {
-      let query = supabaseClient.from('questions').select('*', { count: 'exact' });
-
-      if (stage?.length) query = query.in('stage', stage);
-      if (topic?.length) query = query.in('topic', topic);
-      if (subtopic?.length) query = query.overlaps('subtopic', subtopic);
-      if (difficulty?.length) query = query.in('difficulty', difficulty);
-      if (search) query = query.ilike('question_text', `%${search}%`);
-
-      query = query.order('created_at', { ascending: false })
-        .range(offset, offset + limit - 1);
-
-      const { data, error, count } = await query;
+      const { data, error } = await supabaseClient.rpc('fetch_questions', {
+        p_stage_ids:   stage?.length     ? stage     : null,
+        p_topic_names: topic?.length     ? topic     : null,
+        p_sub_names:   subtopic?.length  ? subtopic  : null,
+        p_difficulty:  difficulty?.length? difficulty : null,
+        p_search:      search || null,
+        p_limit:       limit,
+        p_offset:      offset
+      });
       if (error) throw error;
-      return { data, count };
+      const count = data?.[0]?.total_count ?? 0;
+      const rows  = (data || []).map(({ total_count, ...rest }) => rest);
+      return { data: rows, count };
     } catch (err) {
       console.error('Error fetching questions:', err);
       throw err;
@@ -143,6 +142,48 @@ const Questions = {
       return [...new Set((data || []).map(d => d.name))];
     } catch (err) {
       console.error('Error fetching subtopics:', err);
+      return [];
+    }
+  },
+
+  // Replace all classifications for a question.
+  // classifications: [{stage_id, topic_id, subtopic_id}] (topic_id/subtopic_id may be null)
+  async saveClassifications(questionId, classifications) {
+    try {
+      const { error: delErr } = await supabaseClient
+        .from('question_classifications')
+        .delete()
+        .eq('question_id', questionId);
+      if (delErr) throw delErr;
+
+      if (classifications.length) {
+        const rows = classifications.map(c => ({
+          question_id: questionId,
+          stage_id:    c.stage_id,
+          topic_id:    c.topic_id    || null,
+          subtopic_id: c.subtopic_id || null
+        }));
+        const { error: insErr } = await supabaseClient
+          .from('question_classifications')
+          .insert(rows);
+        if (insErr) throw insErr;
+      }
+    } catch (err) {
+      console.error('Error saving classifications:', err);
+      throw err;
+    }
+  },
+
+  // Load all classifications for a question (used by admin edit form).
+  async getClassifications(questionId) {
+    try {
+      const { data, error } = await supabaseClient.rpc('get_question_classifications', {
+        p_question_id: questionId
+      });
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error('Error loading classifications:', err);
       return [];
     }
   },

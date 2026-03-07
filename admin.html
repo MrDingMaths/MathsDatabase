@@ -76,25 +76,26 @@
         </div>
       </div>
 
-      <!-- Stage & Topic -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
-        <div class="form-group">
-          <label for="stage-select">Stage</label>
-          <select id="stage-select" required>
-            <option value="">Select stage</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="topic-input">Topic</label>
-          <select id="topic-select" required>
-            <option value="">Select topic</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="subtopic-input">Subtopic</label>
-          <select id="subtopic-select">
-            <option value="">Select subtopic</option>
-          </select>
+      <!-- Classifications -->
+      <div class="form-group">
+        <label>Classifications <span style="color:var(--color-text-light);font-weight:400;font-size:0.85rem;">— add one or more Stage › Topic › Subtopic entries</span></label>
+        <div id="classifications-list"></div>
+        <div class="classification-adder">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:0.5rem;align-items:end;">
+            <div>
+              <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Stage</label>
+              <select id="cls-stage-select"><option value="">Select stage</option></select>
+            </div>
+            <div>
+              <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Topic</label>
+              <select id="cls-topic-select"><option value="">Select topic</option></select>
+            </div>
+            <div>
+              <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Subtopic (optional)</label>
+              <select id="cls-subtopic-select"><option value="">None</option></select>
+            </div>
+            <button type="button" id="add-cls-btn" class="btn btn--secondary">Add</button>
+          </div>
         </div>
       </div>
 
@@ -223,9 +224,7 @@
         <thead>
           <tr>
             <th>Question</th>
-            <th>Stage</th>
-            <th>Topic</th>
-            <th>Subtopic</th>
+            <th>Classification</th>
             <th>Diff</th>
             <th>Marks</th>
             <th>Actions</th>

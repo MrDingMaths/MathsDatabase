@@ -62,9 +62,10 @@ const Worksheet = {
             </label>
             <span class="question-card__number">${i + 1}</span>
             <div class="question-card__meta">
-              <span class="badge badge--stage">${escapeHtml(q.stage || '')}</span>
-              <span class="badge badge--topic">${escapeHtml(q.topic || '')}</span>
-              ${(q.subtopic || []).map(s => `<span class="badge badge--topic">${escapeHtml(s)}</span>`).join('')}
+              ${(q.classifications || []).map(c => {
+                const parts = [c.stage_label, c.topic_name, c.subtopic_name].filter(Boolean);
+                return `<span class="badge badge--stage">${escapeHtml(parts.join(' › '))}</span>`;
+              }).join('')}
               ${q.difficulty ? `<span class="badge badge--difficulty">${escapeHtml(q.difficulty)}</span>` : ''}
               ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
             </div>
