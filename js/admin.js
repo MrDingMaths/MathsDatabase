@@ -97,7 +97,7 @@ const Admin = {
 
   onClsStageChange() {
     const stageId = document.getElementById('cls-stage-select').value;
-    const topics = this.taxonomy.topics.filter(t => !stageId || t.stage_id === stageId);
+    const topics = this.taxonomy.topics;
     const topicEl = document.getElementById('cls-topic-select');
     topicEl.innerHTML = '<option value="">Select topic</option>' +
       topics.map(t => '<option value="' + t.id + '">' + escapeHtml(t.name) + '</option>').join('');
@@ -633,7 +633,7 @@ const Admin = {
           clsRows = src.classifications;
         } else if (src.stage) {
           // Legacy format: resolve topic/subtopic by name
-          const topic = this.taxonomy.topics.find(t => t.stage_id === src.stage && t.name === src.topic);
+          const topic = this.taxonomy.topics.find(t => t.name === src.topic);
           const subtopicName = Array.isArray(src.subtopic) ? src.subtopic[0] : src.subtopic;
           const subtopic = subtopicName && topic
             ? this.taxonomy.subtopics.find(s => s.topic_id === topic.id && s.name === subtopicName)

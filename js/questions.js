@@ -73,13 +73,13 @@ const Questions = {
   },
 
   // Loads the full taxonomy in one batch for client-side filtering.
-  // Returns { stages: [{id, label}], topics: [{id, name, stage_id}], subtopics: [{id, name, topic_id}] }
+  // Returns { stages: [{id, label}], topics: [{id, name}], subtopics: [{id, name, topic_id}] }
   async getTaxonomy() {
     try {
       const [{ data: stages, error: e1 }, { data: topics, error: e2 }, { data: subtopics, error: e3 }] =
         await Promise.all([
           supabaseClient.from('stages').select('id, label, sort_order').order('sort_order'),
-          supabaseClient.from('topics').select('id, name, stage_id').order('name'),
+          supabaseClient.from('topics').select('id, name').order('name'),
           supabaseClient.from('subtopics').select('id, name, topic_id').order('name')
         ]);
       if (e1) throw e1;
@@ -107,12 +107,10 @@ const Questions = {
     }
   },
 
-  // Returns topic name strings, filtered by stage IDs
-  async getTopics(stageIds) {
+  // Returns topic name strings (universal — not filtered by stage)
+  async getTopics() {
     try {
-      let query = supabaseClient.from('topics').select('name');
-      if (stageIds?.length) query = query.in('stage_id', stageIds);
-      const { data, error } = await query.order('name');
+      const { data, error } = await supabaseClient.from('topics').select('name').order('name');
       if (error) throw error;
       return [...new Set((data || []).map(d => d.name))];
     } catch (err) {
@@ -121,11 +119,10 @@ const Questions = {
     }
   },
 
-  // Returns subtopic name strings, filtered by stage IDs and topic names
-  async getSubtopics(stageIds, topicNames) {
+  // Returns subtopic name strings, filtered by topic names
+  async getSubtopics(topicNames) {
     try {
       let topicQuery = supabaseClient.from('topics').select('id');
-      if (stageIds?.length) topicQuery = topicQuery.in('stage_id', stageIds);
       if (topicNames?.length) topicQuery = topicQuery.in('name', topicNames);
       const { data: topicData, error: topicErr } = await topicQuery;
       if (topicErr) throw topicErr;

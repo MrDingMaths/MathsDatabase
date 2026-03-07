@@ -62,7 +62,7 @@ const Filters = {
   async onTopicChange() {
     const stages = this.getSelected(this.stageEl);
     const topics = this.getSelected(this.topicEl);
-    const subtopics = await Questions.getSubtopics(stages, topics);
+    const subtopics = await Questions.getSubtopics(topics);
     this.populateMultiSelect(this.subtopicEl, subtopics, 'All Subtopics', () => this.fireChange());
     this.fireChange();
   },
