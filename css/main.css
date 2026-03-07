@@ -274,6 +274,9 @@ body {
   text-align: left !important;
   margin: 0.5em 0 !important;
 }
+.katex-display > .katex {
+  display: inline-block !important;
+}
 
 /* === Multi-Select Dropdown === */
 .multi-select {
