@@ -30,10 +30,21 @@ const showToast = (message, type = 'success') => {
   setTimeout(() => toast.classList.remove('toast--visible'), 3000);
 };
 
+const naturalSort = (a, b) => {
+  const pad = (v) => (v || '').replace(/(\d+)/g, n => n.padStart(10, '0'));
+  return pad(a).localeCompare(pad(b));
+};
+
+const DIFFICULTY_ORDER = { Foundation: 0, Development: 1, Mastery: 2, Challenge: 3 };
+
 const Worksheet = {
   allQuestions: [],
   selectedIds: new Set(),
   searchTerm: '',
+  sortBy: 'source',
+  showSolutions: false,
+  cardsExpanded: false,
+  solutionsExpanded: false,
 
   async init() {
     Filters.init({
@@ -49,10 +60,19 @@ const Worksheet = {
       this.renderQuestionList();
     });
 
+    document.getElementById('sort-select').addEventListener('change', (e) => {
+      this.sortBy = e.target.value;
+      this.renderQuestionList();
+    });
+
+    document.getElementById('toggle-cards-btn').addEventListener('click', () => this.toggleAllCards());
+    document.getElementById('toggle-solutions-display-btn').addEventListener('click', () => this.toggleAllSolutions());
+
     document.getElementById('select-all').addEventListener('click', () => this.selectAll());
     document.getElementById('delect-all').addEventListener('click', () => this.deselectAll());
-    document.getElementById('generate-worksheet').addEventListener('click', () => this.generate(false));
-    document.getElementById('generate-with-answers').addEventListener('click', () => this.generate(true));
+    document.getElementById('random-question-btn').addEventListener('click', () => this.addRandom());
+    document.getElementById('generate-worksheet').addEventListener('click', () => this.generate());
+    document.getElementById('toggle-solutions-btn').addEventListener('click', () => this.toggleSolutions());
     document.getElementById('print-btn').addEventListener('click', () => window.print());
 
     this.loadQuestions({});
@@ -66,6 +86,28 @@ const Worksheet = {
     } catch (err) {
       showToast('Error loading questions', 'error');
     }
+  },
+
+  getSortedQuestions(questions) {
+    const sorted = [...questions];
+    if (this.sortBy === 'source') {
+      sorted.sort((a, b) => naturalSort(a.source, b.source));
+    } else if (this.sortBy === 'difficulty') {
+      sorted.sort((a, b) => {
+        const da = DIFFICULTY_ORDER[a.difficulty] ?? 99;
+        const db = DIFFICULTY_ORDER[b.difficulty] ?? 99;
+        return da - db;
+      });
+    } else if (this.sortBy === 'topic') {
+      sorted.sort((a, b) => {
+        const ta = (a.classifications || []).find(c => c.topic_id)?.topic_name || '';
+        const tb = (b.classifications || []).find(c => c.topic_id)?.topic_name || '';
+        return ta.localeCompare(tb);
+      });
+    } else if (this.sortBy === 'marks') {
+      sorted.sort((a, b) => (a.marks || 0) - (b.marks || 0));
+    }
+    return sorted;
   },
 
   renderQuestionList() {
@@ -83,12 +125,14 @@ const Worksheet = {
         })
       : this.allQuestions;
 
-    if (filtered.length === 0) {
+    const sorted = this.getSortedQuestions(filtered);
+
+    if (sorted.length === 0) {
       container.innerHTML = '<div class="empty-state">No questions found.</div>';
       return;
     }
 
-    container.innerHTML = filtered.map((q) => {
+    container.innerHTML = sorted.map((q) => {
       const checked = this.selectedIds.has(q.id) ? 'checked' : '';
       return `<div class="question-card">
         <details class="question-card__collapsible">
@@ -131,6 +175,22 @@ const Worksheet = {
     this.updateCount();
   },
 
+  toggleAllCards() {
+    this.cardsExpanded = !this.cardsExpanded;
+    document.querySelectorAll('#questions-container .question-card__collapsible').forEach(d => {
+      d.open = this.cardsExpanded;
+    });
+    document.getElementById('toggle-cards-btn').textContent = this.cardsExpanded ? 'Collapse All' : 'Expand All';
+  },
+
+  toggleAllSolutions() {
+    this.solutionsExpanded = !this.solutionsExpanded;
+    document.querySelectorAll('#questions-container .question-card__solution').forEach(d => {
+      d.open = this.solutionsExpanded;
+    });
+    document.getElementById('toggle-solutions-display-btn').textContent = this.solutionsExpanded ? 'Hide Solutions' : 'Show Solutions';
+  },
+
   toggleQuestion(id) {
     if (this.selectedIds.has(id)) this.selectedIds.delete(id);
     else this.selectedIds.add(id);
@@ -147,28 +207,67 @@ const Worksheet = {
     this.renderQuestionList();
   },
 
+  removeQuestion(id) {
+    this.selectedIds.delete(id);
+    this.renderQuestionList();
+    this.generate();
+  },
+
+  addRandom() {
+    const unselected = this.allQuestions.filter(q => !this.selectedIds.has(q.id));
+    if (unselected.length === 0) {
+      showToast('All filtered questions are already selected', 'error');
+      return;
+    }
+    const q = unselected[Math.floor(Math.random() * unselected.length)];
+    this.selectedIds.add(q.id);
+    this.renderQuestionList();
+  },
+
   updateCount() {
     document.getElementById('selected-count').textContent =
       `${this.selectedIds.size} question${this.selectedIds.size !== 1 ? 's' : ''} selected`;
   },
 
-  generate(showAnswers) {
+  toggleSolutions() {
+    this.showSolutions = !this.showSolutions;
+    const btn = document.getElementById('toggle-solutions-btn');
+    btn.textContent = this.showSolutions ? 'Remove Solutions' : 'Print with Solutions';
+    btn.classList.toggle('btn--primary', this.showSolutions);
+    btn.classList.toggle('btn--secondary', !this.showSolutions);
+
+    const preview = document.getElementById('worksheet-preview');
+    if (preview.style.display !== 'none') {
+      this.generate();
+    }
+  },
+
+  generate() {
     if (this.selectedIds.size === 0) {
       showToast('Please select at least one question', 'error');
       return;
     }
 
     const selected = this.allQuestions.filter(q => this.selectedIds.has(q.id));
+
+    // Sort by difficulty for worksheet output
+    const ordered = [...selected].sort((a, b) => {
+      const da = DIFFICULTY_ORDER[a.difficulty] ?? 99;
+      const db = DIFFICULTY_ORDER[b.difficulty] ?? 99;
+      return da - db;
+    });
+
     const preview = document.getElementById('worksheet-preview');
     preview.style.display = '';
 
     let html = `<div class="worksheet-header">
       <div class="worksheet-header__title">MrDingMaths</div>
-      <div class="worksheet-header__subtitle">Worksheet - ${selected.length} question${selected.length !== 1 ? 's' : ''}</div>
+      <div class="worksheet-header__subtitle">Worksheet - ${ordered.length} question${ordered.length !== 1 ? 's' : ''}</div>
     </div>`;
 
-    selected.forEach((q, i) => {
+    ordered.forEach((q, i) => {
       html += `<div class="worksheet-question">
+        <button class="worksheet-question__remove no-print" onclick="Worksheet.removeQuestion('${q.id}')" title="Remove question">✕</button>
         <p><span class="worksheet-question__number">${i + 1}.</span>${calcIcon(q.calculator)}
         <span class="worksheet-question__text">${renderTextWithImages(q.question_text || '')}</span></p>
         ${q.question_image_url ? `<img src="${escapeHtml(q.question_image_url)}" alt="Diagram" style="max-width:80%">` : ''}
@@ -176,10 +275,10 @@ const Worksheet = {
       </div>`;
     });
 
-    if (showAnswers) {
+    if (this.showSolutions) {
       html += `<div class="answer-key">
         <div class="answer-key__title">Answer Key</div>`;
-      selected.forEach((q, i) => {
+      ordered.forEach((q, i) => {
         html += `<div class="answer-key__item">
           <p><strong>${i + 1}.</strong></p>
           ${q.solution_text ? `<div>${renderTextWithImages(q.solution_text)}</div>` : '<p>No solution provided.</p>'}
@@ -190,7 +289,7 @@ const Worksheet = {
 
     preview.innerHTML = html;
     renderMath(preview);
-    showToast(showAnswers ? 'Worksheet with answer key generated' : 'Worksheet generated');
+    showToast(this.showSolutions ? 'Worksheet with solutions generated' : 'Worksheet generated');
   }
 };
 

@@ -8,6 +8,13 @@ const escapeHtml = (str) => {
 
 const stripKaTeX = (str) => str.replace(/\$\$?[^$]*\$\$?/g, String.fromCharCode(8230)).replace(/\\[a-zA-Z]+/g, String.fromCharCode(32));
 
+const naturalSort = (a, b) => {
+  const pad = (v) => (v || '').replace(/(\d+)/g, n => n.padStart(10, '0'));
+  return pad(a).localeCompare(pad(b));
+};
+
+const DIFFICULTY_ORDER = { Foundation: 0, Development: 1, Mastery: 2, Challenge: 3 };
+
 const showToast = (message, type = 'success') => {
   const toast = document.getElementById('toast');
   toast.textContent = message;
@@ -41,6 +48,9 @@ const Admin = {
   PAGE_SIZE: 20,
   pendingCourseIds: new Set(),
   pendingTopicCls: [],
+  sortBy: 'source',
+  cardsExpanded: false,
+  solutionsExpanded: false,
 
   init() {
     this.setupLogin();
@@ -85,6 +95,7 @@ const Admin = {
       onChange: () => this.loadQuestions(true)
     });
     this.setupSourceTagsSearch();
+    this.setupSortAndToggle();
     this.loadQuestions(true);
   },
 
@@ -405,6 +416,60 @@ const Admin = {
     document.getElementById('form-title').scrollIntoView({ behavior: 'smooth' });
   },
 
+  getSortedQuestions(questions) {
+    const sorted = [...questions];
+    if (this.sortBy === 'source') {
+      sorted.sort((a, b) => naturalSort(a.source, b.source));
+    } else if (this.sortBy === 'difficulty') {
+      sorted.sort((a, b) => {
+        const da = DIFFICULTY_ORDER[a.difficulty] ?? 99;
+        const db = DIFFICULTY_ORDER[b.difficulty] ?? 99;
+        return da - db;
+      });
+    } else if (this.sortBy === 'topic') {
+      sorted.sort((a, b) => {
+        const ta = (a.classifications || []).find(c => c.topic_id)?.topic_name || '';
+        const tb = (b.classifications || []).find(c => c.topic_id)?.topic_name || '';
+        return ta.localeCompare(tb);
+      });
+    } else if (this.sortBy === 'marks') {
+      sorted.sort((a, b) => (a.marks || 0) - (b.marks || 0));
+    }
+    return sorted;
+  },
+
+  setupSortAndToggle() {
+    document.getElementById('sort-select').addEventListener('change', (e) => {
+      this.sortBy = e.target.value;
+      this.renderAllLoaded();
+    });
+
+    document.getElementById('toggle-cards-btn').addEventListener('click', () => this.toggleAllCards());
+    document.getElementById('toggle-solutions-display-btn').addEventListener('click', () => this.toggleAllSolutions());
+  },
+
+  renderAllLoaded() {
+    const container = document.getElementById('questions-container');
+    container.innerHTML = '';
+    this.appendQuestionRows(this.getSortedQuestions(this.loadedQuestions));
+  },
+
+  toggleAllCards() {
+    this.cardsExpanded = !this.cardsExpanded;
+    document.querySelectorAll('#questions-container .question-card__collapsible').forEach(d => {
+      d.open = this.cardsExpanded;
+    });
+    document.getElementById('toggle-cards-btn').textContent = this.cardsExpanded ? 'Collapse All' : 'Expand All';
+  },
+
+  toggleAllSolutions() {
+    this.solutionsExpanded = !this.solutionsExpanded;
+    document.querySelectorAll('#questions-container .question-card__solution').forEach(d => {
+      d.open = this.solutionsExpanded;
+    });
+    document.getElementById('toggle-solutions-display-btn').textContent = this.solutionsExpanded ? 'Hide Solutions' : 'Show Solutions';
+  },
+
   async loadQuestions(reset) {
     if (reset) {
       this.currentOffset = 0;
@@ -430,7 +495,12 @@ const Admin = {
       if (data && data.length > 0) {
         this.loadedQuestions.push(...data);
         this.currentOffset += data.length;
-        this.appendQuestionRows(data);
+        if (reset) {
+          this.appendQuestionRows(this.getSortedQuestions(this.loadedQuestions));
+        } else {
+          // Re-render all loaded in sorted order when more are added
+          this.renderAllLoaded();
+        }
       }
 
       const container = document.getElementById('questions-container');
