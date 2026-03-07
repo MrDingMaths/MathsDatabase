@@ -5,6 +5,16 @@
   gap: 1rem;
   flex-wrap: wrap;
   margin-bottom: 1.25rem;
+  position: sticky;
+  top: 3.5rem;
+  z-index: 90;
+  background: var(--color-bg, #fff);
+  padding: 0.75rem 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  margin-left: -2rem;
+  margin-right: -2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
 .admin-topbar h2 {

@@ -267,16 +267,14 @@ const Worksheet = {
     btn.classList.toggle('btn--primary', this.showSolutions);
     btn.classList.toggle('btn--success', !this.showSolutions);
 
-    const preview = document.getElementById('worksheet-preview');
-    if (preview.style.display !== 'none') {
+    if (this.selectedIds.size > 0) {
       this.generate();
     }
   },
 
   generate(silent = false) {
     if (this.selectedIds.size === 0) {
-      const preview = document.getElementById('worksheet-preview');
-      preview.style.display = 'none';
+      document.getElementById('worksheet-preview-outer').style.display = 'none';
       document.getElementById('worksheet-layout').classList.remove('worksheet-layout--split');
       if (!silent) showToast('Please select at least one question', 'error');
       return;
@@ -291,9 +289,9 @@ const Worksheet = {
       return da - db;
     });
 
-    const preview = document.getElementById('worksheet-preview');
-    preview.style.display = '';
+    document.getElementById('worksheet-preview-outer').style.display = '';
     document.getElementById('worksheet-layout').classList.add('worksheet-layout--split');
+    const preview = document.getElementById('worksheet-preview');
 
     const totalMarks = ordered.reduce((sum, q) => sum + (q.marks || 0), 0);
     let html = `<div class="worksheet-header">

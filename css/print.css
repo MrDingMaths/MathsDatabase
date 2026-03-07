@@ -18,7 +18,7 @@
 .worksheet-layout--split {
   max-width: 100%;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr auto;
   gap: 2rem;
   align-items: start;
 }
@@ -45,12 +45,20 @@
 }
 
 /* === Print Preview === */
+.worksheet-preview-outer {
+  overflow-x: auto;
+}
+
 .worksheet-preview {
+  width: 794px; /* A4 at 96dpi */
+  min-height: 1123px; /* A4 height at 96dpi */
   background: #fff;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 2rem;
-  min-height: 200px;
+  border: 2px solid #b0b0b0;
+  border-radius: 6px;
+  padding: 72px 80px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
 }
 
 .worksheet-header {
@@ -144,6 +152,13 @@
   page-break-inside: avoid;
 }
 
+.answer-key__item img {
+  max-width: 50%;
+  max-height: 200px;
+  display: block;
+  margin: 0.25rem 0;
+}
+
 /* === Print Media Query === */
 @media print {
   .site-header,
@@ -167,7 +182,14 @@
     margin: 0;
   }
 
+  .worksheet-preview-outer {
+    background: none;
+    padding: 0;
+  }
+
   .worksheet-preview {
+    width: auto;
+    min-height: 0;
     border: none;
     padding: 0;
     box-shadow: none;
