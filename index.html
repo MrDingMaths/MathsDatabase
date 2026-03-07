@@ -25,36 +25,7 @@
       max-width: 540px;
       margin: 0 auto;
     }
-    .stats-bar {
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      padding: 2rem;
-      flex-wrap: wrap;
-    }
-    .stat-card {
-      background: var(--color-card-bg);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      padding: 1.25rem 2rem;
-      text-align: center;
-      min-width: 140px;
-      box-shadow: var(--shadow);
-    }
-    .stat-card__value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--color-highlight);
-      line-height: 1;
-    }
-    .stat-card__label {
-      font-size: 0.85rem;
-      color: var(--color-text-light);
-      margin-top: 0.35rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .nav-cards {
+.nav-cards {
       display: flex;
       justify-content: center;
       gap: 1.5rem;
@@ -106,21 +77,6 @@
       <p class="about-hero__tagline">A curated collection of maths questions spanning multiple stages and topics, built for quizzing and worksheet generation.</p>
     </section>
 
-    <div class="stats-bar">
-      <div class="stat-card">
-        <div class="stat-card__value" id="stat-questions">—</div>
-        <div class="stat-card__label">Questions</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card__value" id="stat-topics">—</div>
-        <div class="stat-card__label">Topics</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card__value" id="stat-stages">—</div>
-        <div class="stat-card__label">Stages</div>
-      </div>
-    </div>
-
     <div class="nav-cards">
       <a href="quiz.html" class="nav-card">
         <div class="nav-card__title">Quiz</div>
@@ -129,10 +85,6 @@
       <a href="worksheet.html" class="nav-card">
         <div class="nav-card__title">Worksheet</div>
         <div class="nav-card__desc">Select questions and generate a printable worksheet with or without answers.</div>
-      </a>
-      <a href="admin.html" class="nav-card">
-        <div class="nav-card__title">Admin</div>
-        <div class="nav-card__desc">Add, edit, and manage questions in the database.</div>
       </a>
     </div>
   </main>

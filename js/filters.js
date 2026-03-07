@@ -44,6 +44,7 @@ const Filters = {
 
     this.populateMultiSelect(this.difficultyEl, ['A', 'B', 'C', 'D', 'E'], 'All Difficulties', () => this.fireChange());
     this.loadStages();
+    this.loadTopics([]);
   },
 
   async loadStages() {
@@ -51,11 +52,15 @@ const Filters = {
     this.populateMultiSelect(this.stageEl, stages, 'All Stages', () => this.onStageChange());
   },
 
-  async onStageChange() {
-    const stages = this.getSelected(this.stageEl);
+  async loadTopics(stages) {
     const topics = await Questions.getTopics(stages);
     this.populateMultiSelect(this.topicEl, topics, 'All Topics', () => this.onTopicChange());
     this.populateMultiSelect(this.subtopicEl, [], 'All Subtopics', () => this.fireChange());
+  },
+
+  async onStageChange() {
+    const stages = this.getSelected(this.stageEl);
+    await this.loadTopics(stages);
     this.fireChange();
   },
 
