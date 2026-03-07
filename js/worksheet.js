@@ -37,6 +37,19 @@ const naturalSort = (a, b) => {
 
 const DIFFICULTY_ORDER = { Foundation: 0, Development: 1, Mastery: 2, Challenge: 3 };
 
+const topicBadgeClass = (topicName) => {
+  if (!topicName) return 'badge--topic-blue';
+  if (/number|algebra|financial/i.test(topicName)) return 'badge--topic-blue';
+  if (/geometry|measurement/i.test(topicName)) return 'badge--topic-green';
+  if (/data|probability/i.test(topicName)) return 'badge--topic-red';
+  return 'badge--topic-blue';
+};
+
+const difficultyBadgeClass = (difficulty) => {
+  const map = { Foundation: 'badge--foundation', Development: 'badge--development', Mastery: 'badge--mastery', Challenge: 'badge--challenge' };
+  return map[difficulty] || '';
+};
+
 const Worksheet = {
   allQuestions: [],
   selectedIds: new Set(),
@@ -148,12 +161,12 @@ const Worksheet = {
               ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
               ${(q.classifications || []).filter(c => c.topic_id).map(c => {
                 const parts = [c.topic_name, c.subtopic_name].filter(Boolean);
-                return `<span class="badge badge--stage">${escapeHtml(parts.join(' › '))}</span>`;
+                return `<span class="badge ${topicBadgeClass(c.topic_name)}">${escapeHtml(parts.join(' › '))}</span>`;
               }).join('')}
             </div>
             <div class="question-card__meta-right">
               ${calcIcon(q.calculator)}
-              ${q.difficulty ? `<span class="badge badge--difficulty">${escapeHtml(q.difficulty)}</span>` : ''}
+              ${q.difficulty ? `<span class="badge badge--difficulty ${difficultyBadgeClass(q.difficulty)}">${escapeHtml(q.difficulty)}</span>` : ''}
               ${q.marks ? `<span class="badge">${q.marks} mark${q.marks !== 1 ? 's' : ''}</span>` : ''}
             </div>
           </summary>
@@ -235,7 +248,7 @@ const Worksheet = {
     const btn = document.getElementById('toggle-solutions-btn');
     btn.textContent = this.showSolutions ? 'Remove Solutions' : 'Print with Solutions';
     btn.classList.toggle('btn--primary', this.showSolutions);
-    btn.classList.toggle('btn--secondary', !this.showSolutions);
+    btn.classList.toggle('btn--success', !this.showSolutions);
 
     const preview = document.getElementById('worksheet-preview');
     if (preview.style.display !== 'none') {

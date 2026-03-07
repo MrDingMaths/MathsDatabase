@@ -1,10 +1,10 @@
 ﻿/* === Custom Properties === */
 :root {
-  --color-dark: #1a1a2e;
-  --color-secondary: #16213e;
-  --color-accent: #0f3460;
-  --color-highlight: #e94560;
-  --color-correct: #4ecca3;
+  --color-dark: #1e3a5f;
+  --color-secondary: #2563eb;
+  --color-accent: #3b82f6;
+  --color-highlight: #ef4444;
+  --color-correct: #10b981;
   --color-bg: #f0f2f5;
   --color-card-bg: #ffffff;
   --color-text: #333333;
@@ -33,7 +33,7 @@ body {
 
 /* === Header === */
 .site-header {
-  background: var(--color-dark);
+  background: var(--color-secondary);
   color: #fff;
   padding: 1rem 2rem;
   display: flex;
@@ -132,7 +132,7 @@ body {
 }
 
 .btn--primary {
-  background: var(--color-accent);
+  background: var(--color-highlight);
   color: #fff;
 }
 
@@ -156,6 +156,15 @@ body {
   color: #fff;
 }
 
+.btn--success {
+  background: #10b981;
+  color: #fff;
+}
+
+.btn--success:hover {
+  background: #059669;
+}
+
 .btn--small {
   padding: 0.3rem 0.6rem;
   font-size: 0.8rem;
@@ -164,8 +173,9 @@ body {
 /* === Toast Notification === */
 .toast {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(-1rem);
   padding: 0.75rem 1.25rem;
   border-radius: var(--radius);
   color: #fff;
@@ -173,14 +183,13 @@ body {
   font-size: 0.9rem;
   z-index: 1000;
   opacity: 0;
-  transform: translateY(1rem);
   transition: opacity 0.3s, transform 0.3s;
   pointer-events: none;
 }
 
 .toast--visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
 }
 
 .toast--success {
@@ -328,14 +337,14 @@ body {
   border-color: var(--color-accent);
   color: var(--color-accent);
   background: #fff;
-  box-shadow: 0 1px 4px rgba(15, 52, 96, 0.12);
+  box-shadow: 0 1px 4px rgba(59, 130, 246, 0.2);
 }
 
 .chip--active {
   background: var(--color-accent);
   color: #fff;
   border-color: var(--color-accent);
-  box-shadow: 0 2px 6px rgba(15, 52, 96, 0.25);
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.35);
 }
 
 .chip--active:hover {
