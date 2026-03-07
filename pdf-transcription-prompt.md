@@ -223,6 +223,9 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 75 Measurement error
 - 76 Significant figures and standard form
 - 194 Recurring decimals
+- 207 Place value
+- 208 Factors and Multiples
+- 209 Time
 
 **Algebra** (topic_id: 40)
 - 62 Basic algebra

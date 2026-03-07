@@ -1,3 +1,34 @@
+/* === Worksheet Full-Width Layout === */
+.worksheet-main {
+  max-width: 100%;
+}
+
+.worksheet-top {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.worksheet-layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.worksheet-layout--split {
+  max-width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .worksheet-layout--split {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* === Worksheet Print Styles === */
 .worksheet-controls {
   display: flex;
@@ -23,22 +54,33 @@
 }
 
 .worksheet-header {
-  text-align: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid var(--color-dark);
 }
 
-.worksheet-header__title {
-  font-size: 1.5rem;
-  font-weight: 700;
+.worksheet-header__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--color-dark);
 }
 
 .worksheet-header__subtitle {
-  font-size: 0.9rem;
+  text-align: center;
+  font-size: 0.85rem;
   color: var(--color-text-light);
-  margin-top: 0.25rem;
+  margin-top: 0.35rem;
+}
+
+.worksheet-question__difficulty {
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  margin-left: 0.2rem;
+  margin-right: 0.4rem;
+  vertical-align: middle;
 }
 
 .worksheet-question {

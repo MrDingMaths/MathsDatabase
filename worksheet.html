@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -24,38 +24,41 @@
     </nav>
   </header>
 
-  <main class="main-content">
-    <section class="filter-bar filter-bar--chips">
-      <input type="text" id="search-filter" class="filter-bar__search" placeholder="Search questions…">
-      <div id="course-filter" class="filter-row"></div>
-      <div id="topic-filter" class="filter-row"></div>
-      <div id="subtopic-filter" class="filter-row"></div>
-      <div id="difficulty-filter" class="filter-row"></div>
-    </section>
+  <main class="main-content worksheet-main">
+    <div class="worksheet-top">
+      <section class="filter-bar filter-bar--chips">
+        <input type="text" id="search-filter" class="filter-bar__search" placeholder="Search questions…">
+        <div id="course-filter" class="filter-row"></div>
+        <div id="topic-filter" class="filter-row"></div>
+        <div id="subtopic-filter" class="filter-row"></div>
+        <div id="difficulty-filter" class="filter-row"></div>
+      </section>
 
-    <div class="worksheet-controls">
-      <span id="selected-count" class="results-count">0 questions selected</span>
-      <div class="worksheet-actions">
-        <select id="sort-select" class="btn btn--secondary btn--small">
-          <option value="source">Sort: Source</option>
-          <option value="difficulty">Sort: Difficulty</option>
-          <option value="topic">Sort: Topic</option>
-          <option value="marks">Sort: Marks</option>
-        </select>
-        <button id="toggle-cards-btn" class="btn btn--secondary btn--small">Expand All</button>
-        <button id="toggle-solutions-display-btn" class="btn btn--secondary btn--small">Show Solutions</button>
-        <button id="select-all" class="btn btn--secondary btn--small">Select All</button>
-        <button id="delect-all" class="btn btn--secondary btn--small">Deselect All</button>
-        <button id="random-question-btn" class="btn btn--secondary btn--small">Add Random</button>
-        <button id="generate-worksheet" class="btn btn--success">Generate Worksheet</button>
-        <button id="toggle-solutions-btn" class="btn btn--success">Print with Solutions</button>
-        <button id="print-btn" class="btn btn--success">Print</button>
+      <div class="worksheet-controls">
+        <span id="selected-count" class="results-count">0 questions selected</span>
+        <div class="worksheet-actions">
+          <select id="sort-select" class="btn btn--secondary btn--small">
+            <option value="source">Sort: Source</option>
+            <option value="difficulty">Sort: Difficulty</option>
+            <option value="topic">Sort: Topic</option>
+            <option value="marks">Sort: Marks</option>
+          </select>
+          <button id="toggle-cards-btn" class="btn btn--secondary btn--small">Expand All</button>
+          <button id="toggle-solutions-display-btn" class="btn btn--secondary btn--small">Show Solutions</button>
+          <button id="select-all" class="btn btn--secondary btn--small">Select All</button>
+          <button id="delect-all" class="btn btn--secondary btn--small">Deselect All</button>
+          <button id="random-question-btn" class="btn btn--secondary btn--small">Add Random</button>
+          <button id="generate-worksheet" class="btn btn--success">Generate Worksheet</button>
+          <button id="toggle-solutions-btn" class="btn btn--success">Show Solutions</button>
+          <button id="print-btn" class="btn btn--success">Print</button>
+        </div>
       </div>
     </div>
 
-    <section id="questions-container" class="questions-grid"></section>
-
-    <div id="worksheet-preview" class="worksheet-preview" style="display:none;"></div>
+    <div class="worksheet-layout" id="worksheet-layout">
+      <section id="questions-container" class="questions-grid"></section>
+      <div id="worksheet-preview" class="worksheet-preview" style="display:none;"></div>
+    </div>
   </main>
 
   <div id="toast" class="toast"></div>

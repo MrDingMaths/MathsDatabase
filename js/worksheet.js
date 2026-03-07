@@ -53,6 +53,7 @@ const difficultyBadgeClass = (difficulty) => {
 const Worksheet = {
   allQuestions: [],
   selectedIds: new Set(),
+  selectedQuestions: new Map(),
   searchTerm: '',
   sortBy: 'source',
   showSolutions: false,
@@ -206,25 +207,39 @@ const Worksheet = {
   },
 
   toggleQuestion(id) {
-    if (this.selectedIds.has(id)) this.selectedIds.delete(id);
-    else this.selectedIds.add(id);
+    if (this.selectedIds.has(id)) {
+      this.selectedIds.delete(id);
+      this.selectedQuestions.delete(id);
+    } else {
+      this.selectedIds.add(id);
+      const q = this.allQuestions.find(q => q.id === id);
+      if (q) this.selectedQuestions.set(id, q);
+    }
     this.updateCount();
+    this.generate(true);
   },
 
   selectAll() {
-    this.allQuestions.forEach(q => this.selectedIds.add(q.id));
+    this.allQuestions.forEach(q => {
+      this.selectedIds.add(q.id);
+      this.selectedQuestions.set(q.id, q);
+    });
     this.renderQuestionList();
+    this.generate(true);
   },
 
   deselectAll() {
     this.selectedIds.clear();
+    this.selectedQuestions.clear();
     this.renderQuestionList();
+    this.generate(true);
   },
 
   removeQuestion(id) {
     this.selectedIds.delete(id);
+    this.selectedQuestions.delete(id);
     this.renderQuestionList();
-    this.generate();
+    this.generate(true);
   },
 
   addRandom() {
@@ -235,7 +250,9 @@ const Worksheet = {
     }
     const q = unselected[Math.floor(Math.random() * unselected.length)];
     this.selectedIds.add(q.id);
+    this.selectedQuestions.set(q.id, q);
     this.renderQuestionList();
+    this.generate(true);
   },
 
   updateCount() {
@@ -246,7 +263,7 @@ const Worksheet = {
   toggleSolutions() {
     this.showSolutions = !this.showSolutions;
     const btn = document.getElementById('toggle-solutions-btn');
-    btn.textContent = this.showSolutions ? 'Remove Solutions' : 'Print with Solutions';
+    btn.textContent = this.showSolutions ? 'Remove Solutions' : 'Show Solutions';
     btn.classList.toggle('btn--primary', this.showSolutions);
     btn.classList.toggle('btn--success', !this.showSolutions);
 
@@ -256,13 +273,16 @@ const Worksheet = {
     }
   },
 
-  generate() {
+  generate(silent = false) {
     if (this.selectedIds.size === 0) {
-      showToast('Please select at least one question', 'error');
+      const preview = document.getElementById('worksheet-preview');
+      preview.style.display = 'none';
+      document.getElementById('worksheet-layout').classList.remove('worksheet-layout--split');
+      if (!silent) showToast('Please select at least one question', 'error');
       return;
     }
 
-    const selected = this.allQuestions.filter(q => this.selectedIds.has(q.id));
+    const selected = Array.from(this.selectedQuestions.values());
 
     // Sort by difficulty for worksheet output
     const ordered = [...selected].sort((a, b) => {
@@ -273,10 +293,15 @@ const Worksheet = {
 
     const preview = document.getElementById('worksheet-preview');
     preview.style.display = '';
+    document.getElementById('worksheet-layout').classList.add('worksheet-layout--split');
 
+    const totalMarks = ordered.reduce((sum, q) => sum + (q.marks || 0), 0);
     let html = `<div class="worksheet-header">
-      <div class="worksheet-header__title">MrDingMaths</div>
-      <div class="worksheet-header__subtitle">Worksheet - ${ordered.length} question${ordered.length !== 1 ? 's' : ''}</div>
+      <div class="worksheet-header__top">
+        <span class="worksheet-header__questions">${ordered.length} question${ordered.length !== 1 ? 's' : ''}</span>
+        <span class="worksheet-header__marks">............... out of ${totalMarks} mark${totalMarks !== 1 ? 's' : ''}</span>
+      </div>
+      <div class="worksheet-header__subtitle">Worksheet generated at database.MrDingMaths.com</div>
     </div>`;
 
     ordered.forEach((q, i) => {
@@ -291,7 +316,7 @@ const Worksheet = {
 
     if (this.showSolutions) {
       html += `<div class="answer-key">
-        <div class="answer-key__title">Answer Key</div>`;
+        <div class="answer-key__title">Answers</div>`;
       ordered.forEach((q, i) => {
         html += `<div class="answer-key__item">
           <p><strong>${i + 1}.</strong></p>
@@ -303,7 +328,7 @@ const Worksheet = {
 
     preview.innerHTML = html;
     renderMath(preview);
-    showToast(this.showSolutions ? 'Worksheet with solutions generated' : 'Worksheet generated');
+    if (!silent) showToast(this.showSolutions ? 'Worksheet with solutions generated' : 'Worksheet generated');
   }
 };
 
