@@ -48,10 +48,18 @@
     <div class="worksheet-controls">
       <span id="selected-count" class="results-count">0 questions selected</span>
       <div class="worksheet-actions">
+        <select id="sort-select" class="btn btn--secondary btn--small">
+          <option value="source">Sort: Source</option>
+          <option value="difficulty">Sort: Difficulty</option>
+          <option value="topic">Sort: Topic</option>
+          <option value="marks">Sort: Marks</option>
+        </select>
+        <button id="toggle-cards-btn" class="btn btn--secondary btn--small">Expand All</button>
+        <button id="toggle-solutions-display-btn" class="btn btn--secondary btn--small">Show Solutions</button>
         <button id="select-all" class="btn btn--secondary btn--small">Select All</button>
         <button id="delect-all" class="btn btn--secondary btn--small">Deselect All</button>
         <button id="generate-worksheet" class="btn btn--primary">Generate Worksheet</button>
-        <button id="generate-with-answers" class="btn btn--secondary">With Answer Key</button>
+        <button id="toggle-solutions-btn" class="btn btn--secondary">Print with Solutions</button>
         <button id="print-btn" class="btn btn--primary">Print</button>
       </div>
     </div>

@@ -284,6 +284,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 157 Congruent triangles
 - 158 Similar triangles
 - 159 Interior and exterior angle sum
+- 205 Line and rotational symmetry
 
 **Measurement** (topic_id: 45)
 - 86 Perimeter of simple shapes
@@ -315,6 +316,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 104 Census and sample
 - 105 Classify data
 - 106 Interpret charts
+- 206 Bivariate data
 
 **Probability** (topic_id: 47)
 - 107 Simple probability and relative frequency
@@ -337,6 +339,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 136 Midpoint
 - 137 Distance
 - 138 Problems
+- 204 Transformations
 
 **Non-linear Relationships** (topic_id: 50)
 - 143 Plotting parabolas
