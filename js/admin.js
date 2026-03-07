@@ -270,11 +270,11 @@ const Admin = {
 
     try {
       let questionId;
+      const wasEditing = !!this.editingId;
       if (this.editingId) {
         await Questions.update(this.editingId, question);
         questionId = this.editingId;
         showToast('Question updated successfully!');
-        this.cancelEdit();
       } else {
         const created = await Questions.create(question);
         questionId = created.id;
@@ -288,6 +288,7 @@ const Admin = {
         subtopic_id: c.subtopic_id
       }));
       await Questions.saveClassifications(questionId, clsToSave);
+      if (wasEditing) this.cancelEdit();
       this.loadQuestions(true);
     } catch (err) {
       showToast('Error: ' + err.message, 'error');
