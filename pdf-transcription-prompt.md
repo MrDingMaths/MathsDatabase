@@ -132,13 +132,13 @@ Find the area of this shape.
 In `question_text` (JSON string), this is written as:
 
 ```json
-"question_text": "Find the area of this shape.\n\n[DIAGRAM]\n<div style=\"text-align:right\">[2]</div>"
+"question_text": "Find the area of this shape.\n\n[DIAGRAM]\n[2]"
 ```
 
 For multi-part questions, add a mark label after each part:
 
 ```json
-"question_text": "$\\textbf{(i)}$ Find the value of $x$.\n<div style=\"text-align:right\">[1]</div>\n\n$\\textbf{(ii)}$ Hence find $y$.\n<div style=\"text-align:right\">[2]</div>"
+"question_text": "$\\textbf{(i)}$ Find the value of $x$.\n[1]\n\n$\\textbf{(ii)}$ Hence find $y$.\n[2]"
 ```
 
 The total `marks` field should reflect the **sum of all parts** (or the mark value of a single-part question).
@@ -409,7 +409,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 ```json
 [
   {
-    "question_text": "Factorise fully: $6x^2 - 13x + 6$\n<div style=\"text-align:right\">[2]</div>",
+    "question_text": "Factorise fully: $6x^2 - 13x + 6$\n[2]",
     "solution_text": "Find two numbers that multiply to $6 \\times 6 = 36$ and add to $-13$: these are $-9$ and $-4$.\n$$\\begin{align*}\n6x^2 - 13x + 6 &= 6x^2 - 9x - 4x + 6 \\\\\\\\\n&= 3x(2x - 3) - 2(2x - 3) \\\\\\\\\n&= (3x - 2)(2x - 3)\n\\end{align*}$$",
     "difficulty": "Development",
     "marks": 2,
@@ -422,7 +422,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
     ]
   },
   {
-    "question_text": "Find the exact value of $\\sin 30^\\circ + \\cos 60^\\circ$.\n<div style=\"text-align:right\">[1]</div>",
+    "question_text": "Find the exact value of $\\sin 30^\\circ + \\cos 60^\\circ$.\n[1]",
     "solution_text": "$$\\begin{align*}\n\\sin 30^\\circ + \\cos 60^\\circ &= \\frac{1}{2} + \\frac{1}{2} \\\\\\\\\n&= 1\n\\end{align*}$$",
     "difficulty": "Foundation",
     "marks": 1,

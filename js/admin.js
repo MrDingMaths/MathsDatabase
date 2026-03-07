@@ -25,7 +25,9 @@ const renderTextWithImages = (text) => {
     // Preserve newlines inside $$...$$ blocks so KaTeX auto-render can find them
     return part.split(/(\$\$[\s\S]*?\$\$)/g).map((segment, i) => {
       if (i % 2 === 1) return escapeHtml(segment); // inside display math — keep newlines
-      return escapeHtml(segment).replace(/\n/g, '<br>');
+      return escapeHtml(segment)
+        .replace(/\n(\[\d+\])/g, '<br><span style="display:block;text-align:right">$1</span>')
+        .replace(/\n/g, '<br>');
     }).join('');
   }).join('');
 };

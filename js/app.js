@@ -85,13 +85,13 @@ const App = {
           </div>
         </summary>
         <div class="question-card__body">
-          ${q.question_text || ''}
+          ${renderQuestionText(q.question_text)}
           ${q.question_image_url ? `<br><img src="${escapeHtml(q.question_image_url)}" alt="Question diagram">` : ''}
         </div>
         <details class="question-card__solution">
           <summary>Show solution</summary>
           <div class="question-card__solution-content">
-            ${q.solution_text || 'No solution provided.'}
+            ${renderQuestionText(q.solution_text) || 'No solution provided.'}
             ${q.solution_image_url ? `<br><img src="${escapeHtml(q.solution_image_url)}" alt="Solution diagram">` : ''}
             ${q.answer ? `<p><strong>Answer:</strong> ${escapeHtml(q.answer)}</p>` : ''}
           </div>
@@ -107,6 +107,23 @@ const escapeHtml = (str) => {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+};
+
+const renderQuestionText = (text) => {
+  if (!text) return '';
+  const parts = text.split(/(\[img:[^\]]+\])/g);
+  return parts.map(part => {
+    const match = part.match(/^\[img:([^\]]+)\]$/);
+    if (match) {
+      return `<img src="${escapeHtml(match[1])}" style="max-width:100%;display:block;margin:0.5rem 0;" alt="diagram">`;
+    }
+    return part.split(/(\$\$[\s\S]*?\$\$)/g).map((segment, i) => {
+      if (i % 2 === 1) return escapeHtml(segment);
+      return escapeHtml(segment)
+        .replace(/\n(\[\d+\])/g, '<br><span style="display:block;text-align:right">$1</span>')
+        .replace(/\n/g, '<br>');
+    }).join('');
+  }).join('');
 };
 
 const showToast = (message, type = 'success') => {
