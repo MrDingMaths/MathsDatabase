@@ -269,6 +269,12 @@ body {
   }
 }
 
+/* === KaTeX === */
+.katex-display {
+  text-align: left !important;
+  margin: 0.5em 0 !important;
+}
+
 /* === Multi-Select Dropdown === */
 .multi-select {
   position: relative;

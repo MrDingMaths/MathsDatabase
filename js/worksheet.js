@@ -16,6 +16,7 @@ const showToast = (message, type = 'success') => {
 const Worksheet = {
   allQuestions: [],
   selectedIds: new Set(),
+  searchTerm: '',
 
   async init() {
     Filters.init({
@@ -24,6 +25,11 @@ const Worksheet = {
       subtopicId: 'subtopic-filter',
       difficultyId: 'difficulty-filter',
       onChange: (values) => this.loadQuestions(values)
+    });
+
+    document.getElementById('search-filter').addEventListener('input', (e) => {
+      this.searchTerm = e.target.value.toLowerCase();
+      this.renderQuestionList();
     });
 
     document.getElementById('select-all').addEventListener('click', () => this.selectAll());
@@ -47,12 +53,24 @@ const Worksheet = {
 
   renderQuestionList() {
     const container = document.getElementById('questions-container');
-    if (this.allQuestions.length === 0) {
+
+    const filtered = this.searchTerm
+      ? this.allQuestions.filter(q => {
+          const text = [
+            q.question_text,
+            q.answer,
+            ...(q.classifications || []).flatMap(c => [c.stage_label, c.topic_name, c.subtopic_name])
+          ].filter(Boolean).join(' ').toLowerCase();
+          return text.includes(this.searchTerm);
+        })
+      : this.allQuestions;
+
+    if (filtered.length === 0) {
       container.innerHTML = '<div class="empty-state">No questions found.</div>';
       return;
     }
 
-    container.innerHTML = this.allQuestions.map((q, i) => {
+    container.innerHTML = filtered.map((q, i) => {
       const checked = this.selectedIds.has(q.id) ? 'checked' : '';
       return `<div class="question-card">
         <details class="question-card__collapsible">
@@ -148,6 +166,7 @@ const Worksheet = {
 
     preview.innerHTML = html;
     renderMath(preview);
+    showToast(showAnswers ? 'Worksheet with answer key generated' : 'Worksheet generated');
   }
 };
 
