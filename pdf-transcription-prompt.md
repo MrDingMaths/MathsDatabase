@@ -27,6 +27,7 @@ Each question is a JSON object. The full array looks like:
   "marks":              1,
   "source":             "string or null — e.g. '2023 HSC Q14b'",
   "tags":               [],
+  "calculator":         true,
   "classifications": [
     { "course_id": "string — see course list below", "topic_id": null, "subtopic_id": null },
     { "course_id": null, "topic_id": 123, "subtopic_id": 456 }
@@ -46,6 +47,7 @@ Each question is a JSON object. The full array looks like:
 - **`marks`** — The mark value shown in the PDF. Default to `1` if not shown.
 - **`source`** — The exam/book/worksheet name and question number, e.g. `"2022 HSC Advanced Q12b"` or `"2025 IGCSE 0580 P1 Q2"`. Set to `null` if unknown.
 - **`tags`** — Leave as `[]` unless there are obvious keyword tags (e.g. `["proof", "surds"]`).
+- **`calculator`** — Whether a calculator is permitted. Set to `true` (calculator allowed), `false` (non-calculator), or omit the field entirely if not specified by the exam or worksheet.
 - **`classifications`** — Array of classification objects. **Courses and topics are separate rows** — always use one object for the course (with `topic_id: null, subtopic_id: null`) and a separate object for the topic/subtopic (with `course_id: null`). `course_id` must be a valid value from the course list below. `topic_id` and `subtopic_id` are integers from the taxonomy.
 
 ---
@@ -407,24 +409,26 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 ```json
 [
   {
-    "question_text": "Factorise fully: $6x^2 - 13x + 6$",
+    "question_text": "Factorise fully: $6x^2 - 13x + 6$\n<div style=\"text-align:right\">[2]</div>",
     "solution_text": "Find two numbers that multiply to $6 \\times 6 = 36$ and add to $-13$: these are $-9$ and $-4$.\n$$\\begin{align*}\n6x^2 - 13x + 6 &= 6x^2 - 9x - 4x + 6 \\\\\\\\\n&= 3x(2x - 3) - 2(2x - 3) \\\\\\\\\n&= (3x - 2)(2x - 3)\n\\end{align*}$$",
     "difficulty": "Development",
     "marks": 2,
     "source": "HSC 2023 Adv Q5",
     "tags": [],
+    "calculator": false,
     "classifications": [
       { "course_id": "stage5", "topic_id": null, "subtopic_id": null },
       { "course_id": null, "topic_id": 40, "subtopic_id": 118 }
     ]
   },
   {
-    "question_text": "Find the exact value of $\\sin 30^\\circ + \\cos 60^\\circ$.",
+    "question_text": "Find the exact value of $\\sin 30^\\circ + \\cos 60^\\circ$.\n<div style=\"text-align:right\">[1]</div>",
     "solution_text": "$$\\begin{align*}\n\\sin 30^\\circ + \\cos 60^\\circ &= \\frac{1}{2} + \\frac{1}{2} \\\\\\\\\n&= 1\n\\end{align*}$$",
     "difficulty": "Foundation",
     "marks": 1,
     "source": null,
     "tags": [],
+    "calculator": false,
     "classifications": [
       { "course_id": "stage5", "topic_id": null, "subtopic_id": null },
       { "course_id": null, "topic_id": 53, "subtopic_id": 168 }
@@ -443,6 +447,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - [ ] `topic_id` and `subtopic_id` are integers (not strings)
 - [ ] `course_id` is one of the valid string values from the course list (or `null` if not applicable)
 - [ ] Course and topic are in **separate** classification objects (never combined in one object)
+- [ ] `calculator` is `true`, `false`, or omitted (never a string)
 - [ ] `marks` is an integer
 - [ ] Output is a single JSON array with no trailing comma on the last element
 - [ ] Output is wrapped in a ```json code block with no prose outside it

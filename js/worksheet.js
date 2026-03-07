@@ -105,6 +105,7 @@ const Worksheet = {
               }).join('')}
             </div>
             <div class="question-card__meta-right">
+              ${calcIcon(q.calculator)}
               ${q.difficulty ? `<span class="badge badge--difficulty">${escapeHtml(q.difficulty)}</span>` : ''}
               ${q.marks ? `<span class="badge">${q.marks} mark${q.marks !== 1 ? 's' : ''}</span>` : ''}
             </div>
@@ -166,7 +167,7 @@ const Worksheet = {
 
     selected.forEach((q, i) => {
       html += `<div class="worksheet-question">
-        <p><span class="worksheet-question__number">${i + 1}.</span>
+        <p><span class="worksheet-question__number">${i + 1}.</span>${calcIcon(q.calculator)}
         <span class="worksheet-question__text">${renderTextWithImages(q.question_text || '')}</span></p>
         ${q.question_image_url ? `<img src="${escapeHtml(q.question_image_url)}" alt="Diagram" style="max-width:80%">` : ''}
         <div class="worksheet-question__answer-space"></div>

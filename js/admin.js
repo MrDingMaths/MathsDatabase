@@ -237,12 +237,14 @@ const Admin = {
       return;
     }
 
+    const calcVal = (document.querySelector('input[name="calculator"]:checked') || {}).value;
     const question = {
       question_text:      document.getElementById('question-text').value,
       solution_text:      document.getElementById('solution-text').value || null,
       difficulty:         (document.querySelector('input[name="difficulty"]:checked') || {}).value || 'Development',
       marks:              parseInt(document.getElementById('marks-input').value, 10) || 1,
       source:             document.getElementById('source-input').value || null,
+      calculator:         calcVal === 'true' ? true : calcVal === 'false' ? false : null,
       tags:               document.getElementById('tags-input').value
         ? document.getElementById('tags-input').value.split(',').map(t => t.trim()).filter(Boolean)
         : []
@@ -281,6 +283,9 @@ const Admin = {
 
   clearForm() {
     document.getElementById('question-form').reset();
+    // reset() doesn't reliably clear radio groups with empty-string values
+    const calcNone = document.querySelector('input[name="calculator"][value=""]');
+    if (calcNone) calcNone.checked = true;
     document.getElementById('question-preview').innerHTML = '';
     document.getElementById('solution-preview').innerHTML = '';
     this.editingId = null;
@@ -350,6 +355,10 @@ const Admin = {
 
     const diffRadio = document.querySelector(`input[name="difficulty"][value="${question.difficulty || 'Development'}"]`);
     if (diffRadio) diffRadio.checked = true;
+
+    const calcRadioVal = question.calculator === true ? 'true' : question.calculator === false ? 'false' : '';
+    const calcRadio = document.querySelector(`input[name="calculator"][value="${calcRadioVal}"]`);
+    if (calcRadio) calcRadio.checked = true;
 
 
     const qPrev = document.getElementById('question-preview');
@@ -459,6 +468,7 @@ const Admin = {
               ${topicBadges}
             </div>
             <div class="question-card__meta-right">
+              ${calcIcon(q.calculator)}
               ${q.difficulty ? `<span class="badge badge--difficulty">${escapeHtml(q.difficulty)}</span>` : ''}
               ${q.marks ? `<span class="badge">${q.marks} mark${q.marks !== 1 ? 's' : ''}</span>` : ''}
             </div>

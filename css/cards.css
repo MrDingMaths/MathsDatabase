@@ -172,6 +172,21 @@
   accent-color: var(--color-accent);
 }
 
+/* === Calculator Icon === */
+.calc-icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Inline in worksheet question number line */
+.worksheet-question__number ~ .calc-icon {
+  margin: 0 0.35rem;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+
 /* === Results Count === */
 .results-count {
   font-size: 0.8rem;
