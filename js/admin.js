@@ -527,15 +527,25 @@ const Admin = {
       return `<div class="question-card">
         <details class="question-card__collapsible" data-id="${q.id}">
           <summary class="question-card__summary">
-            <div class="question-card__meta">
-              ${courseBadges}
-              ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
-              ${topicBadges}
-            </div>
-            <div class="question-card__meta-right">
-              ${calcIcon(q.calculator)}
-              ${q.difficulty ? `<span class="badge badge--difficulty ${difficultyBadgeClass(q.difficulty)}">${escapeHtml(q.difficulty)}</span>` : ''}
-              ${q.marks ? `<span class="badge">${q.marks} mark${q.marks !== 1 ? 's' : ''}</span>` : ''}
+            <div class="question-card__rows">
+              <div class="question-card__row">
+                <div class="question-card__meta">
+                  ${courseBadges}
+                  ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
+                </div>
+                <div class="question-card__meta-right">
+                  ${q.difficulty ? `<span class="badge badge--difficulty ${difficultyBadgeClass(q.difficulty)}">${escapeHtml(q.difficulty)}</span>` : ''}
+                  ${calcIcon(q.calculator)}
+                </div>
+              </div>
+              <div class="question-card__row">
+                <div class="question-card__meta">
+                  ${topicBadges}
+                </div>
+                <div class="question-card__meta-right">
+                  ${q.marks ? `<span class="badge">${q.marks} mark${q.marks !== 1 ? 's' : ''}</span>` : ''}
+                </div>
+              </div>
             </div>
             <div class="question-card__actions" onclick="event.stopPropagation()">
               <button class="btn btn--secondary btn--small" onclick="Admin.editQuestion('${q.id}')">Edit</button>
