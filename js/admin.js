@@ -530,8 +530,8 @@ const Admin = {
             <div class="question-card__rows">
               <div class="question-card__row">
                 <div class="question-card__meta">
-                  ${courseBadges}
                   ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
+                  ${courseBadges}
                 </div>
                 <div class="question-card__meta-right">
                   ${q.difficulty ? `<span class="badge badge--difficulty ${difficultyBadgeClass(q.difficulty)}">${escapeHtml(q.difficulty)}</span>` : ''}

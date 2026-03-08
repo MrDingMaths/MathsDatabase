@@ -86,10 +86,10 @@ const Worksheet = {
             <div class="question-card__rows">
               <div class="question-card__row">
                 <div class="question-card__meta">
+                  ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
                   ${(q.classifications || []).filter(c => !c.topic_id).map(c =>
                     `<span class="badge badge--stage">${escapeHtml(c.course_label)}</span>`
                   ).join('')}
-                  ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
                 </div>
                 <div class="question-card__meta-right">
                   ${q.difficulty ? `<span class="badge badge--difficulty ${difficultyBadgeClass(q.difficulty)}">${escapeHtml(q.difficulty)}</span>` : ''}

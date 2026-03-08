@@ -184,9 +184,9 @@
 
 /* === Source badge === */
 .badge--source {
-  background: var(--color-dark);
-  color: #fff;
-  border: 1px solid var(--color-dark);
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
 }
 
 /* === Topic colour badges === */

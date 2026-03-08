@@ -38,7 +38,7 @@ Each question is a JSON object. The full array looks like:
 ### Field rules
 
 - **`question_text`** — Required. Include the full question exactly as written. Do **not** include the question number (e.g. "Q12", "14b") — that information belongs in `source`. For multi-part questions, keep all parts together in a single question object. Format part labels in bold using KaTeX: `$\textbf{(i)}$`, `$\textbf{(ii)}$`, `$\textbf{(a)}$`, etc. In JSON strings this becomes `$\\textbf{(i)}$`.
-- **`solution_text`** — Full worked solution with all steps. Use KaTeX. Set to `null` if no solution is provided.
+- **`solution_text`** — Full worked solution with all steps. Use KaTeX. Set to `null` if no solution is provided. Always include units in the final answer where applicable (e.g. `$= 12 \text{ cm}$`, `$= 4.5 \text{ m}^2$`).
 - **`difficulty`** — Rate based on cognitive demand. For multi-part questions, use the difficulty of the **most challenging part**. Use your judgement:
   - `Foundation`: Routine textbook style problem
   - `Development`: Multistep routine problem
@@ -80,8 +80,11 @@ All maths must be wrapped in KaTeX delimiters:
 | Absolute value | `\|...\|` | `$\|x - 3\|$` |
 | Integral | `\int_a^b ... \, dx` | `$\int_1^5 x^2 \, dx$` |
 | Sum | `\sum_{i=1}^{n}` | `$\sum_{i=1}^{n} i$` |
-| Vector | `\vec{AB}` | `$\vec{AB}$` |
+| Vector (arrow notation) | `\vec{AB}` | `$\vec{AB}$` |
+| Vector (boldface) | `\mathbf{v}` | `$\mathbf{v}$` |
 | Column vector | `\begin{pmatrix} a \\ b \end{pmatrix}` | `$\begin{pmatrix} 3 \\ 4 \end{pmatrix}$` |
+
+**Vectors:** Always render named vectors (e.g. **a**, **u**, **v**) in boldface using `\mathbf{}`. Use `\vec{}` only for vectors named by two points (e.g. $\vec{AB}$).
 | Inequalities | `\leq`, `\geq`, `\neq` | `$x \leq 5$` |
 | Approximately | `\approx` | `$x \approx 3.14$` |
 | Therefore | `\therefore` | `$\therefore x = 2$` |
@@ -142,22 +145,6 @@ For multi-part questions, add a mark label after each part:
 ```
 
 The total `marks` field should reflect the **sum of all parts** (or the mark value of a single-part question).
-
----
-
-## Cloze questions
-
-When a question requires students to fill in missing words or values inline (a cloze passage), preserve the blank spaces using dotted lines exactly as they appear. Do **not** replace blanks with underscores or leave them empty.
-
-**Example source text:**
-> This prism has ........... faces and .......... edges.
-
-**Transcribed as:**
-```json
-"question_text": "This prism has ........... faces and .......... edges."
-```
-
-Use the same number of dots as shown in the PDF (approximately). If the exact count is unclear, use ten dots (`..........`) per blank as a default.
 
 ---
 
@@ -320,6 +307,8 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 105 Classify data
 - 106 Interpret charts
 - 206 Bivariate data
+- 211 Box plots and quartiles
+- 212 Standard deviation
 
 **Probability** (topic_id: 47)
 - 107 Simple probability and relative frequency
@@ -456,5 +445,6 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - [ ] Course and topic are in **separate** classification objects (never combined in one object)
 - [ ] `calculator` is `true`, `false`, or omitted (never a string)
 - [ ] `marks` is an integer
+- [ ] Units are included in the final answer of `solution_text` wherever the question involves measurement or physical quantities
 - [ ] Output is a single JSON array with no trailing comma on the last element
 - [ ] Output is wrapped in a ```json code block with no prose outside it
