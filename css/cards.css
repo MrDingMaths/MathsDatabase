@@ -208,6 +208,61 @@
   border-color: #fca5a5;
 }
 
+/* === Dark Mode Badge Overrides === */
+[data-theme="dark"] .badge--difficulty {
+  background: #2a2a40;
+  color: #c0c0d0;
+  border-color: #3a3a50;
+}
+
+[data-theme="dark"] .badge--foundation {
+  background: #1e2a3a;
+  color: #94a3b8;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .badge--development {
+  background: #0c2a4a;
+  color: #7dd3fc;
+  border-color: #1e5a8a;
+}
+
+[data-theme="dark"] .badge--mastery {
+  background: #1e1040;
+  color: #c4b5fd;
+  border-color: #3b2080;
+}
+
+[data-theme="dark"] .badge--challenge {
+  background: #3a1028;
+  color: #f9a8d4;
+  border-color: #6b1a40;
+}
+
+[data-theme="dark"] .badge--source {
+  background: #1e2a3a;
+  color: #94a3b8;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .badge--topic-blue {
+  background: #1e3050;
+  color: #93c5fd;
+  border-color: #2a5090;
+}
+
+[data-theme="dark"] .badge--topic-green {
+  background: #0a2a20;
+  color: #6ee7b7;
+  border-color: #1a5040;
+}
+
+[data-theme="dark"] .badge--topic-red {
+  background: #3a1a1a;
+  color: #fca5a5;
+  border-color: #5a2a2a;
+}
+
 /* === Pagination === */
 .pagination {
   display: flex;

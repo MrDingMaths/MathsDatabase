@@ -229,6 +229,24 @@
   color: #fff;
 }
 
+/* === Dark Mode Overrides === */
+[data-theme="dark"] .admin-layout__search,
+[data-theme="dark"] .admin-layout__edit {
+  background: var(--color-card-bg);
+}
+
+[data-theme="dark"] .preview-pane {
+  background: var(--color-card-bg);
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group textarea,
+[data-theme="dark"] .form-group select,
+[data-theme="dark"] .classification-adder select {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
 @media (max-width: 900px) {
   .admin-layout {
     grid-template-columns: 1fr;

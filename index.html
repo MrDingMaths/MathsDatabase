@@ -156,6 +156,17 @@
     0%, 100% { opacity: 1; }
     50%       { opacity: 0; }
   }
+
+  [data-theme="dark"] .hero-tagline {
+    color: #e0e0e8;
+  }
+  [data-theme="dark"] .cta-main {
+    border-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: rgba(0, 0, 0, 0.3);
+  }
+  [data-theme="dark"] .site-link {
+    filter: brightness(0.85);
+  }
   </style>
 </head>
 <body>
@@ -165,6 +176,7 @@
       <a href="index.html" class="active">About</a>
       <a href="worksheet.html">Worksheet</a>
       <a href="admin.html">Admin</a>
+      <button class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
     </nav>
   </header>
   <main class="main-content">
@@ -221,6 +233,7 @@
     </div>
   </main>
 
+  <script src="js/theme.js"></script>
   <script src="js/config.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/questions.js"></script>
