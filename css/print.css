@@ -129,7 +129,6 @@
 }
 
 .worksheet-question__answer-space {
-  border-bottom: 1px dotted var(--color-border);
   height: 3rem;
   margin-top: 0.5rem;
 }
@@ -214,20 +213,25 @@
   }
 
   .worksheet-footer {
-    display: flex;
-    justify-content: space-between;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    font-size: 8pt;
-    color: #666;
-    padding: 4pt 0;
-    border-top: 1px solid #ccc;
+    display: none;
   }
 
-  .worksheet-footer__page::after {
-    content: 'Page ' counter(page);
+  @page {
+    margin: 1.5cm;
+    @bottom-left {
+      content: 'https://mathsbase.mrdingmaths.com/';
+      font-family: sans-serif;
+      font-size: 8pt;
+      color: #666;
+      vertical-align: top;
+    }
+    @bottom-right {
+      content: 'Page ' counter(page);
+      font-family: sans-serif;
+      font-size: 8pt;
+      color: #666;
+      vertical-align: top;
+    }
   }
 
   .answer-key {
