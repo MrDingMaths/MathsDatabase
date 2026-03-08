@@ -1,43 +1,6 @@
 // Admin page logic
 
-const escapeHtml = (str) => {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-};
-
 const stripKaTeX = (str) => str.replace(/\$\$?[^$]*\$\$?/g, String.fromCharCode(8230)).replace(/\\[a-zA-Z]+/g, String.fromCharCode(32));
-
-const naturalSort = (a, b) => {
-  const pad = (v) => (v || '').replace(/(\d+)/g, n => n.padStart(10, '0'));
-  return pad(a).localeCompare(pad(b));
-};
-
-const DIFFICULTY_ORDER = { Foundation: 0, Development: 1, Mastery: 2, Challenge: 3 };
-
-const showToast = (message, type = 'success') => {
-  const toast = document.getElementById('toast');
-  toast.textContent = message;
-  toast.className = `toast toast--${type} toast--visible`;
-  setTimeout(() => toast.classList.remove('toast--visible'), 3000);
-};
-
-const renderTextWithImages = (text) => {
-  const parts = text.split(/(\[img:[^\]]+\])/g);
-  return parts.map(part => {
-    const match = part.match(/^\[img:([^\]]+)\]$/);
-    if (match) {
-      return `<img src="${escapeHtml(match[1])}" style="max-width:100%;display:block;margin:0.5rem 0;" alt="diagram">`;
-    }
-    // Preserve newlines inside $$...$$ blocks so KaTeX auto-render can find them
-    return part.split(/(\$\$[\s\S]*?\$\$)/g).map((segment, i) => {
-      if (i % 2 === 1) return escapeHtml(segment); // inside display math — keep newlines
-      return escapeHtml(segment)
-        .replace(/\n(\[\d+\])/g, '<br><span style="display:block;text-align:right">$1</span>')
-        .replace(/\n/g, '<br>');
-    }).join('');
-  }).join('');
-};
 
 const Admin = {
   editingId: null,
@@ -94,7 +57,6 @@ const Admin = {
       searchId: 'search-filter',
       onChange: () => this.loadQuestions(true)
     });
-    this.setupSourceTagsSearch();
     this.setupSortAndToggle();
     this.loadQuestions(true);
   },
@@ -210,14 +172,6 @@ const Admin = {
         renderMath(preview);
       }, 300);
     });
-  },
-
-  setupSourceTagsSearch() {
-    let searchTimeout;
-    const triggerSearch = () => {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => this.loadQuestions(true), 300);
-    };
   },
 
   insertInlineImage(textareaId) {
@@ -440,28 +394,6 @@ const Admin = {
     document.getElementById('form-title').scrollIntoView({ behavior: 'smooth' });
   },
 
-  getSortedQuestions(questions) {
-    const sorted = [...questions];
-    if (this.sortBy === 'source') {
-      sorted.sort((a, b) => naturalSort(a.source, b.source));
-    } else if (this.sortBy === 'difficulty') {
-      sorted.sort((a, b) => {
-        const da = DIFFICULTY_ORDER[a.difficulty] ?? 99;
-        const db = DIFFICULTY_ORDER[b.difficulty] ?? 99;
-        return da - db;
-      });
-    } else if (this.sortBy === 'topic') {
-      sorted.sort((a, b) => {
-        const ta = (a.classifications || []).find(c => c.topic_id)?.topic_name || '';
-        const tb = (b.classifications || []).find(c => c.topic_id)?.topic_name || '';
-        return ta.localeCompare(tb);
-      });
-    } else if (this.sortBy === 'marks') {
-      sorted.sort((a, b) => (a.marks || 0) - (b.marks || 0));
-    }
-    return sorted;
-  },
-
   setupSortAndToggle() {
     document.getElementById('sort-select').addEventListener('change', (e) => {
       this.sortBy = e.target.value;
@@ -475,7 +407,7 @@ const Admin = {
   renderAllLoaded() {
     const container = document.getElementById('questions-container');
     container.innerHTML = '';
-    this.appendQuestionRows(this.getSortedQuestions(this.loadedQuestions));
+    this.appendQuestionRows(getSortedQuestions(this.loadedQuestions, this.sortBy));
   },
 
   toggleAllCards() {
@@ -520,7 +452,7 @@ const Admin = {
         this.loadedQuestions.push(...data);
         this.currentOffset += data.length;
         if (reset) {
-          this.appendQuestionRows(this.getSortedQuestions(this.loadedQuestions));
+          this.appendQuestionRows(getSortedQuestions(this.loadedQuestions, this.sortBy));
         } else {
           // Re-render all loaded in sorted order when more are added
           this.renderAllLoaded();

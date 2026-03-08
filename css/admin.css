@@ -41,14 +41,7 @@
   align-items: start;
 }
 
-.admin-layout__search {
-  background: #fff;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 1rem 1.25rem;
-  box-shadow: var(--shadow);
-}
-
+.admin-layout__search,
 .admin-layout__edit {
   background: #fff;
   border: 1px solid var(--color-border);

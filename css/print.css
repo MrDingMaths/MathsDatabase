@@ -54,7 +54,7 @@
   min-height: 1123px; /* A4 height at 96dpi */
   background: #fff;
   border: 2px solid #b0b0b0;
-  border-radius: 6px;
+  border-radius: var(--radius);
   padding: 72px 80px;
   box-sizing: border-box;
   margin: 0 auto;

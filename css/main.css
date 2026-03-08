@@ -227,15 +227,6 @@ body {
   border: 1px solid var(--color-border);
 }
 
-.tag-pill {
-  display: inline-block;
-  padding: 0.1rem 0.45rem;
-  border-radius: 100px;
-  font-size: 0.7rem;
-  background: var(--color-card-bg);
-  color: var(--color-text-light);
-  border: 1px solid var(--color-border);
-}
 
 /* === Loading === */
 .loading {
