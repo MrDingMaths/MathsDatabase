@@ -8,7 +8,10 @@ const Admin = {
   currentOffset: 0,
   currentTotal: 0,
   loadedQuestions: [],
-  PAGE_SIZE: 20,
+  PAGE_SIZE: 30,
+  PREFETCH_SIZE: 10,
+  _prefetchedData: null,
+  _prefetchedOffset: -1,
   pendingCourseIds: new Set(),
   pendingTopicCls: [],
   sortBy: 'source',
@@ -406,8 +409,17 @@ const Admin = {
 
   renderAllLoaded() {
     const container = document.getElementById('questions-container');
+    const openIds = new Set(
+      [...container.querySelectorAll('.question-card__collapsible[open]')]
+        .map(d => d.dataset.id)
+    );
     container.innerHTML = '';
     this.appendQuestionRows(getSortedQuestions(this.loadedQuestions, this.sortBy));
+    if (openIds.size) {
+      container.querySelectorAll('.question-card__collapsible').forEach(d => {
+        if (openIds.has(d.dataset.id)) d.open = true;
+      });
+    }
   },
 
   toggleAllCards() {
@@ -430,6 +442,8 @@ const Admin = {
     if (reset) {
       this.currentOffset = 0;
       this.loadedQuestions = [];
+      this._prefetchedData = null;
+      this._prefetchedOffset = -1;
       document.getElementById('questions-container').innerHTML = '';
     }
 
@@ -440,13 +454,21 @@ const Admin = {
       topic:      topic.length     ? topic     : undefined,
       subtopic:   subtopic.length  ? subtopic  : undefined,
       difficulty: difficulty.length? difficulty : undefined,
-      limit:      this.PAGE_SIZE,
-      offset:     this.currentOffset
     };
 
     try {
-      const { data, count } = await Questions.fetch(filters);
-      this.currentTotal = count || 0;
+      let data, count;
+
+      // Use prefetched data if it matches current offset
+      if (!reset && this._prefetchedData && this._prefetchedOffset === this.currentOffset) {
+        data  = this._prefetchedData;
+        count = this.currentTotal;
+        this._prefetchedData   = null;
+        this._prefetchedOffset = -1;
+      } else {
+        ({ data, count } = await Questions.fetch({ ...filters, limit: this.PAGE_SIZE, offset: this.currentOffset }));
+        this.currentTotal = count || 0;
+      }
 
       if (data && data.length > 0) {
         this.loadedQuestions.push(...data);
@@ -469,8 +491,23 @@ const Admin = {
 
       const loadMoreBtn = document.getElementById('load-more-btn');
       loadMoreBtn.style.display = this.loadedQuestions.length < this.currentTotal ? '' : 'none';
+
+      // Silently prefetch next batch if more questions exist
+      if (this.loadedQuestions.length < this.currentTotal) {
+        this._prefetchNext(filters, this.currentOffset);
+      }
     } catch (err) {
       console.error('Error loading questions:', err);
+    }
+  },
+
+  async _prefetchNext(filters, offset) {
+    try {
+      const { data } = await Questions.fetch({ ...filters, limit: this.PREFETCH_SIZE, offset });
+      this._prefetchedData   = data;
+      this._prefetchedOffset = offset;
+    } catch (_) {
+      // Prefetch failure is non-critical — next manual fetch will recover
     }
   },
 
@@ -488,7 +525,7 @@ const Admin = {
           return `<span class="badge ${topicBadgeClass(c.topic_name)}">${escapeHtml(parts.join(' › '))}</span>`;
         }).join('');
       return `<div class="question-card">
-        <details class="question-card__collapsible">
+        <details class="question-card__collapsible" data-id="${q.id}">
           <summary class="question-card__summary">
             <div class="question-card__meta">
               ${courseBadges}

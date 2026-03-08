@@ -1,5 +1,9 @@
 ﻿// CRUD operations for questions
 
+const TAXONOMY_CACHE_KEY = 'maths_db_taxonomy';
+const TAXONOMY_TS_KEY    = 'maths_db_taxonomy_ts';
+const TAXONOMY_TTL_MS    = 10 * 60 * 1000; // 10 minutes
+
 const Questions = {
   async fetch({ course, topic, subtopic, difficulty, search, source, tags, limit = 20, offset = 0 }) {
     try {
@@ -76,7 +80,20 @@ const Questions = {
 
   // Loads the full taxonomy in one batch for client-side filtering.
   // Returns { courses: [{id, label}], topics: [{id, name}], subtopics: [{id, name, topic_id}] }
+  // Results are cached in localStorage for 10 minutes to reduce DB load.
   async getTaxonomy() {
+    // Cache read
+    try {
+      const ts  = localStorage.getItem(TAXONOMY_TS_KEY);
+      const raw = localStorage.getItem(TAXONOMY_CACHE_KEY);
+      if (ts && raw && (Date.now() - Number(ts)) < TAXONOMY_TTL_MS) {
+        return JSON.parse(raw);
+      }
+    } catch (_) {
+      // localStorage unavailable or JSON corrupt — fall through
+    }
+
+    // DB fetch
     try {
       const [{ data: courses, error: e1 }, { data: topics, error: e2 }, { data: subtopics, error: e3 }] =
         await Promise.all([
@@ -87,11 +104,26 @@ const Questions = {
       if (e1) throw e1;
       if (e2) throw e2;
       if (e3) throw e3;
-      return { courses: courses || [], topics: topics || [], subtopics: subtopics || [] };
+      const taxonomy = { courses: courses || [], topics: topics || [], subtopics: subtopics || [] };
+
+      // Cache write (silent fail for private browsing / quota exceeded)
+      try {
+        localStorage.setItem(TAXONOMY_CACHE_KEY, JSON.stringify(taxonomy));
+        localStorage.setItem(TAXONOMY_TS_KEY,    String(Date.now()));
+      } catch (_) {}
+
+      return taxonomy;
     } catch (err) {
       console.error('Error fetching taxonomy:', err);
       return { courses: [], topics: [], subtopics: [] };
     }
+  },
+
+  clearTaxonomyCache() {
+    try {
+      localStorage.removeItem(TAXONOMY_CACHE_KEY);
+      localStorage.removeItem(TAXONOMY_TS_KEY);
+    } catch (_) {}
   },
 
   // Returns [{value, label}] -- used by filters.js for the course multi-select
