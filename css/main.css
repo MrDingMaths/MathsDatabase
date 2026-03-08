@@ -132,7 +132,7 @@ body {
 }
 
 .btn--primary {
-  background: var(--color-highlight);
+  background: var(--color-dark);
   color: #fff;
 }
 

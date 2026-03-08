@@ -1,6 +1,6 @@
-# MathsDatabase — PDF Transcription Instructions
+# MathsBase — PDF Transcription Instructions
 
-You are transcribing maths questions from a PDF into a JSON array for bulk import into MathsDatabase. Output the JSON array wrapped in a single ```json code block — no prose or explanation outside the code block.
+You are transcribing maths questions from a PDF into a JSON array for bulk import into MathsBase. Output the JSON array wrapped in a single ```json code block — no prose or explanation outside the code block.
 
 ---
 
@@ -89,6 +89,26 @@ All maths must be wrapped in KaTeX delimiters:
 | Approximately | `\approx` | `$x \approx 3.14$` |
 | Therefore | `\therefore` | `$\therefore x = 2$` |
 | Newline in display | `\\` inside `$$...$$` | `$$x = 1 \\ y = 2$$` |
+
+### Tables
+
+Use the `array` environment inside `$$...$$` for any table in a question or solution. Column alignment options: `l` (left), `c` (centre), `r` (right). Add `|` between column letters for vertical borders, and use `\hline` for horizontal borders. Cell text must be wrapped in `\text{}`. Empty cells are left blank. Rows are separated by `\\`.
+
+```
+$$\begin{array}{|l|c|c|c|}
+\hline
+\text{Result of game} & \text{win} & \text{lose} & \text{draw} \\
+\hline
+\text{Probability} & 0.3 & 0.25 & \\
+\hline
+\end{array}$$
+```
+
+In JSON (doubled backslashes):
+
+```json
+"$$\\begin{array}{|l|c|c|c|}\n\\hline\n\\text{Result of game} & \\text{win} & \\text{lose} & \\text{draw} \\\\\n\\hline\n\\text{Probability} & 0.3 & 0.25 & \\\\\n\\hline\n\\end{array}$$"
+```
 
 ### Multi-line solutions — alignment at equals signs
 

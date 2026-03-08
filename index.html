@@ -3,83 +3,219 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MathsDatabase — About</title>
+  <title>MathsBase — About</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="css/main.css">
   <style>
-    .about-hero {
-      text-align: center;
-      padding: 3rem 2rem 2rem;
-    }
-    .about-hero__title {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--color-dark);
-      margin-bottom: 0.75rem;
-    }
-    .about-hero__tagline {
-      font-size: 1.1rem;
-      color: var(--color-text-light);
-      max-width: 540px;
-      margin: 0 auto;
-    }
-.nav-cards {
+.home-primary-cta {
       display: flex;
       justify-content: center;
-      gap: 1.5rem;
-      padding: 1rem 2rem 3rem;
-      flex-wrap: wrap;
+      padding: 0 2rem 1.5rem;
     }
-    .nav-card {
-      background: var(--color-card-bg);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      padding: 1.75rem 2rem;
+    .cta-main {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      background: #D9607A;
+      color: #fff;
       text-decoration: none;
-      color: var(--color-text);
-      width: 220px;
-      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      border: 2px solid rgba(0, 0, 0, 0.12);
+      border-bottom: 4px solid rgba(0, 0, 0, 0.2);
+      padding: 1.5rem 1.75rem;
+      max-width: 600px;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(217, 96, 122, 0.4);
       transition: box-shadow var(--transition), transform var(--transition);
     }
-    .nav-card:hover {
-      box-shadow: var(--shadow-hover);
-      transform: translateY(-2px);
+    .cta-main:hover {
+      box-shadow: 0 8px 32px rgba(217, 96, 122, 0.55);
+      transform: translateY(-3px);
     }
-    .nav-card__title {
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: var(--color-dark);
-      margin-bottom: 0.5rem;
+    .cta-main:active {
+      transform: translateY(0);
+      border-bottom-width: 2px;
+      box-shadow: 0 2px 8px rgba(217, 96, 122, 0.3);
     }
-    .nav-card__desc {
-      font-size: 0.88rem;
-      color: var(--color-text-light);
+    .cta-main__icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.12);
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
+    .cta-main__text {
+      flex: 1;
+    }
+    .cta-main__title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    .cta-main__desc {
+      font-size: 0.95rem;
+      opacity: 0.7;
       line-height: 1.5;
     }
+    .cta-main__arrow {
+      font-size: 1.6rem;
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+    .home-section-label {
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-light);
+      padding: 0.5rem 0 0.75rem;
+    }
+    .site-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 0 2rem 3rem;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .site-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #fff;
+      transition: filter var(--transition), transform var(--transition);
+    }
+    .site-link:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+    .site-link__icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.15);
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .site-link__icon img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+    .site-link__text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .site-link__title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .site-link__url {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+    .site-link__arrow {
+      font-size: 1.3rem;
+      opacity: 0.75;
+    }
+    .site-link--gold  { background: #ddb96e; }
+    .site-link--green { background: #7cc49a; }
+    .site-link--blue  { background: #7aaedd; }
+    .site-link--red   { background: #dd8896; }
+
+  .hero-tagline {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 600;
+    padding: 2rem 1rem 1rem;
+    color: var(--text, #1a1a2e);
+    min-height: 3.5rem;
+  }
+  .typing-cursor {
+    display: inline-block;
+    animation: blink 0.7s step-end infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
   </style>
 </head>
 <body>
   <header class="site-header">
-    <span class="site-header__title">MathsDatabase Question Bank</span>
+    <span class="site-header__title">MathsBase</span>
     <nav class="site-header__nav">
       <a href="index.html" class="active">About</a>
       <a href="worksheet.html">Worksheet</a>
       <a href="admin.html">Admin</a>
     </nav>
   </header>
-
   <main class="main-content">
-    <section class="about-hero">
-      <h1 class="about-hero__title">MathsDatabase Question Bank</h1>
-      <p class="about-hero__tagline">A curated collection of maths questions spanning multiple courses and topics, built for worksheet generation.</p>
-    </section>
+    <div class="hero-tagline">
+      <span class="typing-text"></span><span class="typing-cursor">|</span>
+    </div>
+<div class="home-primary-cta">
+      <a href="worksheet.html" class="cta-main">
+        <span class="cta-main__icon">📄</span>
+        <span class="cta-main__text">
+          <div class="cta-main__title">Worksheet Generator</div>
+          <div class="cta-main__desc">Select questions and create a printable worksheet.</div>
+        </span>
+        <span class="cta-main__arrow">→</span>
+      </a>
+    </div>
 
-    <div class="nav-cards">
-      <a href="worksheet.html" class="nav-card">
-        <div class="nav-card__title">Worksheet</div>
-        <div class="nav-card__desc">Select questions and generate a printable worksheet with or without answers.</div>
+    <div class="home-section-label">My Other Sites</div>
+
+    <div class="site-links">
+      <a href="https://mrdingmaths.com" class="site-link site-link--gold" target="_blank" rel="noopener">
+        <span class="site-link__icon"><img src="https://mrdingmaths.com/favicon.ico" alt=""></span>
+        <span class="site-link__text">
+          <span class="site-link__title">MrDingMaths</span>
+          <span class="site-link__url">Coursework booklets and research notes on cognitive load theory</span>
+        </span>
+        <span class="site-link__arrow">→</span>
+      </a>
+      <a href="https://mathsmastery.mrdingmaths.com" class="site-link site-link--green" target="_blank" rel="noopener">
+        <span class="site-link__icon">±</span>
+        <span class="site-link__text">
+          <span class="site-link__title">Maths Facts Challenge</span>
+          <span class="site-link__url">Timed drills of number skills</span>
+        </span>
+        <span class="site-link__arrow">→</span>
+      </a>
+      <a href="https://algebramastery.mrdingmaths.com" class="site-link site-link--blue" target="_blank" rel="noopener">
+        <span class="site-link__icon">𝑥</span>
+        <span class="site-link__text">
+          <span class="site-link__title">Algebra Mastery Challenge</span>
+          <span class="site-link__url">Timed drills of algebra skills</span>
+        </span>
+        <span class="site-link__arrow">→</span>
+      </a>
+      <a href="https://trigmastery.mrdingmaths.com" class="site-link site-link--red" target="_blank" rel="noopener">
+        <span class="site-link__icon">θ</span>
+        <span class="site-link__text">
+          <span class="site-link__title">Trig Facts Challenge</span>
+          <span class="site-link__url">Timed drills of trigonometry skills</span>
+        </span>
+        <span class="site-link__arrow">→</span>
       </a>
     </div>
   </main>
@@ -88,5 +224,34 @@
   <script src="js/supabase.js"></script>
   <script src="js/questions.js"></script>
   <script src="js/about.js"></script>
+  <script>
+    (function () {
+      const phrases = ['Browse questions', 'Build worksheets', 'Print and go', 'MathsBase'];
+      const el = document.querySelector('.typing-text');
+      let phraseIdx = 0, charIdx = 0, deleting = false;
+      function tick() {
+        const phrase = phrases[phraseIdx];
+        if (!deleting) {
+          el.textContent = phrase.slice(0, ++charIdx);
+          if (charIdx === phrase.length) {
+            deleting = true;
+            setTimeout(tick, 1000);
+            return;
+          }
+          setTimeout(tick, 40);
+        } else {
+          el.textContent = phrase.slice(0, --charIdx);
+          if (charIdx === 0) {
+            deleting = false;
+            phraseIdx = (phraseIdx + 1) % phrases.length;
+            setTimeout(tick, 300);
+            return;
+          }
+          setTimeout(tick, 35);
+        }
+      }
+      tick();
+    })();
+  </script>
 </body>
 </html>
