@@ -270,9 +270,10 @@ const Admin = {
 
     try {
       let questionId;
+      let updatedData = null;
       const wasEditing = !!this.editingId;
       if (this.editingId) {
-        await Questions.update(this.editingId, question);
+        updatedData = await Questions.update(this.editingId, question);
         questionId = this.editingId;
         showToast('Question updated successfully!');
       } else {
@@ -287,8 +288,31 @@ const Admin = {
         ...this.pendingTopicCls.map(c => ({ course_id: null, topic_id: c.topic_id, subtopic_id: c.subtopic_id }))
       ];
       await Questions.saveClassifications(questionId, clsToSave);
-      if (wasEditing) this.cancelEdit();
-      this.loadQuestions(true);
+
+      if (wasEditing) {
+        const courseClasses = [...this.pendingCourseIds].map(id => {
+          const course = this.taxonomy.courses.find(c => c.id === id);
+          return { course_id: id, course_label: course?.label || id, topic_id: null };
+        });
+        const topicClasses = this.pendingTopicCls.map(c => ({
+          course_id: null,
+          topic_id: c.topic_id,
+          topic_name: c.topic_name,
+          subtopic_id: c.subtopic_id || null,
+          subtopic_name: c.subtopic_name || null
+        }));
+        const merged = { ...updatedData, classifications: [...courseClasses, ...topicClasses] };
+        const idx = this.loadedQuestions.findIndex(q => q.id === questionId);
+        this.cancelEdit();
+        if (idx !== -1) {
+          this.loadedQuestions[idx] = merged;
+          this.renderAllLoaded();
+        } else {
+          this.loadQuestions(true);
+        }
+      } else {
+        this.loadQuestions(true);
+      }
     } catch (err) {
       showToast('Error: ' + err.message, 'error');
     }
