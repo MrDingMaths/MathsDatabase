@@ -45,8 +45,9 @@ const Worksheet = {
 
   async loadQuestions(filters) {
     try {
-      const { data } = await Questions.fetch({ ...filters, limit: 50, offset: 0 });
+      const { data, count } = await Questions.fetch({ ...filters, limit: 30, offset: 0 });
       this.allQuestions = data || [];
+      this.totalCount = count || 0;
       this.renderQuestionList();
     } catch (err) {
       showToast('Error loading questions', 'error');
@@ -69,6 +70,9 @@ const Worksheet = {
       : this.allQuestions;
 
     const sorted = getSortedQuestions(filtered, this.sortBy);
+
+    const qCountEl = document.getElementById('q-count');
+    if (qCountEl) qCountEl.textContent = `Showing ${sorted.length} of ${this.totalCount} questions`;
 
     if (sorted.length === 0) {
       container.innerHTML = '<div class="empty-state">No questions found.</div>';

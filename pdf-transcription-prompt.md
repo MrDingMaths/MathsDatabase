@@ -364,6 +364,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 149 Circles and semicircles
 - 150 Simple cubic curves
 - 151 Power curves
+- 214 Points of intersection
 
 **Variation** (topic_id: 51)
 - 152 Direct variation
