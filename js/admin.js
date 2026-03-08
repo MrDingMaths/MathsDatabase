@@ -153,6 +153,9 @@ const Admin = {
     document.getElementById('load-more-btn').addEventListener('click', () => this.loadQuestions(false));
     document.getElementById('question-insert-img-btn').addEventListener('click', () => this.insertInlineImage('question-text'));
     document.getElementById('solution-insert-img-btn').addEventListener('click', () => this.insertInlineImage('solution-text'));
+
+    document.getElementById('question-text').addEventListener('paste', (e) => this.handleImagePaste(e, 'question-text'));
+    document.getElementById('solution-text').addEventListener('paste', (e) => this.handleImagePaste(e, 'solution-text'));
   },
 
   setupPreviews() {
@@ -199,6 +202,27 @@ const Admin = {
       textarea.dispatchEvent(new Event('input'));
     };
     input.click();
+  },
+
+  handleImagePaste(e, textareaId) {
+    const imageItem = Array.from(e.clipboardData.items).find(item => item.type.startsWith('image/'));
+    if (!imageItem) return;
+    e.preventDefault();
+    const file = imageItem.getAsFile();
+    const textarea = document.getElementById(textareaId);
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const placeholder = '[uploading...]';
+    textarea.value = textarea.value.slice(0, start) + placeholder + textarea.value.slice(end);
+    textarea.dispatchEvent(new Event('input'));
+    Questions.uploadImage(file).then(url => {
+      textarea.value = textarea.value.replace(placeholder, `\n[img:${url}]\n`);
+      textarea.dispatchEvent(new Event('input'));
+    }).catch(err => {
+      textarea.value = textarea.value.replace(placeholder, '');
+      textarea.dispatchEvent(new Event('input'));
+      showToast('Image upload failed: ' + err.message, 'error');
+    });
   },
 
   async submitQuestion() {

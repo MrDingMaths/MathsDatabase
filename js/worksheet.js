@@ -262,7 +262,7 @@ const Worksheet = {
     }
 
     html += `<div class="worksheet-footer">
-      <span class="worksheet-footer__url">database.MrDingMaths.com</span>
+      <span class="worksheet-footer__url">https://database.mrdingmaths.com/</span>
       <span class="worksheet-footer__page"></span>
     </div>`;
 

@@ -172,7 +172,8 @@
   .worksheet-actions,
   .btn,
   .question-card__checkbox,
-  #questions-container {
+  #questions-container,
+  .toast {
     display: none;
   }
 
