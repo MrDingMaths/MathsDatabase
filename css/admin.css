@@ -50,6 +50,13 @@
   box-shadow: var(--shadow);
 }
 
+.admin-layout__edit {
+  position: sticky;
+  top: 6.5rem;
+  max-height: calc(100vh - 7.5rem);
+  overflow-y: auto;
+}
+
 /* === Admin Layout === */
 .admin-login {
   max-width: 400px;
@@ -250,6 +257,11 @@
 @media (max-width: 900px) {
   .admin-layout {
     grid-template-columns: 1fr;
+  }
+  .admin-layout__edit {
+    position: static;
+    max-height: none;
+    overflow-y: visible;
   }
 }
 
