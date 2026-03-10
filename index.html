@@ -9,7 +9,52 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="css/main.css">
   <style>
-.home-primary-cta {
+    /* === Hero === */
+    .hero-section {
+      text-align: center;
+      padding: 3rem 1rem 1.5rem;
+      position: relative;
+    }
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 300px;
+      background: radial-gradient(ellipse, rgba(248, 113, 113, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-tagline {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--color-text);
+      min-height: 3.5rem;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-subtitle {
+      font-size: 1rem;
+      color: var(--color-text-light);
+      margin-top: 0.5rem;
+      font-weight: 400;
+      position: relative;
+      z-index: 1;
+    }
+    .typing-cursor {
+      display: inline-block;
+      animation: blink 0.7s step-end infinite;
+      color: var(--color-accent);
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    /* === Primary CTA === */
+    .home-primary-cta {
       display: flex;
       justify-content: center;
       padding: 0 2rem 1.5rem;
@@ -18,27 +63,27 @@
       display: flex;
       align-items: center;
       gap: 1.25rem;
-      background: #D9607A;
+      background: var(--color-accent);
       color: #fff;
       text-decoration: none;
       border-radius: var(--radius);
-      border: 2px solid rgba(0, 0, 0, 0.12);
-      border-bottom: 4px solid rgba(0, 0, 0, 0.2);
+      border: 2px solid rgba(0, 0, 0, 0.08);
+      border-bottom: 4px solid rgba(0, 0, 0, 0.15);
       padding: 1.5rem 1.75rem;
       max-width: 600px;
       width: 100%;
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(217, 96, 122, 0.4);
+      box-shadow: 0 4px 20px rgba(248, 113, 113, 0.3);
       transition: box-shadow var(--transition), transform var(--transition);
     }
     .cta-main:hover {
-      box-shadow: 0 8px 32px rgba(217, 96, 122, 0.55);
+      box-shadow: 0 8px 32px rgba(248, 113, 113, 0.45);
       transform: translateY(-3px);
     }
     .cta-main:active {
       transform: translateY(0);
       border-bottom-width: 2px;
-      box-shadow: 0 2px 8px rgba(217, 96, 122, 0.3);
+      box-shadow: 0 2px 8px rgba(248, 113, 113, 0.25);
     }
     .cta-main__icon {
       display: flex;
@@ -47,8 +92,7 @@
       width: 60px;
       height: 60px;
       border-radius: 12px;
-      background: rgba(0, 0, 0, 0.12);
-      font-size: 1.8rem;
+      background: rgba(255, 255, 255, 0.2);
       flex-shrink: 0;
     }
     .cta-main__text {
@@ -61,7 +105,7 @@
     }
     .cta-main__desc {
       font-size: 0.95rem;
-      opacity: 0.7;
+      opacity: 0.85;
       line-height: 1.5;
     }
     .cta-main__arrow {
@@ -69,20 +113,24 @@
       opacity: 0.6;
       flex-shrink: 0;
     }
+
+    /* === Section Label === */
     .home-section-label {
       text-align: center;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       color: var(--color-text-light);
       padding: 0.5rem 0 0.75rem;
     }
+
+    /* === Site Links === */
     .site-links {
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
-      padding: 0 2rem 3rem;
+      padding: 0 2rem 2rem;
       max-width: 640px;
       margin: 0 auto;
     }
@@ -91,30 +139,35 @@
       align-items: center;
       gap: 1rem;
       padding: 1rem 1.25rem;
-      border-radius: 12px;
+      border-radius: var(--radius);
       text-decoration: none;
-      color: #fff;
-      transition: filter var(--transition), transform var(--transition);
+      color: var(--color-text);
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-border);
+      border-left: 4px solid #ccc;
+      box-shadow: var(--shadow);
+      transition: box-shadow var(--transition), transform var(--transition);
     }
     .site-link:hover {
-      filter: brightness(1.08);
+      box-shadow: var(--shadow-hover);
       transform: translateY(-1px);
     }
     .site-link__icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       border-radius: 10px;
-      background: rgba(0, 0, 0, 0.15);
-      font-size: 1.4rem;
+      font-size: 1.3rem;
+      font-weight: 700;
       flex-shrink: 0;
       overflow: hidden;
+      color: #fff;
     }
     .site-link__icon img {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       object-fit: contain;
     }
     .site-link__text {
@@ -123,114 +176,125 @@
       flex-direction: column;
     }
     .site-link__title {
-      font-size: 1.05rem;
-      font-weight: 700;
+      font-size: 1rem;
+      font-weight: 600;
       line-height: 1.3;
     }
     .site-link__url {
       font-size: 0.85rem;
-      opacity: 0.8;
+      color: var(--color-text-light);
     }
     .site-link__arrow {
-      font-size: 1.3rem;
-      opacity: 0.75;
+      font-size: 1.2rem;
+      color: var(--color-text-light);
     }
-    .site-link--gold  { background: #ddb96e; }
-    .site-link--green { background: #7cc49a; }
-    .site-link--blue  { background: #7aaedd; }
-    .site-link--red   { background: #dd8896; }
 
-  .hero-tagline {
-    text-align: center;
-    font-size: 2rem;
-    font-weight: 600;
-    padding: 2rem 1rem 1rem;
-    color: var(--text, #1a1a2e);
-    min-height: 3.5rem;
-  }
-  .typing-cursor {
-    display: inline-block;
-    animation: blink 0.7s step-end infinite;
-  }
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0; }
-  }
+    /* Card accent colors */
+    .site-link--amber  { border-left-color: #F59E0B; }
+    .site-link--green  { border-left-color: #10B981; }
+    .site-link--blue   { border-left-color: #3B82F6; }
+    .site-link--rose   { border-left-color: #FB7185; }
 
-  [data-theme="dark"] .hero-tagline {
-    color: #e0e0e8;
-  }
-  [data-theme="dark"] .cta-main {
-    border-color: rgba(255, 255, 255, 0.1);
-    border-bottom-color: rgba(0, 0, 0, 0.3);
-  }
-  [data-theme="dark"] .site-link {
-    filter: brightness(0.85);
-  }
+    .site-link--amber .site-link__icon  { background: #F59E0B; }
+    .site-link--green .site-link__icon  { background: #10B981; }
+    .site-link--blue .site-link__icon   { background: #3B82F6; }
+    .site-link--rose .site-link__icon   { background: #FB7185; }
+
+    /* === Dark mode overrides === */
+    [data-theme="dark"] .hero-section::before {
+      background: radial-gradient(ellipse, rgba(251, 146, 60, 0.06) 0%, transparent 70%);
+    }
+    [data-theme="dark"] .cta-main {
+      border-color: rgba(255, 255, 255, 0.08);
+      border-bottom-color: rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 20px rgba(251, 146, 60, 0.2);
+    }
+    [data-theme="dark"] .cta-main:hover {
+      box-shadow: 0 8px 32px rgba(251, 146, 60, 0.35);
+    }
   </style>
 </head>
 <body>
   <header class="site-header">
-    <span class="site-header__title">MathsBase</span>
+    <span class="site-header__title">
+      <img class="site-header__logo" src="favicon.ico" alt="MathsBase logo" width="28" height="28">
+      MathsBase
+    </span>
     <nav class="site-header__nav">
       <a href="index.html" class="active">About</a>
       <a href="worksheet.html">Worksheet</a>
       <a href="admin.html">Admin</a>
-      <button class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+      <button class="theme-toggle" aria-label="Toggle dark mode"></button>
     </nav>
   </header>
   <main class="main-content">
-    <div class="hero-tagline">
-      <span class="typing-text"></span><span class="typing-cursor">|</span>
+    <div class="hero-section">
+      <div class="hero-tagline">
+        <span class="typing-text"></span><span class="typing-cursor">|</span>
+      </div>
+      <p class="hero-subtitle">A question bank for mathematics students</p>
     </div>
-<div class="home-primary-cta">
+
+    <div class="home-primary-cta">
       <a href="worksheet.html" class="cta-main">
-        <span class="cta-main__icon">📄</span>
+        <span class="cta-main__icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </span>
         <span class="cta-main__text">
           <div class="cta-main__title">Worksheet Generator</div>
           <div class="cta-main__desc">Select questions and create a printable worksheet</div>
           <div id="question-count" class="cta-main__desc" style="opacity:0.55;font-size:0.85rem;margin-top:0.25rem;"></div>
         </span>
-        <span class="cta-main__arrow">→</span>
+        <span class="cta-main__arrow">&rarr;</span>
       </a>
     </div>
 
     <div class="home-section-label">My Other Sites</div>
 
     <div class="site-links">
-      <a href="https://mrdingmaths.com" class="site-link site-link--gold" target="_blank" rel="noopener">
-        <span class="site-link__icon"><img src="https://mathsbase.mrdingmaths.com/favicon.ico" alt=""></span>
+      <a href="https://mrdingmaths.com" class="site-link site-link--amber" target="_blank" rel="noopener">
+        <span class="site-link__icon"><img src="favicon.ico" alt=""></span>
         <span class="site-link__text">
           <span class="site-link__title">MrDingMaths</span>
           <span class="site-link__url">Coursework booklets and cognitive load theory knowledge base</span>
         </span>
-        <span class="site-link__arrow">→</span>
+        <span class="site-link__arrow">&rarr;</span>
       </a>
       <a href="https://mathsmastery.mrdingmaths.com" class="site-link site-link--green" target="_blank" rel="noopener">
-        <span class="site-link__icon">±</span>
+        <span class="site-link__icon">&pm;</span>
         <span class="site-link__text">
           <span class="site-link__title">Maths Facts Challenge</span>
           <span class="site-link__url">Timed drills of number skills</span>
         </span>
-        <span class="site-link__arrow">→</span>
+        <span class="site-link__arrow">&rarr;</span>
       </a>
       <a href="https://algebramastery.mrdingmaths.com" class="site-link site-link--blue" target="_blank" rel="noopener">
-        <span class="site-link__icon">𝑥</span>
+        <span class="site-link__icon">&#x1D465;</span>
         <span class="site-link__text">
           <span class="site-link__title">Algebra Mastery Challenge</span>
           <span class="site-link__url">Timed drills of algebra skills</span>
         </span>
-        <span class="site-link__arrow">→</span>
+        <span class="site-link__arrow">&rarr;</span>
       </a>
-      <a href="https://trigmastery.mrdingmaths.com" class="site-link site-link--red" target="_blank" rel="noopener">
-        <span class="site-link__icon">θ</span>
+      <a href="https://trigmastery.mrdingmaths.com" class="site-link site-link--rose" target="_blank" rel="noopener">
+        <span class="site-link__icon">&theta;</span>
         <span class="site-link__text">
           <span class="site-link__title">Trig Facts Challenge</span>
           <span class="site-link__url">Timed drills of trigonometry skills</span>
         </span>
-        <span class="site-link__arrow">→</span>
+        <span class="site-link__arrow">&rarr;</span>
       </a>
     </div>
+
+    <footer class="site-footer">
+      <a href="https://mrdingmaths.com" target="_blank" rel="noopener">MrDingMaths</a>
+    </footer>
   </main>
 
   <script src="js/theme.js"></script>

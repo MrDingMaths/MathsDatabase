@@ -85,6 +85,8 @@ All maths must be wrapped in KaTeX delimiters:
 | Column vector | `\begin{pmatrix} a \\ b \end{pmatrix}` | `$\begin{pmatrix} 3 \\ 4 \end{pmatrix}$` |
 
 **Vectors:** Always render named vectors (e.g. **a**, **u**, **v**) in boldface using `\mathbf{}`. Use `\vec{}` only for vectors named by two points (e.g. $\vec{AB}$).
+
+**Currency:** Dollar amounts must **not** be wrapped in KaTeX delimiters. Escape the dollar sign with a backslash so it renders as literal text. Write `\$36`, not `$\$36$`.
 | Inequalities | `\leq`, `\geq`, `\neq` | `$x \leq 5$` |
 | Approximately | `\approx` | `$x \approx 3.14$` |
 | Therefore | `\therefore` | `$\therefore x = 2$` |
@@ -217,10 +219,10 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 ### Topics and subtopics (`topic_id` → `subtopic_id`)
 
 **Number** (topic_id: 39)
-- 53 Operate with integers
-- 54 Simplify and convert FDP
-- 55 Operate with fractions and decimals
-- 56 Operate with percentages
+- 53 Integers
+- 54 FDP Conversions
+- 55 Fraction and decimal operations
+- 56 Percentage operations
 - 57 Round decimals
 - 58 Classify types of numbers
 - 59 Ratios
@@ -238,7 +240,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 62 Basic algebra
 - 63 Expand expressions
 - 64 Factorise using HCF
-- 77 Simple algebraic fractions
+- 77 Algebraic fractions simple
 - 78 Expand binomial products
 - 79 Factorise monic quadratic trinomials
 - 114 Simplify algebraic fractions with binomial numerator
@@ -259,20 +261,23 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 123 Simplifying surds
 - 124 Rationalise denominator
 - 125 Fractional indices
+- 217 Exponential equations
 
 **Equations** (topic_id: 42)
 - 69 Linear equations
 - 70 Formulas
-- 71 Simple quadratics
+- 71 Quadratics simple
 - 126 Monic quadratics
-- 127 Simple cubics
-- 128 Linear inequalities
+- 127 Cubics simple
+- 128 Inequalities linear
 - 129 Rearrange formulas
-- 130 Non-monic quadratics
+- 130 Quadratics non-monic
 - 131 Completing the square
 - 132 Quadratic formula
 - 133 Equations reducible to quadratics
 - 134 Simultaneous equations
+- 219 Discriminant
+- 220 Quadratic inequalities
 
 **Linear Relationships** (topic_id: 43)
 - 72 Plot points
@@ -280,7 +285,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 139 Gradient-intercept form
 - 140 Horizontal and vertical lines
 - 141 Point gradient form
-- 142 Parallel and perpendicular lines
+- 142 Parallel and Perpendicular lines
 
 **Geometry** (topic_id: 44)
 - 80 Conventions of Geometry
@@ -312,6 +317,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 97 Volume of a prism
 - 98 Volume of a cylinder
 - 99 Volume of composite solids
+- 215 Volume of pyramids and cones
 - 100 Volume units
 - 160 Surface area of prisms
 - 161 Surface area of cylinders
@@ -330,6 +336,8 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 206 Bivariate data
 - 211 Box plots and quartiles
 - 212 Standard deviation
+- 218 Frequency density
+- 233 Grouped data
 
 **Probability** (topic_id: 47)
 - 107 Simple probability and relative frequency
@@ -338,6 +346,9 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 181 Set notation
 - 182 Compound events and Venn diagrams
 - 183 Conditional probability
+- 232 Discrete random variables
+- 242 Continuous random variables
+- 243 Normal distribution
 
 **Financial Maths** (topic_id: 48)
 - 108 Earning money
@@ -357,14 +368,8 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 **Non-linear Relationships** (topic_id: 50)
 - 143 Plotting parabolas
 - 144 Plotting exponentials
+- 216 Plotting hyperbolas
 - 145 Identifying equation and graph
-- 146 Parabolas
-- 147 Exponentials
-- 148 Hyperbolas
-- 149 Circles and semicircles
-- 150 Simple cubic curves
-- 151 Power curves
-- 214 Points of intersection
 
 **Variation** (topic_id: 51)
 - 152 Direct variation
@@ -378,7 +383,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 **Trigonometry** (topic_id: 53)
 - 168 Right-angled trigonometry
 - 169 Bearings
-- 170 3D Trigonometry
+- 170 3D trigonometry
 - 171 Sine rule
 - 172 Cosine rule
 - 173 SAS area rule
@@ -387,17 +392,33 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 176 Tan and gradient
 - 177 Solve basic trigonometric equations
 - 178 Ambiguous case of sine rule
+- 225 Radians
+- 226 Basic identities
 
 **Functions** (topic_id: 54)
+- 146 Parabolas
+- 147 Exponentials
+- 148 Hyperbolas
+- 149 Circles and semicircles
+- 150 Cubic curves simple
+- 151 Power curves
 - 184 Function notation
 - 185 Domain and range
 - 199 Composite functions
 - 200 Graph inequalities
 - 210 Inverse functions
+- 214 Points of intersection
+- 221 Graph cubics in factored form
+- 222 Odd and even
+- 223 Piecewise-defined
+- 224 Absolute value
+- 229 Logarithmic functions
+- 230 Transformations
+- 231 Transformations of trigonometric functions
 
 **Logarithms** (topic_id: 55)
 - 186 Laws of logarithms
-- 187 Solving equations using logarithms
+- 187 Equations using logarithms
 
 **Polynomials** (topic_id: 56)
 - 188 Terminology
@@ -407,18 +428,32 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 192 Factorise and graph polynomials
 - 193 Multiplicity of roots and the graph
 
+**Vectors** (topic_id: 57)
+- 195 Vector operations
+- 196 Basic vector proofs
+
 **Sequences** (topic_id: 58)
 - 197 Linear sequences
 - 198 Non-linear sequences
 
 **Differentiation** (topic_id: 59)
-- 201 Differentiation of polynomials
-- 202 Equations of tangents and normals
-- 203 Graphical applications of derivative
+- 201 Polynomials
+- 202 Tangents and normals
+- 203 Graphical applications
+- 227 First principles
+- 228 Motion
+- 239 Curve sketching
+- 240 Optimisation
+- 241 Rates of change
 
-**Vectors** (topic_id: 57)
-- 195 Vector operations
-- 196 Basic vector proofs
+**Integration** (topic_id: 60)
+- 236 Polynomials
+- 237 Exponential logarithmic trigonometric
+- 238 Areas
+
+**Sequences and Series** (topic_id: 61)
+- 234 Arithmetic
+- 235 Geometric
 
 ---
 
