@@ -1,7 +1,11 @@
 // Worksheet generator logic
 
 const Worksheet = {
+  PAGE_SIZE: 50,
   allQuestions: [],
+  totalCount: 0,
+  currentOffset: 0,
+  currentFilters: {},
   selectedIds: new Set(),
   selectedQuestions: new Map(),
   searchTerm: '',
@@ -39,19 +43,32 @@ const Worksheet = {
     document.getElementById('generate-worksheet').addEventListener('click', () => this.generate());
     document.getElementById('toggle-solutions-btn').addEventListener('click', () => this.toggleSolutions());
     document.getElementById('print-btn').addEventListener('click', () => window.print());
+    document.getElementById('load-more-btn').addEventListener('click', () => this.loadMore());
 
     this.loadQuestions({});
   },
 
-  async loadQuestions(filters) {
+  async loadQuestions(filters, reset = true) {
     try {
-      const { data, count } = await Questions.fetch({ ...filters, limit: 30, offset: 0 });
-      this.allQuestions = data || [];
+      if (reset) {
+        this.currentFilters = filters;
+        this.currentOffset = 0;
+        this.allQuestions = [];
+      }
+      const { data, count } = await Questions.fetch({ ...this.currentFilters, limit: this.PAGE_SIZE, offset: this.currentOffset });
+      this.allQuestions = reset ? (data || []) : [...this.allQuestions, ...(data || [])];
       this.totalCount = count || 0;
+      this.currentOffset = this.allQuestions.length;
+      const loadMoreContainer = document.getElementById('load-more-container');
+      if (loadMoreContainer) loadMoreContainer.style.display = this.allQuestions.length < this.totalCount ? '' : 'none';
       this.renderQuestionList();
     } catch (err) {
       showToast('Error loading questions', 'error');
     }
+  },
+
+  loadMore() {
+    this.loadQuestions(this.currentFilters, false);
   },
 
   renderQuestionList() {
@@ -182,8 +199,13 @@ const Worksheet = {
     this.generate(true);
   },
 
-  addRandom() {
-    const unselected = this.allQuestions.filter(q => !this.selectedIds.has(q.id));
+  async addRandom() {
+    let pool = this.allQuestions;
+    if (this.allQuestions.length < this.totalCount) {
+      const { data } = await Questions.fetch({ ...this.currentFilters, limit: this.totalCount, offset: 0 });
+      pool = data || [];
+    }
+    const unselected = pool.filter(q => !this.selectedIds.has(q.id));
     if (unselected.length === 0) {
       showToast('All filtered questions are already selected', 'error');
       return;

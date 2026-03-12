@@ -1,5 +1,11 @@
 ﻿// Filter cascade logic
 
+const TOPIC_GROUPS = [
+  { label: 'Number & Algebra',         pattern: /number|algebra|financial|differentiation|equations|functions|indices|integration|linear|logarithms|polynomials|sequences|series|variation/i },
+  { label: 'Geometry & Measure',       pattern: /geometry|measurement|trigonometry|vectors/i },
+  { label: 'Statistics & Probability', pattern: /data|probability/i },
+];
+
 const Filters = {
   courseEl: null,
   topicEl: null,
@@ -60,12 +66,26 @@ const Filters = {
 
   async loadCourses() {
     const courses = await Questions.getCourses();
-    this.populateMultiSelect(this.courseEl, courses, 'All Courses', () => this.fireChange());
+    this.populateMultiSelect(this.courseEl, courses, 'All Courses', () => this.chipsMode ? this.onCourseChange() : this.fireChange());
+  },
+
+  async onCourseChange() {
+    const courses = this.getSelected(this.courseEl);
+    const topics = courses.length > 0
+      ? await Questions.getTopicsForCourse(courses)
+      : await Questions.getTopics();
+    this.populateGroupedChips(this.topicEl, topics, () => this.onTopicChange());
+    this.populateMultiSelect(this.subtopicEl, [], 'All Subtopics', () => this.fireChange());
+    this.fireChange();
   },
 
   async loadTopics() {
     const topics = await Questions.getTopics();
-    this.populateMultiSelect(this.topicEl, topics, 'All Topics', () => this.onTopicChange());
+    if (this.chipsMode) {
+      this.populateGroupedChips(this.topicEl, topics, () => this.onTopicChange());
+    } else {
+      this.populateMultiSelect(this.topicEl, topics, 'All Topics', () => this.onTopicChange());
+    }
     this.populateMultiSelect(this.subtopicEl, [], 'All Subtopics', () => this.fireChange());
   },
 
@@ -113,6 +133,43 @@ const Filters = {
         const active = prevSelected.has(val) ? ' chip--active' : '';
         return `<label class="chip${active}"><input type="checkbox" value="${val}" ${checked}>${lbl}</label>`;
       }).join('');
+    el.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        cb.closest('label').classList.toggle('chip--active', cb.checked);
+        onChangeFn();
+      });
+    });
+  },
+
+  populateGroupedChips(el, topicNames, onChangeFn) {
+    const prevSelected = new Set(this.getSelected(el));
+    const assigned = new Set();
+    let html = '';
+    for (const group of TOPIC_GROUPS) {
+      const matching = topicNames.filter(name => group.pattern.test(name));
+      if (!matching.length) continue;
+      matching.forEach(n => assigned.add(n));
+      html += `<div class="filter-row">` +
+        `<span class="filter-row__label">${group.label}:</span>` +
+        matching.map(name => {
+          const checked = prevSelected.has(name) ? 'checked' : '';
+          const active = prevSelected.has(name) ? ' chip--active' : '';
+          return `<label class="chip${active}"><input type="checkbox" value="${name}" ${checked}>${name}</label>`;
+        }).join('') +
+        `</div>`;
+    }
+    const other = topicNames.filter(n => !assigned.has(n));
+    if (other.length) {
+      html += `<div class="filter-row">` +
+        `<span class="filter-row__label">Other:</span>` +
+        other.map(name => {
+          const checked = prevSelected.has(name) ? 'checked' : '';
+          const active = prevSelected.has(name) ? ' chip--active' : '';
+          return `<label class="chip${active}"><input type="checkbox" value="${name}" ${checked}>${name}</label>`;
+        }).join('') +
+        `</div>`;
+    }
+    el.innerHTML = html;
     el.querySelectorAll('input[type="checkbox"]').forEach(cb => {
       cb.addEventListener('change', () => {
         cb.closest('label').classList.toggle('chip--active', cb.checked);

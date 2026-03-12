@@ -29,6 +29,16 @@
   }
 }
 
+.questions-col {
+  min-width: 0;
+}
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0 0.5rem;
+}
+
 /* === Worksheet Print Styles === */
 .worksheet-controls {
   display: flex;
@@ -236,6 +246,7 @@
   .filter-bar,
   .worksheet-controls,
   .worksheet-actions,
+  .load-more-container,
   .btn,
   .question-card__checkbox,
   #questions-container,

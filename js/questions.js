@@ -213,6 +213,29 @@ const Questions = {
     }
   },
 
+  // Returns topic name strings that have questions in the given course(s)
+  async getTopicsForCourse(courseIds) {
+    try {
+      const { data: courseRows, error: e1 } = await supabaseClient
+        .from('question_classifications')
+        .select('question_id')
+        .in('course_id', courseIds);
+      if (e1) throw e1;
+      const questionIds = [...new Set((courseRows || []).map(r => r.question_id))];
+      if (!questionIds.length) return [];
+      const { data, error: e2 } = await supabaseClient
+        .from('question_classifications')
+        .select('topics!inner(name)')
+        .in('question_id', questionIds)
+        .not('topic_id', 'is', null);
+      if (e2) throw e2;
+      return [...new Set((data || []).map(d => d.topics?.name).filter(Boolean))].sort();
+    } catch (err) {
+      console.error('Error fetching topics for course:', err);
+      return [];
+    }
+  },
+
   async bulkCreate(questions) {
     try {
       const prepared = questions.map(q => ({

@@ -55,13 +55,18 @@
           <button id="random-question-btn" class="btn btn--secondary btn--small">Add Random</button>
           <button id="generate-worksheet" class="btn btn--success">Generate Worksheet</button>
           <button id="toggle-solutions-btn" class="btn btn--success">Show Solutions</button>
-          <button id="print-btn" class="btn btn--success">Print</button>
+          <button id="print-btn" class="btn btn--success btn--print">Print<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
         </div>
       </div>
     </div>
 
     <div class="worksheet-layout" id="worksheet-layout">
-      <section id="questions-container" class="questions-grid"></section>
+      <div class="questions-col">
+        <section id="questions-container" class="questions-grid"></section>
+        <div id="load-more-container" class="load-more-container" style="display:none;">
+          <button id="load-more-btn" class="btn btn--secondary">Load More</button>
+        </div>
+      </div>
       <div id="worksheet-preview-outer" class="worksheet-preview-outer" style="display:none;">
         <div id="worksheet-preview" class="worksheet-preview"></div>
       </div>
