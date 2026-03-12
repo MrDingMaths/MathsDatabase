@@ -115,13 +115,11 @@ const Worksheet = {
           </summary>
           <div class="question-card__body">
             ${renderTextWithImages(q.question_text || '')}
-            ${q.question_image_url ? `<br><img src="${escapeHtml(q.question_image_url)}" alt="Question diagram">` : ''}
           </div>
           <details class="question-card__solution">
             <summary>Show solution</summary>
             <div class="question-card__solution-content">
               ${renderTextWithImages(q.solution_text || '')}
-              ${q.solution_image_url ? `<br><img src="${escapeHtml(q.solution_image_url)}" alt="Solution diagram">` : ''}
             </div>
           </details>
         </details>
@@ -237,25 +235,33 @@ const Worksheet = {
 
     const totalMarks = ordered.reduce((sum, q) => sum + (q.marks || 0), 0);
     let html = `<div class="worksheet-header">
+      <div class="worksheet-header__brand">
+        <img src="favicon.ico" alt="MathsBase logo" class="worksheet-header__logo">
+        <span class="worksheet-header__brand-name">MathsBase Worksheet Generator</span>
+      </div>
       <div class="worksheet-header__top">
         <span class="worksheet-header__questions">${ordered.length} question${ordered.length !== 1 ? 's' : ''}</span>
-        <span class="worksheet-header__marks">............... out of ${totalMarks} mark${totalMarks !== 1 ? 's' : ''}</span>
+        <span class="worksheet-header__marks"><span class="worksheet-header__score-box"></span> out of ${totalMarks} mark${totalMarks !== 1 ? 's' : ''}</span>
       </div>
     </div>`;
 
     ordered.forEach((q, i) => {
       html += `<div class="worksheet-question">
         <button class="worksheet-question__remove no-print" onclick="Worksheet.removeQuestion('${q.id}')" title="Remove question">✕</button>
-        <p><span class="worksheet-question__number">${i + 1}.</span>${calcIcon(q.calculator)}
-        <span class="worksheet-question__text">${renderTextWithImages(q.question_text || '')}</span></p>
-        ${q.question_image_url ? `<img src="${escapeHtml(q.question_image_url)}" alt="Diagram" style="max-width:70%">` : ''}
+        <div class="worksheet-question__meta">
+          <span class="worksheet-question__number">${i + 1}.</span>
+          ${calcIcon(q.calculator)}
+          ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
+          ${q.difficulty ? `<span class="badge badge--difficulty ${difficultyBadgeClass(q.difficulty)}">${escapeHtml(q.difficulty)}</span>` : ''}
+        </div>
+        <span class="worksheet-question__text">${renderTextWithImages(q.question_text || '')}</span>
         <div class="worksheet-question__answer-space"></div>
       </div>`;
     });
 
     if (this.showSolutions) {
       html += `<div class="answer-key">
-        <div class="answer-key__title">Answers</div>`;
+        <div class="answer-key__title">Solutions</div>`;
       ordered.forEach((q, i) => {
         html += `<div class="answer-key__item">
           <p><strong>${i + 1}.</strong></p>

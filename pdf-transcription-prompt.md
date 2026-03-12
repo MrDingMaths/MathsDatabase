@@ -180,7 +180,7 @@ When a question or solution includes a diagram (e.g. a geometric figure, graph, 
    - In `question_text`: `[DIAGRAM]`
    - In `solution_text`: `[DIAGRAM]`
 
-3. The diagram image will be uploaded separately and linked to the question later.
+3. The `[DIAGRAM]` placeholder marks where the diagram appears. No image URL is stored.
 
 ### Diagram answers in `solution_text`
 

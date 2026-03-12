@@ -30,9 +30,6 @@ const Questions = {
 
   async create(question) {
     try {
-      question.has_katex = /\$/.test(question.question_text) || /\$/.test(question.solution_text || '');
-      question.has_image = !!(question.question_image_url || question.solution_image_url || /\[img:/.test(question.question_text) || /\[img:/.test(question.solution_text || ''));
-
       const { data, error } = await supabaseClient
         .from('questions')
         .insert(question)
@@ -48,9 +45,6 @@ const Questions = {
 
   async update(id, updates) {
     try {
-      updates.has_katex = /\$/.test(updates.question_text || '') || /\$/.test(updates.solution_text || '');
-      updates.has_image = !!(updates.question_image_url || updates.solution_image_url || /\[img:/.test(updates.question_text || '') || /\[img:/.test(updates.solution_text || ''));
-
       const { data, error } = await supabaseClient
         .from('questions')
         .update(updates)
@@ -223,11 +217,8 @@ const Questions = {
     try {
       const prepared = questions.map(q => ({
         ...q,
-        has_katex: /\$/.test(q.question_text || '') || /\$/.test(q.solution_text || ''),
-        has_image: !!(q.question_image_url || q.solution_image_url),
         marks: q.marks || 1,
-        tags: q.tags || [],
-        choices: q.choices || null
+        tags: q.tags || []
       }));
 
       const { data, error } = await supabaseClient

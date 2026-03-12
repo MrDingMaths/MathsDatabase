@@ -148,24 +148,6 @@
   cursor: pointer;
 }
 
-/* === Choices Input === */
-.choices-group {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.choice-input {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.choice-input__label {
-  font-weight: 600;
-  font-size: 0.85rem;
-  width: 1.5rem;
-}
-
 /* === Recent Questions === */
 .recent-questions {
   margin-top: 3rem;
