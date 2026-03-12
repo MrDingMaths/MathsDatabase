@@ -237,7 +237,10 @@ const Worksheet = {
     let html = `<div class="worksheet-header">
       <div class="worksheet-header__brand">
         <img src="favicon.ico" alt="MathsBase logo" class="worksheet-header__logo">
-        <span class="worksheet-header__brand-name">MathsBase Worksheet Generator</span>
+        <div class="worksheet-header__brand-text">
+          <span class="worksheet-header__brand-name">MathsBase Worksheet Generator</span>
+          <span class="worksheet-header__brand-url">https://mathsbase.mrdingmaths.com/</span>
+        </div>
       </div>
       <div class="worksheet-header__top">
         <span class="worksheet-header__questions">${ordered.length} question${ordered.length !== 1 ? 's' : ''}</span>

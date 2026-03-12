@@ -98,14 +98,26 @@
 }
 
 .worksheet-header__logo {
-  width: 36px;
-  height: 36px;
+  width: 50px;
+  height: 50px;
+}
+
+.worksheet-header__brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
 }
 
 .worksheet-header__brand-name {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-dark);
+}
+
+.worksheet-header__brand-url {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #888;
 }
 
 .worksheet-header__score-box {

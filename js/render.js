@@ -65,7 +65,10 @@ const renderMath = (element) => {
         { left: '\\(', right: '\\)', display: false },
         { left: '\\[', right: '\\]', display: true }
       ],
-      throwOnError: false
+      throwOnError: false,
+      macros: {
+        "\\arraystretch": "1.5"
+      }
     });
 
     // Restore placeholder back to literal $
