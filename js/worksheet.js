@@ -11,6 +11,7 @@ const Worksheet = {
   searchTerm: '',
   sortBy: 'source',
   showSolutions: false,
+  showFeedback: false,
   cardsExpanded: false,
   solutionsExpanded: false,
 
@@ -42,6 +43,7 @@ const Worksheet = {
     document.getElementById('random-question-btn').addEventListener('click', () => this.addRandom());
     document.getElementById('generate-worksheet').addEventListener('click', () => this.generate());
     document.getElementById('toggle-solutions-btn').addEventListener('click', () => this.toggleSolutions());
+    document.getElementById('toggle-feedback-btn').addEventListener('click', () => this.toggleFeedback());
     document.getElementById('print-btn').addEventListener('click', () => window.print());
     document.getElementById('load-more-btn').addEventListener('click', () => this.loadMore());
 
@@ -234,6 +236,18 @@ const Worksheet = {
     }
   },
 
+  toggleFeedback() {
+    this.showFeedback = !this.showFeedback;
+    const btn = document.getElementById('toggle-feedback-btn');
+    btn.textContent = this.showFeedback ? 'Remove Feedback' : 'Show Feedback';
+    btn.classList.toggle('btn--primary', this.showFeedback);
+    btn.classList.toggle('btn--success', !this.showFeedback);
+
+    if (this.selectedIds.size > 0) {
+      this.generate();
+    }
+  },
+
   generate(silent = false) {
     if (this.selectedIds.size === 0) {
       document.getElementById('worksheet-preview-outer').style.display = 'none';
@@ -284,14 +298,22 @@ const Worksheet = {
       </div>`;
     });
 
-    if (this.showSolutions) {
+    if (this.showSolutions || this.showFeedback) {
       html += `<div class="answer-key">
         <div class="answer-key__title">Solutions</div>`;
       ordered.forEach((q, i) => {
         html += `<div class="answer-key__item">
-          <p><strong>${i + 1}.</strong></p>
-          ${q.solution_text ? `<div>${renderTextWithImages(q.solution_text)}</div>` : '<p>No solution provided.</p>'}
-        </div>`;
+          <p><strong>${i + 1}.</strong></p>`;
+        if (this.showSolutions) {
+          html += q.solution_text ? `<div>${renderTextWithImages(q.solution_text)}</div>` : '<p>No solution provided.</p>';
+        }
+        if (this.showFeedback && q.markers_feedback) {
+          html += `<div class="answer-key__feedback">
+            <p class="answer-key__feedback-label">Markers Feedback</p>
+            <div>${renderTextWithImages(q.markers_feedback)}</div>
+          </div>`;
+        }
+        html += '</div>';
       });
       html += '</div>';
     }
@@ -302,7 +324,10 @@ const Worksheet = {
 
     preview.innerHTML = html;
     renderMath(preview);
-    if (!silent) showToast(this.showSolutions ? 'Worksheet with solutions generated' : 'Worksheet generated');
+    const parts = [];
+    if (this.showSolutions) parts.push('solutions');
+    if (this.showFeedback) parts.push('feedback');
+    if (!silent) showToast(parts.length ? `Worksheet with ${parts.join(' and ')} generated` : 'Worksheet generated');
   }
 };
 

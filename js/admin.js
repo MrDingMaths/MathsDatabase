@@ -156,10 +156,12 @@ const Admin = {
 
     document.getElementById('question-text').addEventListener('paste', (e) => this.handleImagePaste(e, 'question-text'));
     document.getElementById('solution-text').addEventListener('paste', (e) => this.handleImagePaste(e, 'solution-text'));
+    document.getElementById('feedback-insert-img-btn').addEventListener('click', () => this.insertInlineImage('markers-feedback'));
+    document.getElementById('markers-feedback').addEventListener('paste', (e) => this.handleImagePaste(e, 'markers-feedback'));
   },
 
   setupPreviews() {
-    let qTimeout, sTimeout;
+    let qTimeout, sTimeout, fTimeout;
 
     document.getElementById('question-text').addEventListener('input', (e) => {
       clearTimeout(qTimeout);
@@ -174,6 +176,15 @@ const Admin = {
       clearTimeout(sTimeout);
       sTimeout = setTimeout(() => {
         const preview = document.getElementById('solution-preview');
+        preview.innerHTML = renderTextWithImages(e.target.value);
+        renderMath(preview);
+      }, 300);
+    });
+
+    document.getElementById('markers-feedback').addEventListener('input', (e) => {
+      clearTimeout(fTimeout);
+      fTimeout = setTimeout(() => {
+        const preview = document.getElementById('feedback-preview');
         preview.innerHTML = renderTextWithImages(e.target.value);
         renderMath(preview);
       }, 300);
@@ -235,6 +246,7 @@ const Admin = {
     const question = {
       question_text:      document.getElementById('question-text').value,
       solution_text:      document.getElementById('solution-text').value || null,
+      markers_feedback:   document.getElementById('markers-feedback').value || null,
       difficulty:         (document.querySelector('input[name="difficulty"]:checked') || {}).value || 'Development',
       marks:              parseInt(document.getElementById('marks-input').value, 10) || 1,
       source:             document.getElementById('source-input').value || null,
@@ -306,6 +318,7 @@ const Admin = {
     if (calcNone) calcNone.checked = true;
     document.getElementById('question-preview').innerHTML = '';
     document.getElementById('solution-preview').innerHTML = '';
+    document.getElementById('feedback-preview').innerHTML = '';
     this.editingId = null;
     this.pendingCourseIds = new Set();
     this.pendingTopicCls = [];
@@ -324,11 +337,13 @@ const Admin = {
 
     document.getElementById('question-text').value = '';
     document.getElementById('solution-text').value = '';
+    document.getElementById('markers-feedback').value = '';
     document.getElementById('marks-input').value = '1';
     document.getElementById('tags-input').value = '';
     document.getElementById('source-input').value = '';
     document.getElementById('question-preview').innerHTML = '';
     document.getElementById('solution-preview').innerHTML = '';
+    document.getElementById('feedback-preview').innerHTML = '';
     this.editingId = null;
 
     this.pendingCourseIds = savedCourseIds;
@@ -367,6 +382,7 @@ const Admin = {
   async loadQuestionIntoForm(question, isDuplicate = false) {
     document.getElementById('question-text').value = question.question_text || '';
     document.getElementById('solution-text').value = question.solution_text || '';
+    document.getElementById('markers-feedback').value = question.markers_feedback || '';
     document.getElementById('marks-input').value = question.marks || 1;
     document.getElementById('tags-input').value = Array.isArray(question.tags) ? question.tags.join(', ') : (question.tags || '');
     document.getElementById('source-input').value = question.source || '';
@@ -385,6 +401,9 @@ const Admin = {
     const sPrev = document.getElementById('solution-preview');
     sPrev.innerHTML = renderTextWithImages(question.solution_text || '');
     renderMath(sPrev);
+    const fPrev = document.getElementById('feedback-preview');
+    fPrev.innerHTML = renderTextWithImages(question.markers_feedback || '');
+    renderMath(fPrev);
 
     // Load classifications — use the data already fetched if available, otherwise fetch from DB
     const rawCls = question.classifications?.length
@@ -584,6 +603,12 @@ const Admin = {
             <summary>Show solution</summary>
             <div class="question-card__solution-content">
               ${renderTextWithImages(q.solution_text)}
+            </div>
+          </details>` : ''}
+          ${q.markers_feedback ? `<details class="question-card__solution">
+            <summary>Show feedback</summary>
+            <div class="question-card__solution-content" style="border-left:3px solid #f59e0b;padding-left:0.75rem;">
+              ${renderTextWithImages(q.markers_feedback)}
             </div>
           </details>` : ''}
         </details>

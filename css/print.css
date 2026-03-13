@@ -240,6 +240,29 @@
   margin: 0.25rem 0;
 }
 
+.answer-key__feedback {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid #f59e0b;
+  background: #fffbeb;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.answer-key__feedback-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #b45309;
+  margin-bottom: 0.25rem;
+}
+
+.answer-key__feedback img {
+  max-width: 50%;
+  max-height: 200px;
+  display: block;
+  margin: 0.25rem 0;
+}
+
 /* === Print Media Query === */
 @media print {
   .site-header,
@@ -362,4 +385,11 @@
   background: #f1f5f9;
   color: #475569;
   border-color: #cbd5e1;
+}
+[data-theme="dark"] .worksheet-preview .answer-key__feedback {
+  background: #fffbeb;
+  border-left-color: #f59e0b;
+}
+[data-theme="dark"] .worksheet-preview .answer-key__feedback-label {
+  color: #b45309;
 }
