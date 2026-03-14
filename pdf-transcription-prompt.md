@@ -343,14 +343,10 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 
 **Probability** (topic_id: 47)
 - 107 Simple probability and relative frequency
-- 179 Record outcomes in multistage probability
 - 180 Multistage probability problems
 - 181 Set notation
 - 182 Compound events and Venn diagrams
 - 183 Conditional probability
-- 232 Discrete random variables
-- 242 Continuous random variables
-- 243 Normal distribution
 
 **Financial Maths** (topic_id: 48)
 - 108 Earning money
@@ -359,6 +355,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 111 Loan repayments
 - 112 Compound interest
 - 113 Depreciation declining balance
+- 244 Annuities
 
 **Coordinate Geometry** (topic_id: 49)
 - 135 Gradient
@@ -439,7 +436,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 198 Non-linear sequences
 
 **Differentiation** (topic_id: 59)
-- 201 Polynomials
+- 201 Power functions
 - 202 Tangents and normals
 - 203 Graphical applications
 - 227 First principles
@@ -447,15 +444,22 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 239 Curve sketching
 - 240 Optimisation
 - 241 Rates of change
+- 245 Exponential logarithmic trigonometric
 
 **Integration** (topic_id: 60)
-- 236 Polynomials
+- 236 Power functions
 - 237 Exponential logarithmic trigonometric
 - 238 Areas
 
 **Sequences and Series** (topic_id: 61)
 - 234 Arithmetic
 - 235 Geometric
+
+**Random variables** (topic_id: 62)
+- 232 Discrete
+- 242 Continuous
+
+**Normal distribution** (topic_id: 63)
 
 ---
 

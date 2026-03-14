@@ -3,7 +3,7 @@
 const TOPIC_GROUPS = [
   { label: 'Number & Algebra',         pattern: /number|algebra|financial|differentiation|equations|functions|indices|integration|linear|logarithms|polynomials|sequences|series|variation/i },
   { label: 'Geometry & Measure',       pattern: /geometry|measurement|trigonometry|vectors/i },
-  { label: 'Statistics & Probability', pattern: /data|probability/i },
+  { label: 'Statistics & Probability', pattern: /data|probability|random variables|normal distribution/i },
 ];
 
 const Filters = {
