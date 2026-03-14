@@ -220,6 +220,7 @@
   border-right: 6px solid #f87171;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
+  font-size: 0.9rem;
 }
 
 .answer-key__title {
@@ -230,7 +231,6 @@
 
 .answer-key__item {
   margin-bottom: 1rem;
-  page-break-inside: avoid;
 }
 
 .answer-key__item img {
@@ -350,6 +350,11 @@
   .answer-key {
     page-break-before: always;
     border-right-color: #f87171;
+    font-size: 9pt;
+  }
+
+  .answer-key__feedback {
+    font-size: 8.5pt;
   }
 }
 

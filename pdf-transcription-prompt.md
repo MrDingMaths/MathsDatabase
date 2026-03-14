@@ -28,6 +28,7 @@ Each question is a JSON object. The full array looks like:
   "source":             "string or null — e.g. '2023 HSC Q14b'",
   "tags":               [],
   "calculator":         true,
+  "markers_feedback":   null,
   "classifications": [
     { "course_id": "string — see course list below", "topic_id": null, "subtopic_id": null },
     { "course_id": null, "topic_id": 123, "subtopic_id": 456 }
@@ -38,7 +39,7 @@ Each question is a JSON object. The full array looks like:
 ### Field rules
 
 - **`question_text`** — Required. Include the full question exactly as written. Do **not** include the question number (e.g. "Q12", "14b") — that information belongs in `source`. For multi-part questions, keep all parts together in a single question object. Format part labels in bold using KaTeX: `$\textbf{(i)}$`, `$\textbf{(ii)}$`, `$\textbf{(a)}$`, etc. In JSON strings this becomes `$\\textbf{(i)}$`.
-- **`solution_text`** — Full worked solution with all steps. Use KaTeX. Set to `null` if no solution is provided. Always include units in the final answer where applicable (e.g. `$= 12 \text{ cm}$`, `$= 4.5 \text{ m}^2$`).
+- **`solution_text`** — Full worked solution with all steps. Use KaTeX. Set to `null` if no solution is provided. Always include units in the final answer where applicable (e.g. `$= 12 \text{ cm}$`, `$= 4.5 \text{ m}^2$`). For **multiple choice questions**, generate a full worked solution showing how to arrive at the correct answer, even if the PDF only states the answer letter.
 - **`difficulty`** — Rate based on cognitive demand. For multi-part questions, use the difficulty of the **most challenging part**. Use your judgement:
   - `Foundation`: Routine textbook style problem
   - `Development`: Multistep routine problem
@@ -48,6 +49,7 @@ Each question is a JSON object. The full array looks like:
 - **`source`** — The exam/book/worksheet name and question number, e.g. `"2022 HSC Advanced Q12b"` or `"2025 IGCSE 0580 P1 Q2"`. Set to `null` if unknown.
 - **`tags`** — Leave as `[]` unless there are obvious keyword tags (e.g. `["proof", "surds"]`).
 - **`calculator`** — Whether a calculator is permitted. Set to `true` (calculator allowed), `false` (non-calculator), or omit the field entirely if not specified by the exam or worksheet.
+- **`markers_feedback`** — Examiner or marker commentary on common errors, misconceptions, or marking notes associated with this question (e.g. from an HSC Marking Guidelines document). Transcribe exactly as written in the source document, with one exception: when the feedback refers to a question by number and part (e.g. "Question 27 (a)"), omit the question number and retain only the part label (e.g. "(a)"). Set to `null` if not provided. If a **Criteria** section is present, place each criterion on its own line using a hyphen-space prefix (e.g. `- Provides correct solution: 3 marks`). Plain text — no KaTeX required unless the feedback itself contains maths expressions.
 - **`classifications`** — Array of classification objects. **Courses and topics are separate rows** — always use one object for the course (with `topic_id: null, subtopic_id: null`) and a separate object for the topic/subtopic (with `course_id: null`). `course_id` must be a valid value from the course list below. `topic_id` and `subtopic_id` are integers from the taxonomy.
 
 ---
@@ -118,8 +120,8 @@ All multi-step working must use the `align*` environment so equals signs are ver
 
 ```
 $$\\begin{align*}
-3x + 1 &= 7 \\\\
-3x &= 6 \\\\
+3x + 1 &= 7 \\
+3x &= 6 \\
 x &= 2
 \\end{align*}$$
 ```
@@ -127,7 +129,7 @@ x &= 2
 In JSON this becomes (with doubled backslashes):
 
 ```json
-"solution_text": "$$\\begin{align*}\n3x + 1 &= 7 \\\\\\\\\n3x &= 6 \\\\\\\\\nx &= 2\n\\end{align*}$$"
+"solution_text": "$$\\begin{align*}\n3x + 1 &= 7 \\\\\n3x &= 6 \\\\\nx &= 2\n\\end{align*}$$"
 ```
 
 Rules:
@@ -195,7 +197,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 ```json
 {
   "question_text": "The diagram shows triangle $ABC$.\n\n[DIAGRAM]\n\nFind the value of $x$.",
-  "solution_text": "[DIAGRAM]\n\n$$\\begin{align*}\nx &= 180 - 90 - 35 \\\\\\\\\n&= 55\n\\end{align*}$$",
+  "solution_text": "[DIAGRAM]\n\n$$\\begin{align*}\nx &= 180 - 90 - 35 \\\\\n&= 55\n\\end{align*}$$",
   ...
 }
 ```
@@ -462,29 +464,24 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 ```json
 [
   {
-    "question_text": "Factorise fully: $6x^2 - 13x + 6$\n[2]",
-    "solution_text": "Find two numbers that multiply to $6 \\times 6 = 36$ and add to $-13$: these are $-9$ and $-4$.\n$$\\begin{align*}\n6x^2 - 13x + 6 &= 6x^2 - 9x - 4x + 6 \\\\\\\\\n&= 3x(2x - 3) - 2(2x - 3) \\\\\\\\\n&= (3x - 2)(2x - 3)\n\\end{align*}$$",
+    "question_text": "Find the equation of the tangent to $y = 5x^3 - \\frac{2}{x^2} - 9$ at the point $(1, -6)$.\n[3]",
+    "solution_text": "$$\\begin{align*}\ny &= 5x^3 - \\frac{2}{x^2} - 9 \\\\\ny &= 5x^3 - 2x^{-2} - 9 \\\\\ny' &= 15x^2 + 4x^{-3} \\\\\ny' &= 15x^2 + \\frac{4}{x^3} \\\\\ny' &= 15(1) + \\frac{4}{(1)} \\\\\ny' &= 19 \\\\\n& \\quad \\\\\ny - y_1 &= m(x - x_1) \\\\\ny + 6 &= 19(x - 1) \\\\\ny + 6 &= 19x - 19 \\\\\ny &= 19x - 25\n\\end{align*}$$",
     "difficulty": "Development",
-    "marks": 2,
-    "source": "HSC 2023 Adv Q5",
+    "marks": 3,
+    "source": "HSC.ADV.2025 Q12",
     "tags": [],
-    "calculator": false,
+    "markers_feedback": "Criteria:\n- Provides correct solution: 3 marks\n- Finds the correct gradient of the tangent, or equivalent merit: 2 marks\n- Attempts to find the gradient of the tangent, or equivalent merit: 1 mark\n\nIn better responses, students were able to:\n- differentiate correctly, particularly the term with the negative index\n- find the equation of the tangent by collecting the like terms of the equation correctly\n- substitute the point and gradient into the equation of a straight line to find $y = 19x - 25$ using either form of the equation of a line.\n\nAreas for students to improve include:\n- identifying the most appropriate method of differentiation – working with negative indices\n- recognising the difference between finding the gradient of a tangent and locating a maximum or minimum point\n- knowing the difference between finding the derivative at a point ($f'(a) = m$) and solving to find value of $x$ that produces a particular derivative, $f'(x) = a$\n- correctly substituting values into $y - y_1 = m(x - x_1)$.",
     "classifications": [
-      { "course_id": "stage5", "topic_id": null, "subtopic_id": null },
-      { "course_id": null, "topic_id": 40, "subtopic_id": 118 }
-    ]
-  },
-  {
-    "question_text": "Find the exact value of $\\sin 30^\\circ + \\cos 60^\\circ$.\n[1]",
-    "solution_text": "$$\\begin{align*}\n\\sin 30^\\circ + \\cos 60^\\circ &= \\frac{1}{2} + \\frac{1}{2} \\\\\\\\\n&= 1\n\\end{align*}$$",
-    "difficulty": "Foundation",
-    "marks": 1,
-    "source": null,
-    "tags": [],
-    "calculator": false,
-    "classifications": [
-      { "course_id": "stage5", "topic_id": null, "subtopic_id": null },
-      { "course_id": null, "topic_id": 53, "subtopic_id": 168 }
+      {
+        "course_id": "stage6_advanced",
+        "topic_id": null,
+        "subtopic_id": null
+      },
+      {
+        "course_id": null,
+        "topic_id": 59,
+        "subtopic_id": 202
+      }
     ]
   }
 ]
