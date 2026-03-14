@@ -309,7 +309,7 @@ const Worksheet = {
         }
         if (this.showFeedback && q.markers_feedback) {
           html += `<div class="answer-key__feedback">
-            <p class="answer-key__feedback-label">Markers Feedback</p>
+            <p class="answer-key__feedback-label">Feedback</p>
             <div>${renderTextWithImages(q.markers_feedback)}</div>
           </div>`;
         }

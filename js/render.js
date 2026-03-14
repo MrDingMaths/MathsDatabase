@@ -46,11 +46,50 @@ const calcIcon = (calculator) => {
 // KaTeX rendering helper
 const renderMath = (element) => {
   if (typeof renderMathInElement === 'function') {
-    // Replace \$ with a placeholder so KaTeX doesn't treat it as a delimiter
+    // Replace \$ with a placeholder so KaTeX doesn't treat it as a delimiter,
+    // but only outside math regions — inside $...$ or $$...$$, KaTeX handles \$ natively.
     const PLACEHOLDER = '\uE000';
+    const processEscapedDollars = (text) => {
+      let result = '';
+      let i = 0;
+      while (i < text.length) {
+        // Display math $$...$$ — copy unchanged so KaTeX can handle \$ inside
+        if (text[i] === '$' && text[i + 1] === '$') {
+          const close = text.indexOf('$$', i + 2);
+          if (close !== -1) {
+            result += text.slice(i, close + 2);
+            i = close + 2;
+            continue;
+          }
+        }
+        // Inline math $...$ (opening $ not preceded by \) — copy unchanged
+        if (text[i] === '$' && (i === 0 || text[i - 1] !== '\\')) {
+          let j = i + 1;
+          while (j < text.length) {
+            if (text[j] === '\\') { j += 2; continue; } // skip escaped chars inside math
+            if (text[j] === '$') break;
+            j++;
+          }
+          if (j < text.length) {
+            result += text.slice(i, j + 1);
+            i = j + 1;
+            continue;
+          }
+        }
+        // Outside math: replace \$ with placeholder
+        if (text[i] === '\\' && text[i + 1] === '$') {
+          result += PLACEHOLDER;
+          i += 2;
+          continue;
+        }
+        result += text[i];
+        i++;
+      }
+      return result;
+    };
     const walkReplace = (node) => {
       if (node.nodeType === Node.TEXT_NODE) {
-        node.textContent = node.textContent.replace(/\\\$/g, PLACEHOLDER);
+        node.textContent = processEscapedDollars(node.textContent);
       } else {
         node.childNodes.forEach(walkReplace);
       }
