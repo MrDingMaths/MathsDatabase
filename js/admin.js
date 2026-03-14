@@ -61,6 +61,7 @@ const Admin = {
       onChange: () => this.loadQuestions(true)
     });
     this.setupSortAndToggle();
+    this._setupInlinePopover();
     this.loadQuestions(true);
   },
 
@@ -554,68 +555,239 @@ const Admin = {
     }
   },
 
+  _cardHtml(q) {
+    const courseBadges = (q.classifications || [])
+      .filter(c => c.course_id && !c.topic_id)
+      .map(c => `<span class="badge badge--stage">${escapeHtml(c.course_label)}<button class="inline-remove-btn" onclick="event.stopPropagation();Admin.inlineRemoveCourse('${q.id}','${c.course_id}')" title="Remove course">×</button></span>`)
+      .join('');
+    const topicBadges = (q.classifications || [])
+      .filter(c => c.topic_id)
+      .map(c => {
+        const parts = [c.topic_name, c.subtopic_name].filter(Boolean);
+        const subtopicParam = c.subtopic_id != null ? c.subtopic_id : 'null';
+        return `<span class="badge ${topicBadgeClass(c.topic_name)}">${escapeHtml(parts.join(' › '))}<button class="inline-remove-btn" onclick="event.stopPropagation();Admin.inlineRemoveTopic('${q.id}',${c.topic_id},${subtopicParam})" title="Remove topic">×</button></span>`;
+      }).join('');
+    const difficultyOptions = ['Foundation', 'Development', 'Mastery', 'Challenge']
+      .map(d => `<option value="${d}"${q.difficulty === d ? ' selected' : ''}>${d}</option>`)
+      .join('');
+    const diffClass = difficultyBadgeClass(q.difficulty || '');
+    return `<div class="question-card">
+      <details class="question-card__collapsible" data-id="${q.id}">
+        <summary class="question-card__summary">
+          <div class="question-card__rows">
+            <div class="question-card__row">
+              <div class="question-card__meta">
+                ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
+                ${courseBadges}
+                <button class="inline-add-btn" onclick="event.stopPropagation();Admin.inlineShowCoursePopover(this,'${q.id}')" title="Add course">+</button>
+              </div>
+              <div class="question-card__meta-right">
+                <select class="badge badge--difficulty ${diffClass} inline-difficulty-select" data-id="${q.id}" onclick="event.stopPropagation()" onchange="Admin.inlineSetDifficulty(this)">${difficultyOptions}</select>
+                ${calcIcon(q.calculator)}
+              </div>
+            </div>
+            <div class="question-card__row">
+              <div class="question-card__meta">
+                ${topicBadges}
+                <button class="inline-add-btn" onclick="event.stopPropagation();Admin.inlineShowTopicPopover(this,'${q.id}')" title="Add topic">+</button>
+              </div>
+              <div class="question-card__meta-right">
+                ${q.marks ? `<span class="badge">${q.marks} mark${q.marks !== 1 ? 's' : ''}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="question-card__actions" onclick="event.stopPropagation()">
+            <button class="btn btn--secondary btn--small" onclick="Admin.editQuestion('${q.id}')">Edit</button>
+            <button class="btn btn--secondary btn--small" onclick="Admin.duplicateQuestion('${q.id}')">Dup</button>
+            <button class="btn btn--danger btn--small" onclick="Admin.deleteQuestion('${q.id}')">Del</button>
+          </div>
+        </summary>
+        <div class="question-card__body">
+          ${renderTextWithImages(q.question_text || '')}
+        </div>
+        ${q.solution_text ? `<details class="question-card__solution">
+          <summary>Show solution</summary>
+          <div class="question-card__solution-content">
+            ${renderTextWithImages(q.solution_text)}
+          </div>
+        </details>` : ''}
+        ${q.markers_feedback ? `<details class="question-card__solution">
+          <summary>Show feedback</summary>
+          <div class="question-card__solution-content" style="border-left:3px solid #f59e0b;padding-left:0.75rem;">
+            ${renderTextWithImages(q.markers_feedback)}
+          </div>
+        </details>` : ''}
+      </details>
+    </div>`;
+  },
+
   appendQuestionRows(questions) {
     const container = document.getElementById('questions-container');
-    const html = questions.map(q => {
-      const courseBadges = (q.classifications || [])
-        .filter(c => !c.topic_id)
-        .map(c => `<span class="badge badge--stage">${escapeHtml(c.course_label)}</span>`)
-        .join('');
-      const topicBadges = (q.classifications || [])
-        .filter(c => c.topic_id)
-        .map(c => {
-          const parts = [c.topic_name, c.subtopic_name].filter(Boolean);
-          return `<span class="badge ${topicBadgeClass(c.topic_name)}">${escapeHtml(parts.join(' › '))}</span>`;
-        }).join('');
-      return `<div class="question-card">
-        <details class="question-card__collapsible" data-id="${q.id}">
-          <summary class="question-card__summary">
-            <div class="question-card__rows">
-              <div class="question-card__row">
-                <div class="question-card__meta">
-                  ${q.source ? `<span class="badge badge--source">${escapeHtml(q.source)}</span>` : ''}
-                  ${courseBadges}
-                </div>
-                <div class="question-card__meta-right">
-                  ${q.difficulty ? `<span class="badge badge--difficulty ${difficultyBadgeClass(q.difficulty)}">${escapeHtml(q.difficulty)}</span>` : ''}
-                  ${calcIcon(q.calculator)}
-                </div>
-              </div>
-              <div class="question-card__row">
-                <div class="question-card__meta">
-                  ${topicBadges}
-                </div>
-                <div class="question-card__meta-right">
-                  ${q.marks ? `<span class="badge">${q.marks} mark${q.marks !== 1 ? 's' : ''}</span>` : ''}
-                </div>
-              </div>
-            </div>
-            <div class="question-card__actions" onclick="event.stopPropagation()">
-              <button class="btn btn--secondary btn--small" onclick="Admin.editQuestion('${q.id}')">Edit</button>
-              <button class="btn btn--secondary btn--small" onclick="Admin.duplicateQuestion('${q.id}')">Dup</button>
-              <button class="btn btn--danger btn--small" onclick="Admin.deleteQuestion('${q.id}')">Del</button>
-            </div>
-          </summary>
-          <div class="question-card__body">
-            ${renderTextWithImages(q.question_text || '')}
-          </div>
-          ${q.solution_text ? `<details class="question-card__solution">
-            <summary>Show solution</summary>
-            <div class="question-card__solution-content">
-              ${renderTextWithImages(q.solution_text)}
-            </div>
-          </details>` : ''}
-          ${q.markers_feedback ? `<details class="question-card__solution">
-            <summary>Show feedback</summary>
-            <div class="question-card__solution-content" style="border-left:3px solid #f59e0b;padding-left:0.75rem;">
-              ${renderTextWithImages(q.markers_feedback)}
-            </div>
-          </details>` : ''}
-        </details>
-      </div>`;
-    }).join('');
+    const html = questions.map(q => this._cardHtml(q)).join('');
     container.insertAdjacentHTML('beforeend', html);
     renderMath(container);
+  },
+
+  _getQuestion(id) {
+    return this.loadedQuestions.find(q => q.id === id) || null;
+  },
+
+  _rebuildCard(id) {
+    const details = document.querySelector(`.question-card__collapsible[data-id="${id}"]`);
+    if (!details) return;
+    const wasOpen = details.hasAttribute('open');
+    const wrapper = details.closest('.question-card');
+    if (!wrapper) return;
+    const q = this._getQuestion(id);
+    if (!q) return;
+    const temp = document.createElement('div');
+    temp.innerHTML = this._cardHtml(q);
+    const newCard = temp.firstElementChild;
+    if (wasOpen) newCard.querySelector('.question-card__collapsible').setAttribute('open', '');
+    wrapper.replaceWith(newCard);
+    renderMath(newCard);
+  },
+
+  _setupInlinePopover() {
+    const popover = document.createElement('div');
+    popover.id = 'inline-popover';
+    document.body.appendChild(popover);
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#inline-popover') && !e.target.closest('.inline-add-btn')) {
+        popover.classList.remove('open');
+      }
+    });
+  },
+
+  _positionPopover(popover, anchor) {
+    const rect = anchor.getBoundingClientRect();
+    popover.style.top = (rect.bottom + 4) + 'px';
+    const left = Math.min(rect.left, window.innerWidth - 200);
+    popover.style.left = Math.max(4, left) + 'px';
+  },
+
+  async inlineSetDifficulty(selectEl) {
+    const id = selectEl.dataset.id;
+    const newDifficulty = selectEl.value;
+    selectEl.className = `badge badge--difficulty ${difficultyBadgeClass(newDifficulty)} inline-difficulty-select`;
+    try {
+      await Questions.update(id, { difficulty: newDifficulty });
+      const q = this._getQuestion(id);
+      if (q) q.difficulty = newDifficulty;
+    } catch (err) {
+      showToast('Error: ' + err.message, 'error');
+      this._rebuildCard(id);
+    }
+  },
+
+  async inlineRemoveCourse(qId, courseId) {
+    const q = this._getQuestion(qId);
+    if (!q) return;
+    const newCls = (q.classifications || []).filter(c => !(c.course_id === courseId && !c.topic_id));
+    const clsToSave = newCls.map(c => ({ course_id: c.course_id || null, topic_id: c.topic_id || null, subtopic_id: c.subtopic_id || null }));
+    try {
+      await Questions.saveClassifications(qId, clsToSave);
+      q.classifications = newCls;
+      this._rebuildCard(qId);
+    } catch (err) {
+      showToast('Error: ' + err.message, 'error');
+    }
+  },
+
+  inlineShowCoursePopover(btn, qId) {
+    const q = this._getQuestion(qId);
+    if (!q) return;
+    const assignedIds = new Set((q.classifications || []).filter(c => c.course_id && !c.topic_id).map(c => c.course_id));
+    const available = this.taxonomy.courses.filter(c => !assignedIds.has(c.id));
+    const popover = document.getElementById('inline-popover');
+    popover.dataset.qid = qId;
+    if (!available.length) {
+      popover.innerHTML = '<div class="inline-popover-empty">All courses assigned</div>';
+    } else {
+      popover.innerHTML = '<div class="inline-popover-title">Add course</div>' +
+        available.map(c => `<button class="inline-popover-item" onclick="Admin.inlineAddCourse('${qId}','${c.id}')">${escapeHtml(c.label)}</button>`).join('');
+    }
+    this._positionPopover(popover, btn);
+    popover.classList.add('open');
+  },
+
+  async inlineAddCourse(qId, courseId) {
+    const q = this._getQuestion(qId);
+    if (!q) return;
+    const course = this.taxonomy.courses.find(c => c.id === courseId);
+    const newEntry = { course_id: courseId, course_label: course?.label || courseId, topic_id: null, subtopic_id: null };
+    const newCls = [...(q.classifications || []), newEntry];
+    const clsToSave = newCls.map(c => ({ course_id: c.course_id || null, topic_id: c.topic_id || null, subtopic_id: c.subtopic_id || null }));
+    document.getElementById('inline-popover').classList.remove('open');
+    try {
+      await Questions.saveClassifications(qId, clsToSave);
+      q.classifications = newCls;
+      this._rebuildCard(qId);
+    } catch (err) {
+      showToast('Error: ' + err.message, 'error');
+    }
+  },
+
+  async inlineRemoveTopic(qId, topicId, subtopicId) {
+    const q = this._getQuestion(qId);
+    if (!q) return;
+    const newCls = (q.classifications || []).filter(c => !(c.topic_id === topicId && (c.subtopic_id || null) === (subtopicId || null)));
+    const clsToSave = newCls.map(c => ({ course_id: c.course_id || null, topic_id: c.topic_id || null, subtopic_id: c.subtopic_id || null }));
+    try {
+      await Questions.saveClassifications(qId, clsToSave);
+      q.classifications = newCls;
+      this._rebuildCard(qId);
+    } catch (err) {
+      showToast('Error: ' + err.message, 'error');
+    }
+  },
+
+  inlineShowTopicPopover(btn, qId) {
+    const popover = document.getElementById('inline-popover');
+    const topicOptions = this.taxonomy.topics.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+    popover.innerHTML = `<div class="inline-popover-title">Add topic</div>
+      <select id="inline-popover-topic" class="inline-popover-select" onchange="Admin.inlinePopoverTopicChange()">
+        <option value="">Select topic…</option>${topicOptions}
+      </select>
+      <select id="inline-popover-subtopic" class="inline-popover-select">
+        <option value="">No subtopic</option>
+      </select>
+      <button class="btn btn--primary btn--small" style="width:100%;margin-top:0.4rem;" onclick="Admin.inlineConfirmTopic('${qId}')">Add</button>`;
+    this._positionPopover(popover, btn);
+    popover.classList.add('open');
+  },
+
+  inlinePopoverTopicChange() {
+    const topicId = parseInt(document.getElementById('inline-popover-topic').value, 10);
+    const subtopics = this.taxonomy.subtopics.filter(s => !topicId || s.topic_id === topicId);
+    document.getElementById('inline-popover-subtopic').innerHTML =
+      '<option value="">No subtopic</option>' +
+      subtopics.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+  },
+
+  async inlineConfirmTopic(qId) {
+    const topicEl = document.getElementById('inline-popover-topic');
+    const subtopicEl = document.getElementById('inline-popover-subtopic');
+    const topicId = topicEl.value ? parseInt(topicEl.value, 10) : null;
+    const subtopicId = subtopicEl.value ? parseInt(subtopicEl.value, 10) : null;
+    if (!topicId) { showToast('Please select a topic', 'error'); return; }
+    const q = this._getQuestion(qId);
+    if (!q) return;
+    const isDupe = (q.classifications || []).some(c => c.topic_id === topicId && (c.subtopic_id || null) === subtopicId);
+    if (isDupe) { showToast('Already added', 'error'); return; }
+    const topic = this.taxonomy.topics.find(t => t.id === topicId);
+    const subtopic = subtopicId ? this.taxonomy.subtopics.find(s => s.id === subtopicId) : null;
+    const newEntry = { course_id: null, topic_id: topicId, topic_name: topic?.name || null, subtopic_id: subtopicId, subtopic_name: subtopic?.name || null };
+    const newCls = [...(q.classifications || []), newEntry];
+    const clsToSave = newCls.map(c => ({ course_id: c.course_id || null, topic_id: c.topic_id || null, subtopic_id: c.subtopic_id || null }));
+    document.getElementById('inline-popover').classList.remove('open');
+    try {
+      await Questions.saveClassifications(qId, clsToSave);
+      q.classifications = newCls;
+      this._rebuildCard(qId);
+    } catch (err) {
+      showToast('Error: ' + err.message, 'error');
+    }
   },
 
   async deleteQuestion(id) {
