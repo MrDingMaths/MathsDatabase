@@ -234,8 +234,6 @@
 }
 
 .answer-key__item img {
-  max-width: 50%;
-  max-height: 200px;
   display: block;
   margin: 0.25rem 0;
 }
@@ -257,8 +255,6 @@
 }
 
 .answer-key__feedback img {
-  max-width: 50%;
-  max-height: 200px;
   display: block;
   margin: 0.25rem 0;
 }

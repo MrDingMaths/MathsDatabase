@@ -164,6 +164,12 @@ const Worksheet = {
               ${renderTextWithImages(q.solution_text || '')}
             </div>
           </details>
+          ${q.markers_feedback ? `<details class="question-card__solution">
+            <summary>Show feedback</summary>
+            <div class="question-card__solution-content answer-key__feedback">
+              ${renderTextWithImages(q.markers_feedback)}
+            </div>
+          </details>` : ''}
         </details>
       </div>`;
     }).join('');
@@ -347,6 +353,10 @@ const Worksheet = {
 
     preview.innerHTML = html;
     renderMath(preview);
+    preview.querySelectorAll('.answer-key img').forEach(img => {
+      const setSize = () => { if (img.naturalWidth) { img.style.width = (img.naturalWidth * 0.5) + 'px'; img.style.height = 'auto'; img.style.maxWidth = '100%'; } };
+      if (img.complete && img.naturalWidth) setSize(); else img.addEventListener('load', setSize);
+    });
     const parts = [];
     if (this.showSolutions) parts.push('solutions');
     if (this.showFeedback) parts.push('feedback');
