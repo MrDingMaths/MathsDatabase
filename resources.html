@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resources — MathsBase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .resources-header {
+      padding: 2rem 0 1rem;
+    }
+    .resources-header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin: 0 0 0.25rem;
+    }
+    .resources-header p {
+      color: var(--color-text-light);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    .resource-group {
+      margin-bottom: 2rem;
+    }
+    .resource-group__label {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--color-text-light);
+      margin-bottom: 0.75rem;
+    }
+    .resource-group__label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--color-border);
+    }
+
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .resource-card {
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-border);
+      border-left: 4px solid #ccc;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: box-shadow var(--transition), transform var(--transition);
+    }
+    .resource-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-1px);
+    }
+    .resource-card--blue  { border-left-color: #3B82F6; }
+    .resource-card--green { border-left-color: #10B981; }
+
+    .resource-card__title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--color-text);
+      line-height: 1.3;
+    }
+    .resource-card__desc {
+      font-size: 0.82rem;
+      color: var(--color-text-light);
+      line-height: 1.4;
+    }
+    .resource-card__actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+    }
+    .btn-view, .btn-print {
+      flex: 1;
+      padding: 0.45rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      transition: opacity var(--transition), background var(--transition);
+    }
+    .btn-view {
+      background: var(--color-dark);
+      color: #fff;
+    }
+    .btn-view:hover { opacity: 0.85; }
+    .btn-print {
+      background: transparent;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+    }
+    .btn-print:hover {
+      background: var(--color-bg);
+      border-color: var(--color-text-light);
+    }
+
+    /* PDF Viewer Panel */
+    .viewer-panel {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 75vh;
+      background: var(--color-card-bg);
+      border-top: 2px solid var(--color-border);
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+      z-index: 200;
+      flex-direction: column;
+    }
+    .viewer-panel.open { display: flex; }
+
+    .viewer-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-card-bg);
+      flex-shrink: 0;
+    }
+    .viewer-title {
+      flex: 1;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .viewer-toolbar-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--color-border);
+      background: transparent;
+      color: var(--color-text);
+      transition: background var(--transition);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .viewer-toolbar-btn:hover { background: var(--color-bg); }
+    .viewer-toolbar-close {
+      background: transparent;
+      border: none;
+      font-size: 1.4rem;
+      line-height: 1;
+      color: var(--color-text-light);
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+    }
+    .viewer-toolbar-close:hover { color: var(--color-text); }
+    .viewer-iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+    }
+
+    /* Push content above fixed viewer */
+    .viewer-spacer { height: 0; transition: height 0.2s; }
+    .viewer-panel.open ~ .viewer-spacer,
+    body.viewer-open .viewer-spacer { height: 75vh; }
+
+    @media (max-width: 768px) {
+      .resource-grid { grid-template-columns: 1fr; }
+      .viewer-panel { height: 80vh; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <span class="site-header__title">
+      <img class="site-header__logo" src="favicon.ico" alt="MathsBase logo" width="40" height="40">
+      MathsBase
+    </span>
+    <nav class="site-header__nav">
+      <a href="index.html">About</a>
+      <a href="worksheet.html">Database</a>
+      <a href="resources.html" class="active">Resources</a>
+      <a href="admin.html">Admin</a>
+      <button class="theme-toggle" aria-label="Toggle dark mode"></button>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    <div class="resources-header">
+      <h1>Reference Sheets</h1>
+      <p>Formula sheets and reference materials for printing or on-screen use.</p>
+    </div>
+
+    <div id="resource-list"></div>
+  </main>
+
+  <!-- PDF Viewer Panel -->
+  <div class="viewer-panel" id="viewer-panel">
+    <div class="viewer-toolbar">
+      <span class="viewer-title" id="viewer-title"></span>
+      <a href="#" id="viewer-open-btn" class="viewer-toolbar-btn" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        Open
+      </a>
+      <button id="viewer-print-btn" class="viewer-toolbar-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        Print
+      </button>
+      <button class="viewer-toolbar-close" id="viewer-close" aria-label="Close viewer">&times;</button>
+    </div>
+    <iframe class="viewer-iframe" id="viewer-iframe" title="PDF Viewer"></iframe>
+  </div>
+  <div class="viewer-spacer" id="viewer-spacer"></div>
+
+  <script src="js/theme.js"></script>
+  <script>
+    const groups = [
+      {
+        label: 'Cambridge IGCSE (0580)',
+        color: 'blue',
+        sheets: [
+          { title: 'Formula Sheet — Core', desc: 'Reference sheet for Core papers', file: '0580 Formula sheet for Core papers.pdf' },
+          { title: 'Formula Sheet — Extended', desc: 'Reference sheet for Extended papers', file: '0580 Formula sheet for Extended papers.pdf' },
+        ]
+      },
+      {
+        label: 'NSW HSC',
+        color: 'green',
+        sheets: [
+          { title: 'Reference Sheet — Standard', desc: 'HSC Mathematics Standard 2025', file: 'HSC Reference Sheet STN 2025.pdf' },
+          { title: 'Reference Sheet — Adv/Ext1/Ext2', desc: 'HSC Advanced & Extension 1 & 2 2025', file: 'HSC Reference Sheet ADV X1 X2 2025.pdf' },
+          { title: 'Normal Distribution Table', desc: 'Z-score table for statistics', file: 'HSC Normal Distribution Table of Values.pdf' },
+          { title: 'Reference Sheet — Standard (2027)', desc: 'HSC Mathematics Standard 2027', file: 'HSC Reference Sheet STN 2027.pdf' },
+          { title: 'Reference Sheet — Advanced (2027)', desc: 'HSC Mathematics Advanced 2027', file: 'HSC Reference Sheet ADV 2027.pdf' },
+          { title: 'Reference Sheet — Extension 1 (2027)', desc: 'HSC Mathematics Extension 1 2027', file: 'HSC Reference Sheet X1 2027.pdf' },
+        ]
+      }
+    ];
+
+    const isMobile = () => window.innerWidth <= 768;
+
+    function encodePath(file) {
+      return 'Resources/' + file.split('').map(c => {
+        if (c === ' ') return '%20';
+        return c;
+      }).join('');
+    }
+
+    function openViewer(file, title) {
+      if (isMobile()) { window.open(encodePath(file), '_blank'); return; }
+      const panel = document.getElementById('viewer-panel');
+      const iframe = document.getElementById('viewer-iframe');
+      const titleEl = document.getElementById('viewer-title');
+      const openBtn = document.getElementById('viewer-open-btn');
+      const spacer = document.getElementById('viewer-spacer');
+
+      const url = encodePath(file);
+      iframe.src = url;
+      titleEl.textContent = title;
+      openBtn.href = url;
+      panel.classList.add('open');
+      spacer.style.height = '75vh';
+      document.body.classList.add('viewer-open');
+      panel.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    function printPDF(file) {
+      const w = window.open(encodePath(file), '_blank');
+      if (w) w.addEventListener('load', () => w.print(), { once: true });
+    }
+
+    function closeViewer() {
+      const panel = document.getElementById('viewer-panel');
+      const iframe = document.getElementById('viewer-iframe');
+      const spacer = document.getElementById('viewer-spacer');
+      panel.classList.remove('open');
+      spacer.style.height = '0';
+      document.body.classList.remove('viewer-open');
+      iframe.src = '';
+    }
+
+    document.getElementById('viewer-close').addEventListener('click', closeViewer);
+    document.getElementById('viewer-print-btn').addEventListener('click', () => {
+      const iframe = document.getElementById('viewer-iframe');
+      if (iframe.src) {
+        const w = window.open(iframe.src, '_blank');
+        if (w) w.addEventListener('load', () => w.print(), { once: true });
+      }
+    });
+
+    // Render cards
+    const container = document.getElementById('resource-list');
+    groups.forEach(group => {
+      const groupEl = document.createElement('div');
+      groupEl.className = 'resource-group';
+      groupEl.innerHTML = `<div class="resource-group__label">${group.label}</div>
+        <div class="resource-grid"></div>`;
+      const grid = groupEl.querySelector('.resource-grid');
+
+      group.sheets.forEach(sheet => {
+        const card = document.createElement('div');
+        card.className = `resource-card resource-card--${group.color}`;
+        card.innerHTML = `
+          <div class="resource-card__title">${sheet.title}</div>
+          <div class="resource-card__desc">${sheet.desc}</div>
+          <div class="resource-card__actions">
+            <button class="btn-view">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+              View
+            </button>
+            <button class="btn-print">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+              </svg>
+              Print
+            </button>
+          </div>`;
+        card.querySelector('.btn-view').addEventListener('click', () => openViewer(sheet.file, sheet.title));
+        card.querySelector('.btn-print').addEventListener('click', () => printPDF(sheet.file));
+        grid.appendChild(card);
+      });
+
+      container.appendChild(groupEl);
+    });
+  </script>
+</body>
+</html>
