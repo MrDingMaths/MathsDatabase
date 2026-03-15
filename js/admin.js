@@ -8,7 +8,7 @@ const Admin = {
   currentOffset: 0,
   currentTotal: 0,
   loadedQuestions: [],
-  PAGE_SIZE: 30,
+  PAGE_SIZE: 50,
   PREFETCH_SIZE: 10,
   _prefetchedData: null,
   _prefetchedOffset: -1,
@@ -600,7 +600,6 @@ const Admin = {
           </div>
           <div class="question-card__actions" onclick="event.stopPropagation()">
             <button class="btn btn--secondary btn--small" onclick="Admin.editQuestion('${q.id}')">Edit</button>
-            <button class="btn btn--secondary btn--small" onclick="Admin.duplicateQuestion('${q.id}')">Dup</button>
             <button class="btn btn--danger btn--small" onclick="Admin.deleteQuestion('${q.id}')">Del</button>
           </div>
         </summary>
