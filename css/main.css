@@ -436,6 +436,10 @@ body {
   letter-spacing: 0.06em;
 }
 
+.filter-row--topic .filter-row__label {
+  flex-basis: 100%;
+}
+
 .chip {
   display: inline-flex;
   align-items: center;

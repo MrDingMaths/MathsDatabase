@@ -39,6 +39,8 @@ Each question is a JSON object. The full array looks like:
 ### Field rules
 
 - **`question_text`** — Required. Include the full question exactly as written. Do **not** include the question number (e.g. "Q12", "14b") — that information belongs in `source`. For multi-part questions, keep all parts together in a single question object. Format part labels in bold using KaTeX: `$\textbf{(i)}$`, `$\textbf{(ii)}$`, `$\textbf{(a)}$`, etc. In JSON strings this becomes `$\\textbf{(i)}$`.
+
+  **Exception — HSC Extension 1 and Extension 2 papers (Section II):** Top-level parts of a question (a), (b), (c) etc. are typically unrelated and must be transcribed as **separate question objects**. Subparts within a part — e.g. (c)(i) and (c)(ii) — are related and stay together in one object. Use the part label as the `source` suffix, e.g. `"HSC.X1.2024 Q11a"`, `"HSC.X1.2024 Q11b"`. When subparts are kept together, include all subpart labels in the `question_text` and use the difficulty of the most challenging subpart.
 - **`solution_text`** — Full worked solution with all steps. Use KaTeX. Set to `null` if no solution is provided. Always include units in the final answer where applicable (e.g. `$= 12 \text{ cm}$`, `$= 4.5 \text{ m}^2$`). For **multiple choice questions**, generate a full worked solution showing how to arrive at the correct answer, even if the PDF only states the answer letter.
 - **`difficulty`** — Rate based on cognitive demand. For multi-part questions, use the difficulty of the **most challenging part**. Use your judgement:
   - `Foundation`: Routine textbook style problem
@@ -113,6 +115,31 @@ In JSON (doubled backslashes):
 ```json
 "$$\\begin{array}{|l|c|c|c|}\n\\hline\n\\text{Result of game} & \\text{win} & \\text{lose} & \\text{draw} \\\\\n\\hline\n\\text{Probability} & 0.3 & 0.25 & \\\\\n\\hline\n\\end{array}$$"
 ```
+
+### Multiple choice options
+
+When options contain simple text or short inline expressions, write them as plain text with the letter prefix:
+
+```
+A. 12    B. 15    C. 18    D. 24
+```
+
+When options contain equations (fractions, integrals, complex expressions, etc.), each option must be its own `$$...$$` display block with the letter embedded as `\text{A. }` etc.:
+
+```
+$$\text{A. }\frac{1}{5}\int_{-\frac{\pi}{6}}^{\frac{\pi}{6}}\csc\theta \, d\theta$$
+$$\text{B. }\frac{1}{5}\int_{-\frac{\pi}{6}}^{\frac{\pi}{6}}\sec\theta \, d\theta$$
+$$\text{C. }\frac{1}{25}\int_{-\frac{\pi}{6}}^{\frac{\pi}{6}}\csc^2\theta \, d\theta$$
+$$\text{D. }\frac{1}{25}\int_{-\frac{\pi}{6}}^{\frac{\pi}{6}}\sec^2\theta \, d\theta$$
+```
+
+In JSON (newline-separated, backslashes doubled):
+
+```json
+"$$\\text{A. }\\frac{1}{5}\\int_{-\\frac{\\pi}{6}}^{\\frac{\\pi}{6}}\\csc\\theta \\, d\\theta$$\n$$\\text{B. }\\frac{1}{5}\\int_{-\\frac{\\pi}{6}}^{\\frac{\\pi}{6}}\\sec\\theta \\, d\\theta$$\n$$\\text{C. }\\frac{1}{25}\\int_{-\\frac{\\pi}{6}}^{\\frac{\\pi}{6}}\\csc^2\\theta \\, d\\theta$$\n$$\\text{D. }\\frac{1}{25}\\int_{-\\frac{\\pi}{6}}^{\\frac{\\pi}{6}}\\sec^2\\theta \\, d\\theta$$"
+```
+
+Do **not** use inline `$...$` with the letter outside the delimiter for equation options — this renders the letter and equation separately and looks broken.
 
 ### Multi-line solutions — alignment at equals signs
 
@@ -212,10 +239,10 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 |---|---|
 | `"stage4"` | S4 (Year 7–8) |
 | `"stage5"` | S5 (Year 9–10) |
-| `"stage6_standard"` | STN (Year 11–12 Standard) |
 | `"stage6_advanced"` | ADV (Year 11–12 Advanced) |
 | `"stage6_ext1"` | X1 (Year 11–12 Extension 1) |
 | `"stage6_ext2"` | X2 (Year 12 Extension 2) |
+| `"stage6_standard"` | STN (Year 11–12 Standard) |
 | `"IGCSE"` | IGCSE |
 
 ### Topics and subtopics (`topic_id` → `subtopic_id`)
@@ -365,12 +392,6 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 138 Problems
 - 204 Transformations
 
-**Non-linear Relationships** (topic_id: 50)
-- 143 Plotting parabolas
-- 144 Plotting exponentials
-- 216 Plotting hyperbolas
-- 145 Identifying equation and graph
-
 **Variation** (topic_id: 51)
 - 152 Direct variation
 - 153 Inverse variation
@@ -404,7 +425,6 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 185 Domain and range
 - 199 Composite functions
 - 200 Graph inequalities
-- 210 Inverse functions
 - 214 Points of intersection
 - 221 Graph cubics in factored form
 - 222 Odd and even
@@ -425,10 +445,15 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 191 Graph polynomials in factored form
 - 192 Factorise and graph polynomials
 - 193 Multiplicity of roots and the graph
+- 278 Sum and product of roots
 
 **Vectors** (topic_id: 57)
 - 195 Vector operations
 - 196 Basic vector proofs
+- 274 Dot product
+- 275 Mechanics applications
+- 276 Projection
+- 277 Projectile motion
 
 **Sequences** (topic_id: 58)
 - 197 Linear sequences
@@ -464,6 +489,41 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 248 Concepts and Trees
 - 249 Critical Path
 - 250 Flow
+
+**Binomial distributions** (topic_id: 65)
+
+**Combinatorics** (topic_id: 66)
+- 271 Binomial theorem
+- 272 Permutations and combinations
+- 279 Pigeonhole
+
+**Further Calculus** (topic_id: 67)
+- 255 Differential equations
+- 256 Differentiating inverse trig
+- 257 Exponential growth and decay
+- 258 Integrating inverse trig
+- 259 Integrating sin² and cos²
+- 260 Integration by substitution
+- 261 Related rates of change
+- 262 Solids of revolution
+
+**Further Functions** (topic_id: 68)
+- 210 Inverse functions
+- 268 Further transformations
+- 269 Parametric form
+- 270 Rational and absolute value inequalities
+
+**Further Trigonometry** (topic_id: 69)
+- 263 Auxiliary angle
+- 264 Compound angle identities
+- 265 Inverse trigonometric functions
+- 266 Solving equations using identities
+- 267 t Formula
+
+**Proof** (topic_id: 70)
+- 273 Induction
+
+**Sample means** (topic_id: 71)
 
 ---
 

@@ -26,7 +26,8 @@ const Worksheet = {
         if (!values.course.length) { this.showCoursePlaceholder(); return; }
         this.loadQuestions(values);
       },
-      chips: true
+      chips: true,
+      hideTopicUntilCourse: true
     });
 
     document.getElementById('search-filter').addEventListener('input', (e) => {

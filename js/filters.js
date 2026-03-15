@@ -15,9 +15,10 @@ const Filters = {
   searchEl: null,
   onChange: null,
   chipsMode: false,
+  hideTopicUntilCourse: false,
   labels: {},
 
-  init({ courseId, topicId, subtopicId, difficultyId, searchId, onChange, chips = false }) {
+  init({ courseId, topicId, subtopicId, difficultyId, searchId, onChange, chips = false, hideTopicUntilCourse = false }) {
     this.courseEl = document.getElementById(courseId);
     this.topicEl = document.getElementById(topicId);
     this.subtopicEl = document.getElementById(subtopicId);
@@ -25,6 +26,7 @@ const Filters = {
     if (searchId) this.searchEl = document.getElementById(searchId);
     this.onChange = onChange;
     this.chipsMode = chips;
+    this.hideTopicUntilCourse = hideTopicUntilCourse;
     this.labels = {
       [courseId]: 'Course',
       [topicId]: 'Topic',
@@ -72,6 +74,9 @@ const Filters = {
 
   async onCourseChange() {
     const courses = this.getSelected(this.courseEl);
+    if (this.hideTopicUntilCourse) {
+      this.topicEl.style.display = courses.length ? '' : 'none';
+    }
     const topics = courses.length > 0
       ? await Questions.getTopicsForCourse(courses)
       : await Questions.getTopics();
@@ -88,6 +93,7 @@ const Filters = {
       this.populateMultiSelect(this.topicEl, topics, 'All Topics', () => this.onTopicChange());
     }
     this.populateMultiSelect(this.subtopicEl, [], 'All Subtopics', () => this.fireChange());
+    if (this.hideTopicUntilCourse) this.topicEl.style.display = 'none';
   },
 
   async onTopicChange() {
@@ -153,7 +159,7 @@ const Filters = {
       const matching = topicNames.filter(name => group.pattern.test(name));
       if (!matching.length) continue;
       matching.forEach(n => assigned.add(n));
-      html += `<div class="filter-row">` +
+      html += `<div class="filter-row filter-row--topic">` +
         `<span class="filter-row__label">${group.label}:</span>` +
         matching.map(name => {
           const checked = prevSelected.has(name) ? 'checked' : '';
@@ -164,7 +170,7 @@ const Filters = {
     }
     const other = topicNames.filter(n => !assigned.has(n));
     if (other.length) {
-      html += `<div class="filter-row">` +
+      html += `<div class="filter-row filter-row--topic">` +
         `<span class="filter-row__label">Other:</span>` +
         other.map(name => {
           const checked = prevSelected.has(name) ? 'checked' : '';
