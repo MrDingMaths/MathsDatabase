@@ -55,3 +55,10 @@ Images/0580 2025 Mar 42 16.png
 Images/0580 2025 Mar 42 17.png
 Images/0580 2025 Mar 42 21.png
 Images/0580 2025 Mar 42 23.png
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
