@@ -1,7 +1,7 @@
 // Worksheet generator logic
 
 const Worksheet = {
-  PAGE_SIZE: 50,
+  PAGE_SIZE: 30,
   allQuestions: [],
   totalCount: 0,
   currentOffset: 0,
@@ -24,6 +24,7 @@ const Worksheet = {
       difficultyId: 'difficulty-filter',
       onChange: (values) => {
         if (!values.course.length) { this.showCoursePlaceholder(); return; }
+        showToast('Fetching your questions...');
         this.loadQuestions(values);
       },
       chips: true,

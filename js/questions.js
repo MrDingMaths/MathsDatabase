@@ -174,28 +174,12 @@ const Questions = {
   // Returns subtopic name strings with questions in the given course(s) AND topic(s)
   async getSubtopicsForCourse(courseIds, topicNames) {
     try {
-      const { data: courseRows, error: e1 } = await supabaseClient
-        .from('question_classifications')
-        .select('question_id')
-        .in('course_id', courseIds);
-      if (e1) throw e1;
-      const questionIds = [...new Set((courseRows || []).map(r => r.question_id))];
-      if (!questionIds.length) return [];
-
-      const { data: topicData, error: e2 } = await supabaseClient
-        .from('topics').select('id').in('name', topicNames);
-      if (e2) throw e2;
-      const topicIds = (topicData || []).map(t => t.id);
-      if (!topicIds.length) return [];
-
-      const { data, error: e3 } = await supabaseClient
-        .from('question_classifications')
-        .select('subtopics!inner(name)')
-        .in('question_id', questionIds)
-        .in('topic_id', topicIds)
-        .not('subtopic_id', 'is', null);
-      if (e3) throw e3;
-      return [...new Set((data || []).map(d => d.subtopics?.name).filter(Boolean))].sort();
+      const { data, error } = await supabaseClient.rpc('get_subtopics_for_courses', {
+        p_course_ids: courseIds,
+        p_topic_names: topicNames
+      });
+      if (error) throw error;
+      return (data || []).map(r => r.subtopic_name);
     } catch (err) {
       console.error('Error fetching subtopics for course:', err);
       return [];
@@ -247,20 +231,11 @@ const Questions = {
   // Returns topic name strings that have questions in the given course(s)
   async getTopicsForCourse(courseIds) {
     try {
-      const { data: courseRows, error: e1 } = await supabaseClient
-        .from('question_classifications')
-        .select('question_id')
-        .in('course_id', courseIds);
-      if (e1) throw e1;
-      const questionIds = [...new Set((courseRows || []).map(r => r.question_id))];
-      if (!questionIds.length) return [];
-      const { data, error: e2 } = await supabaseClient
-        .from('question_classifications')
-        .select('topics!inner(name)')
-        .in('question_id', questionIds)
-        .not('topic_id', 'is', null);
-      if (e2) throw e2;
-      return [...new Set((data || []).map(d => d.topics?.name).filter(Boolean))].sort();
+      const { data, error } = await supabaseClient.rpc('get_topics_for_courses', {
+        p_course_ids: courseIds
+      });
+      if (error) throw error;
+      return (data || []).map(r => r.topic_name);
     } catch (err) {
       console.error('Error fetching topics for course:', err);
       return [];
