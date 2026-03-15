@@ -288,6 +288,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 140 Horizontal and vertical lines
 - 141 Point gradient form
 - 142 Parallel and Perpendicular lines
+- 253 Linear Modelling
 
 **Geometry** (topic_id: 44)
 - 80 Conventions of Geometry
@@ -327,6 +328,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 163 Surface area of pyramids and cones
 - 164 Surface area of spheres
 - 165 3D Pythagoras
+- 254 Trapezoidal Rule
 
 **Data** (topic_id: 46)
 - 101 Mean median mode range
@@ -356,11 +358,10 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 112 Compound interest
 - 113 Depreciation declining balance
 - 244 Annuities
+- 251 Depreciation straight-line
+- 252 Shares
 
 **Coordinate Geometry** (topic_id: 49)
-- 135 Gradient
-- 136 Midpoint
-- 137 Distance
 - 138 Problems
 - 204 Transformations
 
@@ -383,9 +384,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 168 Right-angled trigonometry
 - 169 Bearings
 - 170 3D trigonometry
-- 171 Sine rule
-- 172 Cosine rule
-- 173 SAS area rule
+- 247 Sine, cosine, & area rules
 - 174 Unit circle concepts
 - 175 Graphs of trigonometric functions
 - 176 Tan and gradient
@@ -413,7 +412,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 224 Absolute value
 - 229 Logarithmic functions
 - 230 Transformations
-- 231 Transformations of trigonometric functions
+- 231 Transformations (trig)
 
 **Logarithms** (topic_id: 55)
 - 186 Laws of logarithms
@@ -437,8 +436,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 
 **Differentiation** (topic_id: 59)
 - 201 Power functions
-- 202 Tangents and normals
-- 203 Graphical applications
+- 203 Graphical applications of f'(x)
 - 227 First principles
 - 228 Motion
 - 239 Curve sketching
@@ -461,6 +459,11 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 242 Continuous
 
 **Normal distribution** (topic_id: 63)
+
+**Networks** (topic_id: 64)
+- 248 Concepts and Trees
+- 249 Critical Path
+- 250 Flow
 
 ---
 
@@ -485,7 +488,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
       {
         "course_id": null,
         "topic_id": 59,
-        "subtopic_id": 202
+        "subtopic_id": 203
       }
     ]
   }

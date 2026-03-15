@@ -67,6 +67,7 @@ const Admin = {
   },
 
   async loadTaxonomy() {
+    Questions.clearTaxonomyCache();
     this.taxonomy = await Questions.getTaxonomy();
     this.populateClsCourseCheckboxes();
     // Populate topic select once (independent of course)
