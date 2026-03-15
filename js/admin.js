@@ -18,6 +18,7 @@ const Admin = {
   sortDir: 'asc',
   cardsExpanded: false,
   solutionsExpanded: false,
+  feedbackExpanded: false,
 
   init() {
     this.setupLogin();
@@ -458,6 +459,7 @@ const Admin = {
 
     document.getElementById('toggle-cards-btn').addEventListener('click', () => this.toggleAllCards());
     document.getElementById('toggle-solutions-display-btn').addEventListener('click', () => this.toggleAllSolutions());
+    document.getElementById('toggle-feedback-display-btn').addEventListener('click', () => this.toggleAllFeedback());
   },
 
   renderAllLoaded() {
@@ -489,6 +491,14 @@ const Admin = {
       d.open = this.solutionsExpanded;
     });
     document.getElementById('toggle-solutions-display-btn').textContent = this.solutionsExpanded ? 'Hide Solutions' : 'Show Solutions';
+  },
+
+  toggleAllFeedback() {
+    this.feedbackExpanded = !this.feedbackExpanded;
+    document.querySelectorAll('#questions-container .question-card__feedback').forEach(d => {
+      d.open = this.feedbackExpanded;
+    });
+    document.getElementById('toggle-feedback-display-btn').textContent = this.feedbackExpanded ? 'Hide Feedback' : 'Show Feedback';
   },
 
   async loadQuestions(reset) {
@@ -619,7 +629,7 @@ const Admin = {
             ${renderTextWithImages(q.solution_text)}
           </div>
         </details>` : ''}
-        ${q.markers_feedback ? `<details class="question-card__solution">
+        ${q.markers_feedback ? `<details class="question-card__solution question-card__feedback">
           <summary>Show feedback</summary>
           <div class="question-card__solution-content" style="border-left:3px solid #f59e0b;padding-left:0.75rem;">
             ${renderTextWithImages(q.markers_feedback)}

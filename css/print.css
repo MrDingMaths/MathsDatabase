@@ -248,10 +248,7 @@
 }
 
 .answer-key__feedback-label {
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: #b45309;
-  margin-bottom: 0.25rem;
+  display: none;
 }
 
 .answer-key__feedback img {
@@ -392,5 +389,5 @@
   border-left-color: #f59e0b;
 }
 [data-theme="dark"] .worksheet-preview .answer-key__feedback-label {
-  color: #b45309;
+  display: none;
 }
