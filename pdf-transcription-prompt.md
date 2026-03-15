@@ -523,7 +523,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 **Proof** (topic_id: 70)
 - 273 Induction
 
-**Sample means** (topic_id: 71)
+**Normal approximation** (topic_id: 71)
 
 ---
 

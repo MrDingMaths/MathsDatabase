@@ -3,7 +3,7 @@ const topicBadgeClass = (topicName) => {
   if (!topicName) return 'badge--topic-blue';
   if (/differentiation|integration|functions|polynomials|calculus/i.test(topicName)) return 'badge--topic-purple';
   if (/geometry|measurement|trigonometry|vectors/i.test(topicName)) return 'badge--topic-green';
-  if (/data|probability|random variables|normal distribution/i.test(topicName)) return 'badge--topic-red';
+  if (/data|probability|random variables|normal|binomial/i.test(topicName)) return 'badge--topic-red';
   return 'badge--topic-blue'; // Number & Algebra (default)
 };
 
