@@ -32,10 +32,16 @@
     <div class="worksheet-top">
       <section class="filter-bar filter-bar--chips">
         <input type="text" id="search-filter" class="filter-bar__search" placeholder="Search questions…">
-        <div id="course-filter" class="filter-row"></div>
-        <div id="topic-filter" class="filter-row"></div>
-        <div id="subtopic-filter" class="filter-row"></div>
-        <div id="difficulty-filter" class="filter-row"></div>
+        <div class="filter-columns">
+          <div class="filter-col filter-col--left">
+            <div id="course-filter" class="filter-row"></div>
+            <div id="topic-filter"></div>
+            <div id="difficulty-filter" class="filter-row"></div>
+          </div>
+          <div class="filter-col filter-col--right">
+            <div id="subtopic-filter" class="filter-row"></div>
+          </div>
+        </div>
       </section>
 
       <div class="worksheet-controls">

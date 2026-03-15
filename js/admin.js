@@ -58,7 +58,8 @@ const Admin = {
       subtopicId: 'subtopic-filter',
       difficultyId: 'difficulty-filter',
       searchId: 'search-filter',
-      onChange: () => this.loadQuestions(true)
+      onChange: () => this.loadQuestions(true),
+      chips: true
     });
     this.setupSortAndToggle();
     this._setupInlinePopover();

@@ -92,25 +92,19 @@
             <button id="toggle-cards-btn" class="btn btn--secondary btn--small">Expand All</button>
             <button id="toggle-solutions-display-btn" class="btn btn--secondary btn--small">Show Solutions</button>
           </div>
-          <div class="filter-bar" style="margin-bottom:0.5rem;">
+          <section class="filter-bar filter-bar--chips" style="margin-bottom:0.5rem;">
             <input type="text" id="search-filter" class="filter-bar__search" placeholder="Search questions…">
-            <div id="course-filter" class="multi-select">
-              <button type="button" class="multi-select__toggle">All Courses</button>
-              <div class="multi-select__panel"></div>
+            <div class="filter-columns">
+              <div class="filter-col filter-col--left">
+                <div id="course-filter" class="filter-row"></div>
+                <div id="topic-filter"></div>
+                <div id="difficulty-filter" class="filter-row"></div>
+              </div>
+              <div class="filter-col filter-col--right">
+                <div id="subtopic-filter" class="filter-row"></div>
+              </div>
             </div>
-            <div id="topic-filter" class="multi-select">
-              <button type="button" class="multi-select__toggle">All Topics</button>
-              <div class="multi-select__panel"></div>
-            </div>
-            <div id="subtopic-filter" class="multi-select">
-              <button type="button" class="multi-select__toggle">All Subtopics</button>
-              <div class="multi-select__panel"></div>
-            </div>
-            <div id="difficulty-filter" class="multi-select">
-              <button type="button" class="multi-select__toggle">All Difficulties</button>
-              <div class="multi-select__panel"></div>
-            </div>
-          </div>
+          </section>
           <div id="q-count" style="font-size:0.85rem;color:var(--color-text-light);margin-bottom:0.5rem;"></div>
           <div id="questions-container" class="questions-grid"></div>
           <div style="text-align:center;margin-top:1rem;">

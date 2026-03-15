@@ -450,6 +450,7 @@ When the **answer itself is a diagram** (e.g. draw lines of symmetry, shade a re
 - 236 Power functions
 - 237 Exponential logarithmic trigonometric
 - 238 Areas
+- 246 Trapezoidal rule
 
 **Sequences and Series** (topic_id: 61)
 - 234 Arithmetic

@@ -359,6 +359,17 @@ body {
   .filter-bar input[type="text"] {
     width: 100%;
   }
+
+  .filter-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-col--right {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.75rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -387,6 +398,24 @@ body {
   border-radius: var(--radius);
   padding: 1rem 1.25rem;
   box-shadow: var(--shadow);
+}
+
+.filter-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.filter-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-col--right {
+  border-left: 1px solid var(--color-border);
+  padding-left: 1.5rem;
 }
 
 .filter-row {
