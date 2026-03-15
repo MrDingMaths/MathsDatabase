@@ -208,6 +208,12 @@
   border-color: #fca5a5;
 }
 
+.badge--topic-purple {
+  background: #ede9fe;
+  color: #6d28d9;
+  border-color: #c4b5fd;
+}
+
 /* === Dark Mode Badge Overrides === */
 [data-theme="dark"] .badge--difficulty {
   background: #2a2a40;
@@ -261,6 +267,12 @@
   background: #3a1a1a;
   color: #fca5a5;
   border-color: #5a2a2a;
+}
+
+[data-theme="dark"] .badge--topic-purple {
+  background: #2e1a5a;
+  color: #c4b5fd;
+  border-color: #5b3a9a;
 }
 
 /* === Pagination === */

@@ -1,9 +1,10 @@
 ﻿// Filter cascade logic
 
 const TOPIC_GROUPS = [
-  { label: 'Number & Algebra',         pattern: /number|algebra|financial|differentiation|equations|functions|indices|integration|linear|logarithms|polynomials|sequences|series|variation/i },
+  { label: 'Functions & Calculus',     pattern: /differentiation|integration|functions|polynomials|calculus/i },
+  { label: 'Number & Algebra',         pattern: /number|algebra|financial|equations|indices|linear|logarithms|sequences|series|variation|combinatorics|proof/i },
   { label: 'Geometry & Measure',       pattern: /geometry|measurement|trigonometry|vectors/i },
-  { label: 'Statistics & Probability', pattern: /data|probability|random variables|normal distribution/i },
+  { label: 'Statistics & Probability', pattern: /data|probability|random variables|normal distribution|binomial|sample/i },
 ];
 
 const Filters = {
@@ -96,7 +97,10 @@ const Filters = {
       this.fireChange();
       return;
     }
-    const subtopics = await Questions.getSubtopics(topics);
+    const courses = this.getSelected(this.courseEl);
+    const subtopics = courses.length > 0
+      ? await Questions.getSubtopicsForCourse(courses, topics)
+      : await Questions.getSubtopics(topics);
     this.populateMultiSelect(this.subtopicEl, subtopics, 'All Subtopics', () => this.fireChange());
     this.fireChange();
   },

@@ -171,6 +171,37 @@ const Questions = {
     }
   },
 
+  // Returns subtopic name strings with questions in the given course(s) AND topic(s)
+  async getSubtopicsForCourse(courseIds, topicNames) {
+    try {
+      const { data: courseRows, error: e1 } = await supabaseClient
+        .from('question_classifications')
+        .select('question_id')
+        .in('course_id', courseIds);
+      if (e1) throw e1;
+      const questionIds = [...new Set((courseRows || []).map(r => r.question_id))];
+      if (!questionIds.length) return [];
+
+      const { data: topicData, error: e2 } = await supabaseClient
+        .from('topics').select('id').in('name', topicNames);
+      if (e2) throw e2;
+      const topicIds = (topicData || []).map(t => t.id);
+      if (!topicIds.length) return [];
+
+      const { data, error: e3 } = await supabaseClient
+        .from('question_classifications')
+        .select('subtopics!inner(name)')
+        .in('question_id', questionIds)
+        .in('topic_id', topicIds)
+        .not('subtopic_id', 'is', null);
+      if (e3) throw e3;
+      return [...new Set((data || []).map(d => d.subtopics?.name).filter(Boolean))].sort();
+    } catch (err) {
+      console.error('Error fetching subtopics for course:', err);
+      return [];
+    }
+  },
+
   // Replace all classifications for a question.
   // classifications: [{course_id, topic_id, subtopic_id}] (any field may be null)
   async saveClassifications(questionId, classifications) {

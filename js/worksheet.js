@@ -10,6 +10,7 @@ const Worksheet = {
   selectedQuestions: new Map(),
   searchTerm: '',
   sortBy: 'source',
+  sortDir: 'asc',
   showSolutions: false,
   showFeedback: false,
   cardsExpanded: false,
@@ -21,7 +22,10 @@ const Worksheet = {
       topicId: 'topic-filter',
       subtopicId: 'subtopic-filter',
       difficultyId: 'difficulty-filter',
-      onChange: (values) => this.loadQuestions(values),
+      onChange: (values) => {
+        if (!values.course.length) { this.showCoursePlaceholder(); return; }
+        this.loadQuestions(values);
+      },
       chips: true
     });
 
@@ -32,6 +36,12 @@ const Worksheet = {
 
     document.getElementById('sort-select').addEventListener('change', (e) => {
       this.sortBy = e.target.value;
+      this.renderQuestionList();
+    });
+
+    document.getElementById('sort-dir-btn').addEventListener('click', () => {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+      document.getElementById('sort-dir-btn').textContent = this.sortDir === 'asc' ? '↑ Asc' : '↓ Desc';
       this.renderQuestionList();
     });
 
@@ -47,7 +57,19 @@ const Worksheet = {
     document.getElementById('print-btn').addEventListener('click', () => window.print());
     document.getElementById('load-more-btn').addEventListener('click', () => this.loadMore());
 
-    this.loadQuestions({});
+    this.showCoursePlaceholder();
+  },
+
+  showCoursePlaceholder() {
+    this.allQuestions = [];
+    this.totalCount = 0;
+    this.currentOffset = 0;
+    const container = document.getElementById('questions-container');
+    container.innerHTML = '<div class="empty-state">Select a course to view questions.</div>';
+    const loadMoreContainer = document.getElementById('load-more-container');
+    if (loadMoreContainer) loadMoreContainer.style.display = 'none';
+    const qCountEl = document.getElementById('q-count');
+    if (qCountEl) qCountEl.textContent = '';
   },
 
   async loadQuestions(filters, reset = true) {
@@ -88,7 +110,7 @@ const Worksheet = {
         })
       : this.allQuestions;
 
-    const sorted = getSortedQuestions(filtered, this.sortBy);
+    const sorted = getSortedQuestions(filtered, this.sortBy, this.sortDir);
 
     const qCountEl = document.getElementById('q-count');
     if (qCountEl) qCountEl.textContent = `Showing ${sorted.length} of ${this.totalCount} questions`;

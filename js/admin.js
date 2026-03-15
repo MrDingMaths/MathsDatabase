@@ -15,6 +15,7 @@ const Admin = {
   pendingCourseIds: new Set(),
   pendingTopicCls: [],
   sortBy: 'source',
+  sortDir: 'asc',
   cardsExpanded: false,
   solutionsExpanded: false,
 
@@ -449,6 +450,12 @@ const Admin = {
       this.renderAllLoaded();
     });
 
+    document.getElementById('sort-dir-btn').addEventListener('click', () => {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+      document.getElementById('sort-dir-btn').textContent = this.sortDir === 'asc' ? '↑ Asc' : '↓ Desc';
+      this.renderAllLoaded();
+    });
+
     document.getElementById('toggle-cards-btn').addEventListener('click', () => this.toggleAllCards());
     document.getElementById('toggle-solutions-display-btn').addEventListener('click', () => this.toggleAllSolutions());
   },
@@ -460,7 +467,7 @@ const Admin = {
         .map(d => d.dataset.id)
     );
     container.innerHTML = '';
-    this.appendQuestionRows(getSortedQuestions(this.loadedQuestions, this.sortBy));
+    this.appendQuestionRows(getSortedQuestions(this.loadedQuestions, this.sortBy, this.sortDir));
     if (openIds.size) {
       container.querySelectorAll('.question-card__collapsible').forEach(d => {
         if (openIds.has(d.dataset.id)) d.open = true;
@@ -520,7 +527,7 @@ const Admin = {
         this.loadedQuestions.push(...data);
         this.currentOffset += data.length;
         if (reset) {
-          this.appendQuestionRows(getSortedQuestions(this.loadedQuestions, this.sortBy));
+          this.appendQuestionRows(getSortedQuestions(this.loadedQuestions, this.sortBy, this.sortDir));
         } else {
           // Re-render all loaded in sorted order when more are added
           this.renderAllLoaded();

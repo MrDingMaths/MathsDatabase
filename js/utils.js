@@ -37,7 +37,7 @@ const naturalSort = (a, b) => {
 
 const DIFFICULTY_ORDER = { Foundation: 0, Development: 1, Mastery: 2, Challenge: 3 };
 
-const getSortedQuestions = (questions, sortBy) => {
+const getSortedQuestions = (questions, sortBy, sortDir = 'asc') => {
   const sorted = [...questions];
   if (sortBy === 'source') {
     sorted.sort((a, b) => naturalSort(a.source, b.source));
@@ -56,5 +56,5 @@ const getSortedQuestions = (questions, sortBy) => {
   } else if (sortBy === 'marks') {
     sorted.sort((a, b) => (a.marks || 0) - (b.marks || 0));
   }
-  return sorted;
+  return sortDir === 'desc' ? sorted.reverse() : sorted;
 };
